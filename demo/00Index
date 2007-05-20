@@ -1,0 +1,4 @@
+geod.dist		geodesic calculation
+eos			demonstrate some EOS functions
+ctd			read a CTD profile
+sealevel    read and plot a sealevel file         

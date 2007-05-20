@@ -1,0 +1,47 @@
+useDynLib(oce)
+export(
+	sw.alpha,
+	sw.alpha.over.beta,
+	as.CTD,
+	as.sealevel,
+	sw.beta,
+	sw.conductivity,
+	coriolis,
+	ctd.add.column,
+	ctd.trim,
+	ctd.update.header,
+	ctd.write,
+	sw.depth,
+	geod.dist,
+	gravity,
+	sw.lapse.rate,
+	sw.N2,
+	plot.TS,
+	plot.coastline,
+	plot.ctd,
+	plot.ctd.scan,
+	plot.profile,
+	plot.sealevel,
+	read.coastline,
+	read.ctd,
+	read.sealevel,
+	sw.rho,
+	sw.S.C.T.p,
+	sw.sigma,
+	sw.sigma.t,
+	sw.sigma.theta,
+	sw.specific.heat,
+	sw.spice,
+	sw.S.T.rho,
+	sw.T.freeze,
+	sw.theta,
+	sw.T.S.rho,
+	sw.viscosity
+)
+
+S3method(plot, ctd)
+S3method(plot, coastline)
+S3method(summary, ctd)
+S3method(summary, coastline)
+S3method(plot, sealevel)
+S3method(summary, sealevel)

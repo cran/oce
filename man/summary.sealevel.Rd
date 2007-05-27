@@ -5,7 +5,7 @@
   Summarizes some of the data in a sealevel object.
 }
 \usage{
-summary.sealevel(object, \dots)
+\method{summary}{sealevel}(object, \dots)
 }
 \arguments{
   \item{object}{A \code{sealevel} object, e.g. as read by \code{\link{read.sealevel}}.}
@@ -14,10 +14,7 @@ summary.sealevel(object, \dots)
 \details{
   Pertinent summary information is presented.
 }
-\value{
-  (fill in later)
-}
-
+\value{No value is returned.}
 \seealso{
   \code{\link{read.sealevel}} reads the information, while
   \code{\link{plot.sealevel}} plots it.

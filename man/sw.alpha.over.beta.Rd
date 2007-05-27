@@ -24,7 +24,8 @@ ab <- sw.alpha.over.beta(S, t, p, is.theta=FALSE);
   N/A.
 }
 \examples{
- ab <- sw.alpha.over.beta(40, 10, 4000, is.theta=TRUE) # 0.3476 (from p1964 of McDougall 1987)
+ # 0.3476 (from p1964 of McDougall 1987)
+ ab <- sw.alpha.over.beta(40, 10, 4000, is.theta=TRUE) 
 }
 \references{
 McDougall, T.J. 1987. "Neutral Surfaces"

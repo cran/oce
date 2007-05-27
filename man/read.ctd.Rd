@@ -5,7 +5,8 @@
   Read a data file created by a Sea-Bird CTD.
 }
 \usage{
-read.ctd(file, type="SBE19", debug=FALSE, columns=NULL, check.human.headers=TRUE)
+read.ctd(file, type="SBE19", debug=FALSE,
+ 	columns=NULL, check.human.headers=TRUE)
 }
 \arguments{
   \item{file}{A connection or a character string giving the name of the
@@ -62,6 +63,7 @@ read.ctd(file, type="SBE19", debug=FALSE, columns=NULL, check.human.headers=TRUE
   \item{recovery}{date of recovery of CTD}
   \item{sample.interval}{time interval between samples [s]}
   \item{water.depth}{the water depth at the site [m]}
+  \item{processing.log}{A processing log.}
   \item{data}{A data table containing the profile data as vectors.  The column
     names are discovered from the header, and may thus differ from file
     to file.  For example, some CTD instruments may have a fluorometer

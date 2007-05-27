@@ -13,10 +13,10 @@
   \item{p}{pressure [\eqn{db}{db}]}
 }
 \details{
- (FILL IN A SUMMARY OF DOUG'S TECHNIQUE)
+ (\strong{To do:} Fill in a summary of Caldwell's technique.)
  \strong{Caution.} The results differ from Fofonoff's (1962)
  table 5 by 0.1 percent at 35PSU, and by under 1 percent 
- for fresh water.  (COMPARE THIS WITH DOUG'S STATED UNCERTAINTY.)
+ for fresh water.  (\strong{To do:} Compare this with Caldwell's stated uncertainty.)
 }
 \value{
   Conductivity of seawater in \eqn{W m^{-1\,\circ}C^{-1}}{W/(m*degC)}.  

@@ -22,12 +22,9 @@
   \code{\link{read.sealevel}} scans it from a file.
 }
 \examples{
-\dontrun{
 library(oce)
 data(sealevel)
-#sealevel <- read.sealevel("ftp://ilikai.soest.hawaii.edu/rqds/pacific/monthly/m652a.dat")
 plot(sealevel)
-}
 }
 \references{
 }

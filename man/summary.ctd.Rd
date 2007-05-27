@@ -5,7 +5,7 @@
   Summarizes some of the data in a CTD object.
 }
 \usage{
-summary.ctd(object, \dots)
+\method{summary}{ctd}(object, \dots)
 }
 \arguments{
   \item{object}{A \code{ctd} object, e.g. as read by \code{\link{read.ctd}}.}

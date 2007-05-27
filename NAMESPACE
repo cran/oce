@@ -22,8 +22,11 @@ export(
 	plot.ctd.scan,
 	plot.profile,
 	plot.sealevel,
+	processing.log.append,
+	processing.log.summary,
 	read.coastline,
 	read.ctd,
+	read.lobo,
 	read.sealevel,
 	sw.rho,
 	sw.S.C.T.p,
@@ -41,7 +44,9 @@ export(
 
 S3method(plot, ctd)
 S3method(plot, coastline)
+S3method(plot, lobo)
+S3method(plot, sealevel)
 S3method(summary, ctd)
 S3method(summary, coastline)
-S3method(plot, sealevel)
+S3method(summary, lobo)
 S3method(summary, sealevel)

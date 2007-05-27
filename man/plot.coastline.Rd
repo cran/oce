@@ -22,11 +22,9 @@
   \code{\link{read.coastline}} scans it from a file.
 }
 \examples{
-\dontrun{
 library(oce)
-cl <- read.coastline("7404.dat")
-plot(cl)
-}
+data(coastline)
+plot(coastline)
 }
 \references{
 \url{http://www.ngdc.noaa.gov/mgg/shorelines/shorelines.html}

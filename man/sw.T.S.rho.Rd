@@ -13,8 +13,8 @@
   \item{p}{\emph{in-situ} pressure [dbar]}
 }
 \details{
-  Finds the temperature that, with the given salinity and pressure,
-  yields the given density. 
+  Finds the temperature that yields the given density, with the given salinity and pressure.
+  The method is a bisection search with temperature tolerance 0.001 \eqn{^\circ C}{degC}.
 }
 \value{
   \emph{In-situ} temperature [\eqn{^\circ C}{degC}].

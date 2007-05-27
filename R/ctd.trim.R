@@ -1,4 +1,4 @@
-"ctd.trim" <- function(x, method="downcast", parameters=NULL)
+ctd.trim <- function(x, method="downcast", parameters=NULL, verbose=FALSE)
 {
   	if (!inherits(x, "ctd"))
     	stop("method is only for ctd objects")
@@ -10,7 +10,7 @@
  	else {
     	keep <- rep(TRUE, n)
     	if (method == "index") {
-			cat("parameters:",parameters,"\n");
+			if (verbose)	cat("parameters:",parameters,"\n");
 			if (min(parameters) < 1)
 				stop("Cannot select indices < 1");
 			if (max(parameters) > n)
@@ -18,16 +18,31 @@
        		keep <- rep(FALSE, n)
        		keep[parameters] <- TRUE
     	}
- 		else if (method == "downcast") {
-      		deltat <- x$data$time[2] - x$data$time[1]
-      		dpdt <- diff(x$data$pressure) / deltat
-      		dpdt <- c(dpdt[1], dpdt)          # duplicate point to get right length
-      		keep <- dpdt > 0
-    	}
- 		else if (method == "upcast") {
-      		warning("upcast does nothing for now\n")
+ 		else if (method == "downcast") {		# BUG: this is crude
+			# 1. despike to remove (rare) instrumental problems
+			x$data$pressure <- smooth(x$data$pressure,kind="3R")
+			# 2. keep only in-water data
+			keep <- (x$data$pressure > 0)
+			# 3. trim the upcast and anything thereafter
+			max.location <- which.max(smooth(x$data$pressure,kind="3R"))
+			keep[max.location:n] <- FALSE
+			# 4. trim near-surface equilibration phase
+			dp <- c(0,diff(x$data$pressure))
+			if (!is.null(parameters)) {
+				dp.cutoff <- t.test(dp[keep], conf.level=parameters[1])$conf.int[1]
+			} else {
+				dp.cutoff <- t.test(dp[keep], conf.level=0.95)$conf.int[1]
+			}
+			# 4a. remove equilibration data that have very little drop speed
+			keep[dp < dp.cutoff] <- FALSE
+			# 4b. remove more equilibration data by regression
+			pp <- x$data$pressure[keep]
+			ss <- x$data$scan[keep]
+			equilibration <- (predict(m <- lm(pp ~ ss), newdata=list(ss=x$data$scan)) < 0)
+			keep[equilibration] <- FALSE
     	}
  		else {
+			if (verbose)	cat(paste("column",method,"; parameters ", parameters[1], parameters[2]))
 			l <- length(parameters)
 			if (l == 1) { 		# lower limit
     	  		keep <- (x$data[[method]] > parameters[1]);
@@ -37,8 +52,13 @@
 			}
     	}
   	}
-  	#cat("\nBEFORE:");print(x$data$pressure)
   	result$data <- subset(x$data, keep)
-  	#cat("AFTER:");print(x$data$pressure)
-  	result
+ 	if (is.null(parameters)) {
+		result <- processing.log.append(result, 
+			paste("modified by ctd.trim(x, method=\"",method,"\")",sep=""))
+	} else {
+		result <- processing.log.append(result, 
+			paste("modified by ctd.trim(x, method=\"",method,"\",parameters=",parameters,")",sep=""))
+	}
+	return(result)
 }

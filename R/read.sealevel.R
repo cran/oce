@@ -2,6 +2,7 @@ read.sealevel <- function(file,debug=FALSE)
 {    
 	# Reads sea-level data, in a format described at
 	# ftp://ilikai.soest.hawaii.edu/rqds/hourly.fmt
+	filename <- file
 	if (is.character(file)) {
         file <- file(file, "r")
         on.exit(close(file))
@@ -84,6 +85,8 @@ read.sealevel <- function(file,debug=FALSE)
 	if (n != length(hour))
 		stop("internal malfunction - check the loop.  n=",n," length(hour)=", length(hour))
 	eta[eta==9999] <- NA
+	processing.log <- list(time=c(Sys.time()), 
+		action=c(paste("created by read.sealevel(\"",filename,"\")",sep="")))
 	rval <- list(header=header,
 		station.number=station.number,
 		station.version=station.version,
@@ -97,6 +100,7 @@ read.sealevel <- function(file,debug=FALSE)
 		reference.offet=reference.offset,
 		reference.code=reference.code,
 		units=units,
+		processing.log=processing.log,
 		n=n,
 		hour=hour, # 1, 2, ...
 		start.time=start.time, # POSIXct

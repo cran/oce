@@ -1,12 +1,13 @@
-plot.TS <- function (x, rho.levels = 5, 
+plot.TS <- function (x, rho.levels = 4, 
  	grid = FALSE,
 	col.data="black", col.rho = "blue", col.grid = "lightgray",
 	debug = FALSE, ...) 
 {
     if (!inherits(x, "ctd")) 
         stop("method is only for ctd objects")
-    plot(x$data$salinity, x$data$temperature, xlab = "Salinity [PSU]", 
-        ylab = expression(paste("Temperature [", degree, "C]")),col=col.data, ...)
+    plot(x$data$salinity, x$data$temperature, xlab = "", 
+        ylab = expression(paste("temperature [", degree, "c]")),col=col.data, ...)
+    mtext("salinity [psu]", side = 1, line = 2)
 	if (grid)
 		grid(col=col.grid)
 	rho.min <- sw.sigma(min(x$data$salinity,na.rm=TRUE), max(x$data$temperature,na.rm=TRUE), 0)
@@ -26,7 +27,7 @@ plot.TS <- function (x, rho.levels = 5,
         d.rho.2 <- d.rho.scaled * scale
         rho.list.2 <- seq(floor(rho.min/d.rho.2), floor(1 + rho.max/d.rho.2)) * d.rho.2
         if (debug) {
-            cat("plot.TS() debugging information:\n")
+            cat("plot.ts() debugging information:\n")
 			cat("  rho.min           = ", rho.min, "\n");
 			cat("  rho.max           = ", rho.max, "\n");
             cat("  raw increment     = ", d.rho, "\n")
@@ -43,10 +44,10 @@ plot.TS <- function (x, rho.levels = 5,
         par()$usr[3])/t.n)
     for (rho in rho.list.2) {
         n <- length(t.line)
-        S.line <- sw.S.T.rho(t.line, rep(rho, n), rep(0, n))
-        lines(S.line, t.line, col = col.rho)
-        text(S.line[length(S.line)], t.line[length(t.line)], 
-            rho, pos = 1)
+        s.line <- sw.S.T.rho(t.line, rep(rho, n), rep(0, n))
+        lines(s.line, t.line, col = col.rho)
+        text(s.line[length(s.line)], t.line[length(t.line)], 
+            rho, pos = 1, cex=0.8)
     }
 	# Freezing point
 	Sr <- range(x$data$salinity, na.rm=TRUE)

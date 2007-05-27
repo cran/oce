@@ -9,7 +9,7 @@ read.ctd <- function(file,
 		columns=NULL,
 	   	check.human.headers=TRUE)
 {
-  	filename<-file
+  	filename <- file
   	if (is.character(file)) {
     	file <- file(file, "r")
     	on.exit(close(file))
@@ -263,6 +263,8 @@ read.ctd <- function(file,
   	#DELETED# data <- read.table(file,col.names=col.names.inferred,colClasses="numeric");
 #  	data <- read.table(file,col.names=col.names.forced,colClasses="numeric");
   	data <- read.table(file,col.names=col.names.inferred,colClasses="numeric");
+	processing.log <- list(time=c(Sys.time()), 
+		action=c(paste("created by read.ctd(\"",filename,"\", type=",type,")",sep="")))
   	res <- list(header=header, 
 	      		filename=filename,
               	ship=ship,
@@ -281,16 +283,17 @@ read.ctd <- function(file,
               	recovery=recovery,
               	water.depth=water.depth,
               	sample.interval=sample.interval,
+				processing.log=processing.log,
               	data=data);
   	class(res) <- "ctd"
 	# Add standard things, if missing
   	if (!found.salinity) {
 		if (found.conductivity.ratio) {
     		warning("cannot find 'salinity' in this file; calculating from T, C, and p");
-			S <- S.C.T.p(data$conductivityratio, data$temperature, data$pressure)
+			S <- sw.S.C.T.p(data$conductivityratio, data$temperature, data$pressure)
 		} else if (found.conductivity) {
     		warning("cannot find 'salinity' in this file; calculating from T, C-ratio, and p");
-			S <- S.C.T.p(data$conductivity/conductivity.standard, data$temperature, data$pressure)
+			S <- sw.S.C.T.p(data$conductivity/conductivity.standard, data$temperature, data$pressure)
 		} else {
 			stop("cannot find salinity in this file, nor conductivity or conductivity ratio")
 		}

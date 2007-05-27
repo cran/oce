@@ -6,8 +6,9 @@
 }
 \usage{
 thectd <- as.CTD(
-S, T, p, header=NULL, filename=NA, ship=NA, scientist=NA, institute=NA, address=NA,
-cruise=NA, mooring=NA, date=NA, start.time=NA, start.time.list=NA,
+S, T, p, header=NULL, filename=NA, ship=NA, scientist=NA,
+institute=NA, address=NA, cruise=NA, mooring=NA,
+date=NA, start.time=NA, start.time.list=NA,
 latitude=NA, latitude.dec=NA,
 longitude=NA, longitude.dec=NA,
 recovery=NA,

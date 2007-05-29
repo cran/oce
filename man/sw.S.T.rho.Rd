@@ -13,9 +13,10 @@
   \item{p}{\emph{in-situ} pressure [dbar]}
 }
 \details{
-  Finds the salinity that, with the given temperature and pressure,
-  yields the given density.  Used for calculating isopycnal lines for
-  temperature-salinity diagrams.
+  Finds the salinity that yields the given density, with the given temperature and pressure.
+  The method is a bisection search with a salinity tolerance of
+  0.001.  The isopycnal lines on
+  temperature-salinity diagrams (\code{\link{plot.TS}}) are computed with this function.
 }
 \value{
   \emph{In-situ} salinity [PSU].

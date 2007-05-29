@@ -25,7 +25,8 @@ be sure to prefix as sw.beta().
   N/A.
 }
 \examples{
- b <- sw.beta(40, 10, 4000, is.theta=TRUE) # 0.72088e-3 (from p1964 of McDougall 1987)
+ # 0.72088e-3 (from p1964 of McDougall 1987)
+ b <- sw.beta(40, 10, 4000, is.theta=TRUE) 
 }
 \references{
 McDougall, T.J. 1987. "Neutral Surfaces"

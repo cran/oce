@@ -19,4 +19,5 @@ summary.sealevel <- function(object, ...)
 	cat(paste("  max:    ", fn[5],      "\n",sep=""))
 	cat(paste("  median: ", fn[3],      "\n",sep=""))
 	cat(paste("  mean:   ", mean(eta.m,na.rm=TRUE),"\n",sep=""))
+	processing.log.summary(object)
 }

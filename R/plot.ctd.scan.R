@@ -5,6 +5,7 @@ plot.ctd.scan <- function(x,
 {
 	if (!inherits(x, "ctd")) 
         stop("method is only for ctd objects")
+    oldpar <- par(no.readonly = TRUE)
 	par(mar=c(4,4,1,4)) # bot left top right
 	par(mfrow=c(2,1))  
 	xx <- x$data[[name]];
@@ -40,4 +41,5 @@ plot.ctd.scan <- function(x,
     plot(x$data[[name]], x$data$salinity, xlab="", ylab="", col=col.S, type="l", axes=FALSE)
     mtext("Salinity [PSU]", side = 4, line = 2, col = col.S)
 	axis(4,col=col.S, col.axis = col.S, col.lab = col.S)
+	par(oldpar)
 }

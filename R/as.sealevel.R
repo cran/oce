@@ -18,6 +18,7 @@ units="MM")
 	if (units == "M" || units == "m") {
 		eta <- eta * 1000
 	}
+	processing.log <- list(time=c(Sys.time()), action=c("created by as.sealevel()"))
 	rval <- list(header=header,
 		station.number=station.number,
 		station.version=station.version,
@@ -31,6 +32,7 @@ units="MM")
 		reference.offet=reference.offset,
 		reference.code=reference.code,
 		units=units,
+		processing.log=processing.log,
 		n=n,
 		hour=hour, # 1, 2, ...
 		start.time=start.time, # POSIXct

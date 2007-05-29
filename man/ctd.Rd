@@ -3,8 +3,8 @@
 \alias{ctd}
 \title{Sample seawater (CTD) profile}
 \description{This is sample CTD profile provided for testing.
-  The code in \code{\link{read.ctd}} was written based on examination of
-  this and similar files.}  
+It has been pruned by selecting only the subsequence during
+which the instrument was being lowered through the water column.}
 \usage{data(ctd)}
 \format{
   This file is from a \emph{Sea-Bird SBE 19} CTD instrument.

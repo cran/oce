@@ -10,5 +10,5 @@ summary.coastline <- function(object, ...)
 	cat(sprintf("%8.3f < latitude  < %8.3f\n",
 	 	min(object$lat,na.rm=TRUE), 
 		max(object$lat,na.rm=TRUE)))
+	processing.log.summary(object)
 }
- 

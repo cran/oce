@@ -33,8 +33,13 @@ ctd.add.column(x, column=NULL, column.name="",
 \examples{
 library(oce)
 data(ctd) 
-sigthe <- sw.sigma.theta(ctd$data$salinity, ctd$data$temperature, ctd$data$pressure);
-ctd.new <- ctd.add.column(ctd, sigthe, "sigmatheta", "sigma-theta", "density, sigma-theta", "kg/m^3");
+sigthe <- sw.sigma.theta(ctd$data$salinity,
+	ctd$data$temperature,
+	ctd$data$pressure);
+ctd.new <- ctd.add.column(ctd,
+	sigthe, "sigmatheta",
+	"sigma-theta", "density, sigma-theta",
+	"kg/m^3");
 }
 \references{
   The Seabird CTD instrument is described at

@@ -24,7 +24,7 @@ grid=FALSE, col.grid="lightgray",
 	\eqn{N^2}{N^2}, calculated with \code{\link{sw.N2}} with an
 	optional argument setting of \code{df=length(x$p)/4} to do 
 	some smoothing.}
-      \item{\code{rho+N2}}{Profile of density and the square of buoyancy
+      \item{\code{sigmatheta+N2}}{Profile of sigma-theta and the square of buoyancy
 	frequency within a single axis frame.}
     }
   } 

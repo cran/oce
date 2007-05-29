@@ -15,7 +15,9 @@
 }
 \details{
 The information given below is adapted from the fortran code at 
+
 \code{http://sam.ucsd.edu/sio210/propseawater/ppsw_fortran/ppsw.f},
+
 which is where this R code came from.
 
 Depth in meters from pressure in decibars using

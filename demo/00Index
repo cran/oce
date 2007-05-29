@@ -1,4 +1,6 @@
-geod.dist		geodesic calculation
+coastline	plot a coastline
+ctd			summarize and plot a a CTD profile
 eos			demonstrate some EOS functions
-ctd			read a CTD profile
-sealevel    read and plot a sealevel file         
+geod.dist	geodesic calculation
+lobo		summarize and plot a lobo datafile
+sealevel    summarize and plot a sealevel file         

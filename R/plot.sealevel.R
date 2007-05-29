@@ -2,6 +2,7 @@ plot.sealevel <- function(x, ...)
 {
 	# tidal constituents (in cpd):
 	# http://www.soest.hawaii.edu/oceanography/dluther/HOME/Tables/Kaw.htm
+    oldpar <- par(no.readonly = TRUE)
 	par(mfrow=c(4,1))
 	par(mar=c(4,5,4,1)+0.1)
 	par(cex=1)
@@ -80,4 +81,5 @@ plot.sealevel <- function(x, ...)
 	draw.constituent(360/14.4966939, "M1",side=3,col="blue")       
 	draw.constituent(12, "S2")
 	draw.constituent(360/14.4966939/2, "M2",side=3,col="blue")
+	par(oldpar)
 }

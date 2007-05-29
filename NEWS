@@ -1,3 +1,6 @@
+0.1.62: - add processing.log.append() and related code; improve ctd.trim()
+0.1.61: - add rudimentary read/summary/plot functions for lobo datasets
+0.1.60: - add vignette; address some build-stage warning messages
 0.1.59: - set up data files to permit latin1 encoding of some content
 0.1.58: - rename all seawater-related functions, e.g. theta() as sw.theta(), to allow for atmospheric analogs
 0.1.57: - make as.CTD() accept length(p)=1, e.g. for surface plots

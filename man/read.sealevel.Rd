@@ -21,6 +21,7 @@ read.sealevel(file,debug=FALSE)
   \item{n}{Number of data values}
   \item{hour}{Times [h]}
   \item{time}{Time [POSIXct]}
+  \item{processing.log}{A processing log.}
   \item{eta}{Sea level [m]}
 }
 
@@ -31,13 +32,14 @@ read.sealevel(file,debug=FALSE)
 \examples{
 \dontrun{
 library(oce)
-h <- read.sealevel("ftp://ilikai.soest.hawaii.edu/rqds/pacific/monthly/m652a.dat")
+h<-read.sealevel("ftp://ilikai.soest.hawaii.edu/rqds/pacific/monthly/m652a.dat")
 summary(h)
 plot(h)
 }
 }
 \references{
-  \url{ftp://ilikai.soest.hawaii.edu/rqds/hourly.fmt}.
+The site \url{http://ilikai.soest.hawaii.edu/uhslc/datai.html} provides a graphical interface
+for downloading sealevel data.
 }
 \author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
 \keyword{misc}

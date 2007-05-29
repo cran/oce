@@ -24,30 +24,33 @@ plot.ctd <- function (x, ref.lat = NaN, ref.lon = NaN,
     }
     if (!inherits(x, "ctd")) 
         stop("method is only for ctd objects")
+    oldpar <- par(no.readonly = TRUE)
     par(mfrow = c(2, 2))
+	par(mar=c(4,4,3.5,2))
     plot.profile(x, type = "S+T", grid=grid, col.grid=col.grid, ...)
     plot.TS(x, grid=grid, col.grid=col.grid, ...)
     plot.profile(x, type = "sigmatheta+N2", grid=grid, col.grid=col.grid, ...)
    	# Text
-	text.item <- function(item, label) {
+	text.item <- function(item, label, cex=1) {
 		if (item != "NaN" && !is.na(item)) {
-			text(xloc, yloc, paste(label, item), adj = c(0, 0), cex = cex);			
+			text(xloc, yloc, paste(label, item), adj = c(0, 0), cex=cex);
     		yloc <<- yloc - d.yloc;
 		}
 	}
    	xfake <- seq(0:10)
     yfake <- seq(0:10)
+	par(mar=c(0,0,0,0))
     plot(xfake, yfake, type = "n", xlab = "", ylab = "", axes = FALSE)
-    cex <- 1
     xloc <- 1
     yloc <- 10
-    d.yloc <- 1
-    text(xloc, yloc, paste("CTD Station"), adj = c(0, 0), cex = cex)
+    d.yloc <- 0.8
+	cex <- 0.9
+    text(xloc, yloc, paste("CTD Station"), adj = c(0, 0), cex=cex)
     yloc <- yloc - d.yloc
-    text.item(x$filename, "  File:")
-    text.item(x$date,     "  Deployed: ")
+    text.item(x$filename, "  File:", cex=cex)
+    text.item(x$date,     "  Deployed: ", cex=cex)
     if (!is.na(x$longitude) && !is.na(x$latitude)) {
-		text(xloc, yloc, paste("  At ", x$longitude, ",", x$latitude), adj = c(0, 0), cex = cex)
+		text(xloc, yloc, paste("  At ", x$longitude, ",", x$latitude), adj = c(0, 0), cex=cex)
     	yloc <- yloc - d.yloc
 	}
     if (!is.na(ref.lat) && !is.na(ref.lon)) {
@@ -55,12 +58,12 @@ plot.ctd <- function (x, ref.lat = NaN, ref.lon = NaN,
             ref.lon)
         kms <- sprintf("%.2f km", dist/1000)
         rlat <- text(xloc, yloc, paste("  Distance to (", dec_deg(ref.lon), 
-            ",", dec_deg(ref.lat), ") = ", kms), adj = c(0, 0), 
-            cex = cex)
+            ",", dec_deg(ref.lat), ") = ", kms), adj = c(0, 0), cex=cex)
         yloc <- yloc - d.yloc
     }
-	text.item(x$scientist,		"  Scientist:");
-	text.item(x$ship,			"  Ship:");
-	text.item(x$cruise,    		"  Cruise:");
-	text.item(x$institute, 		"  Institute:");
+	text.item(x$scientist,		"  Scientist:", cex=cex);
+	text.item(x$ship,			"  Ship:", cex=cex);
+	text.item(x$cruise,    		"  Cruise:", cex=cex);
+	text.item(x$institute, 		"  Institute:", cex=cex);
+	par(oldpar)
 }

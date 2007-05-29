@@ -26,7 +26,8 @@ calculated from McDougall's (1987) algorithm.
   N/A.
 }
 \examples{
- a <- sw.alpha(40, 10, 4000) # 2.5060e-4 (inferred from p1964 of McDougall 1987)
+ # 2.5060e-4 (inferred from p1964 of McDougall 1987)
+ a <- sw.alpha(40, 10, 4000) 
 }
 \references{
 McDougall, T.J. 1987. "Neutral Surfaces"

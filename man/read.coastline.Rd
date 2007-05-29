@@ -26,7 +26,10 @@ BUG: the 'arc/info ungenerate' format is not yet understood.
 
 }
 \value{
-  A \code{coastline} object containing lat and lon.
+  A \code{coastline} object containing
+  \item{processing.log}{A processing log.}
+  \item{lat}{North latitude, in decimal degrees.}
+  \item{lon}{East longitude, in decimal degrees.}
 }
 
 \seealso{

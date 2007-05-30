@@ -1,4 +1,4 @@
-This is pdfeTeXk, Version 3.141592-1.30.4-2.2 (Web2C 7.5.5) (format=pdflatex 2006.8.26)  28 MAY 2007 18:58
+This is pdfeTeXk, Version 3.141592-1.30.4-2.2 (Web2C 7.5.5) (format=pdflatex 2006.8.26)  2 JUN 2007 09:32
 entering extended mode
  file:line:error style messages enabled.
 **\nonstopmode \input /Users/kelley/src/R-kelley/oce/inst/doc/oce.tex
@@ -237,18 +237,18 @@ File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
 
 {/usr/local/teTeX/share/texmf.local/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 87.
+(Font)              <7> on input line 90.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 87.
+(Font)              <5> on input line 90.
 
-Overfull \hbox (7.26949pt too wide) in paragraph at lines 86--94
+Overfull \hbox (7.26949pt too wide) in paragraph at lines 89--97
 []\T1/aett/m/n/10 oce \T1/aer/m/n/10 pro-vides many func-tions for deal-ing wit
 h sea-wa-ter prop-er-ties. Prob-a-bly the most used is []\T1/aett/m/n/10 sw.rho
 (S, t, p)\T1/aer/m/n/10 ,
  []
 
 
-Overfull \hbox (14.89713pt too wide) in paragraph at lines 106--129
+Overfull \hbox (14.89713pt too wide) in paragraph at lines 109--132
 []\T1/aett/m/n/10 sw.alpha.over.beta\T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.beta\
 T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.conductivity\T1/aer/m/n/10 , []\T1/aett/m/
 n/10 sw.depth\T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.lapse.rate\T1/aer/m/n/10 , [
@@ -259,7 +259,7 @@ n/10 sw.depth\T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.lapse.rate\T1/aer/m/n/10 , [
 <oce-ctdfig.pdf, id=29, 433.62pt x 361.35pt>
 File: oce-ctdfig.pdf Graphic file (type pdf)
  <use oce-ctdfig.pdf> [2] [3 <./oce-ctdfig.pdf>]
-Overfull \hbox (42.46019pt too wide) in paragraph at lines 179--184
+Overfull \hbox (42.46019pt too wide) in paragraph at lines 182--187
 []\T1/aer/m/n/10 It is also pos-si-ble to plot the com-po-nents in-di-vid-u-all
 y, ei-ther by ac-cess-ing the data di-rectly (e.g. []\T1/aett/m/n/10 ctd$data$p
 ressure
@@ -280,7 +280,7 @@ File: oce-sealevelfig.pdf Graphic file (type pdf)
 
 <use oce-sealevelfig.pdf>
 
-LaTeX Warning: Float too large for page by 24.19853pt on input line 295.
+LaTeX Warning: Float too large for page by 24.19853pt on input line 298.
 
 [6 <./oce-coastlinefig.pdf>] [7 <./oce-sealevelfig.pdf>]
 <oce-lobofig.pdf, id=103, 722.7pt x 867.24pt>
@@ -313,4 +313,4 @@ cm/cmtt9.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmr9.pf
 b></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmbx9.pfb></usr/lo
 cal/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmr12.pfb></usr/local/teTeX/
 share/texmf.tetex/fonts/type1/bluesky/cm/cmr17.pfb>
-Output written on oce.pdf (9 pages, 551661 bytes).
+Output written on oce.pdf (9 pages, 562517 bytes).

@@ -5,26 +5,24 @@
   Plot temperature-salinity diagram for seawater (CTD) data.
 }
 \usage{
-plot.TS(x, rho.levels = 4, grid = FALSE,
+plot.TS(x, rho.levels = 8, grid = FALSE,
 	col.data="black", col.rho="blue",  col.grid = "lightgray",
+    cex.rho=0.8,
+    rho1000=TRUE,
 	debug=FALSE, \dots)
 }
 \arguments{
   \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}.}
   \item{rho.levels}{Either a list of density levels for which to draw 
                     isopycnal lines, or a suggestion for the number of levels.
- 					In the latter case, an attempt is made to draw this number
-					of levels, with "clean" isopycnal values (in which the 
-					contour increment is a multiple of 1, 2, or 5), but
-					often a clean interval demands more isopycnal contours
-					than requested; also, small adjustments
-					to the \code{rho.levels} value often have little
-					affect on the number of contours.}
+ 					In the latter case, \code{pretty()} is used to select levels.}
   \item{grid}{Set \code{TRUE} to get a grid.}
   \item{col.data}{Color for data.}
   \item{col.rho}{Color for isopycnal lines.}
   \item{col.grid}{Color of grid.}
   \item{debug}{Flag to turn on debugging mode (prints info on isopycnal choices)}
+  \item{cex.rho}{cex value for isopycnal labels}
+  \item{rho1000}{If TRUE, label isopycnals as e.g. 1024; if FALSE, label as e.g. 24}
   \item{\dots}{optional arguments passed to plotting functions.}
 }
 \details{

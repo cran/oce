@@ -51,5 +51,8 @@ stopifnot(all.equal.numeric(b, 7.2088e-4, 0.0005, scale=1e-4))
 
 a <- sw.alpha(40, 10, 4000, is.theta=TRUE)
 #cat(paste("alpha=",a,"\n"))
-cat(paste("alpha error=",(a-2.5060e-4)/0.0005e-4,"\n"))
+#cat(paste("alpha error=",(a-2.5060e-4)/0.0005e-4,"\n"))
 stopifnot(all.equal.numeric(a, 2.5060e-4, 0.0005, scale=1e-4))
+
+v <- sw.sound.speed(40, 40, 10000)
+stopifnot(all.equal.numeric(v, 1731.995, 0.001))

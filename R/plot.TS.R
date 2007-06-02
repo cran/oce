@@ -1,6 +1,8 @@
-plot.TS <- function (x, rho.levels = 4, 
+plot.TS <- function (x, rho.levels = 8, 
  	grid = FALSE,
 	col.data="black", col.rho = "blue", col.grid = "lightgray",
+	cex.rho=0.8,
+	rho1000=TRUE,
 	debug = FALSE, ...) 
 {
     if (!inherits(x, "ctd")) 
@@ -12,42 +14,30 @@ plot.TS <- function (x, rho.levels = 4,
 		grid(col=col.grid)
 	rho.min <- sw.sigma(min(x$data$salinity,na.rm=TRUE), max(x$data$temperature,na.rm=TRUE), 0)
 	rho.max <- sw.sigma(max(x$data$salinity,na.rm=TRUE), min(x$data$temperature,na.rm=TRUE), 0)
-    if (length(rho.levels) == 1) { # try to get this many isopycnals
-		adjust <- 1 # ad hoc trial, since we're rounding d.rho down
-        d.rho <- (rho.max - rho.min) / rho.levels * adjust
-        rho.list <- seq(rho.min, rho.max, d.rho)
-        scale <- 10^(floor(log10(d.rho)))
-        d.rho.scaled <- d.rho / scale
-        if (d.rho.scaled < 2) 
-            d.rho.scaled <- 1
-        else if (d.rho.scaled < 5) 
-            d.rho.scaled <- 2
-        else
-			d.rho.scaled <- 5
-        d.rho.2 <- d.rho.scaled * scale
-        rho.list.2 <- seq(floor(rho.min/d.rho.2), floor(1 + rho.max/d.rho.2)) * d.rho.2
-        if (debug) {
-            cat("plot.ts() debugging information:\n")
-			cat("  rho.min           = ", rho.min, "\n");
-			cat("  rho.max           = ", rho.max, "\n");
-            cat("  raw increment     = ", d.rho, "\n")
-            cat("  rounded increment = ", d.rho.2, "\n")
-            #cat("  original isopycnals: ", rho.list, "\n")
-            cat("  graphed isopycnals: ", rho.list.2, "\n")
-        }
-    }
-    else {
+    if (length(rho.levels) == 1) {
+		rho.list <- pretty(c(rho.min, rho.max), n=rho.levels)
+		# Trim first and last values, since not in box
+		rho.list <- rho.list[-1]
+		rho.list <- rho.list[-length(rho.list)]
+    } else {
         rho.list <- rho.levels
     }
     t.n <- 100
     t.line <- seq(par()$usr[3], par()$usr[4], (par()$usr[4] - 
         par()$usr[3])/t.n)
-    for (rho in rho.list.2) {
+	S.axis.max <- par()$usr[2]
+	T.axis.max <- par()$usr[4]
+    for (rho in rho.list) {
+		rho.label <- if (rho1000) 1000+rho else rho
         n <- length(t.line)
         s.line <- sw.S.T.rho(t.line, rep(rho, n), rep(0, n))
         lines(s.line, t.line, col = col.rho)
-        text(s.line[length(s.line)], t.line[length(t.line)], 
-            rho, pos = 1, cex=0.8)
+		if (s.line[length(s.line)] > S.axis.max) {
+			i <- match(TRUE, s.line > S.axis.max)
+			mtext(rho.label, side=4, at=t.line[i], cex=cex.rho, col=col.rho) # to right of box
+		} else {
+			mtext(rho.label, side=3, at=s.line[t.n], adj=0, cex=cex.rho, col=col.rho) # above box
+		}
     }
 	# Freezing point
 	Sr <- range(x$data$salinity, na.rm=TRUE)

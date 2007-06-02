@@ -16,12 +16,15 @@
 
 \begin{abstract}
 
-The \verb@oce@ package is designed to help Oceanographers in their work. It provides functions
-for reading a variety of quirky data formats and for summarizing and plotting oceanographic
-datasets. Some care has been taken to design objects that hold both meta-information and
-``data,'' an approach that is common in R but not so in Oceanography. Functions are also
-provided for seawater properties and the like, so that \verb@oce@, freeing practitioners from
-re-inventing wheels.
+The \verb@oce@ package is designed to help Oceanographers in their
+work, by providing functions for reading a variety of quirky data
+formats and for summarizing and plotting such data.  Some care has
+been taken to design objects that store both data and
+meta-information, the latter including not just header data from
+instruments but also a log of the steps of subsequent processing.  In
+addition to instrument-related functions, \verb@oce@ provides
+algorithms for computing such things as the equation of state of
+seawater.
 
 \end{abstract}
 

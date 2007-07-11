@@ -6,38 +6,38 @@
   a sealevel dataset.
 }
 \usage{
-as.sealevel(eta,
-  header="",
-  start.time=as.POSIXct("2000-01-01"),
-  station.number="001",
-  station.version="A",
-  station.name="Santa",
-  region="mythical",
-  year="2000",
-  latitude="90000N",
-  longitude="000000E",
-  GMT.offset=0,
-  decimation.method=1,
-  reference.offset=0,
-  reference.code="",
-  units="MM")
+as.sealevel(t=NULL,
+  eta=NULL,
+  header=NULL,
+  station.number=NA,
+  station.version=NA,
+  station.name=NULL,
+  region=NA,
+  year=NA,
+  latitude=NA,
+  longitude=NA,
+  GMT.offset=NA,
+  decimation.method=NA,
+  reference.offset=NA,
+  reference.code=NA,
+  processing.log=NULL)
 }
 \arguments{
-  \item{eta}{A list of sea-level heights in metres, in an hourly sequence.}
-  \item{header}{A character string as read from first line of a standard data file.}
-  \item{start.time}{A time in POSIX format, e.g. \code{as.POSIXct("2000-01-01")}}
-  \item{station.number}{Three-character string giving station number}
-  \item{station.version}{Single character for version of station}
-  \item{station.name}{Name of station (at most 18 characters)}
-  \item{region}{Region or country of station (at most 19 characters)}
-  \item{year}{Four-character number of year}
-  \item{latitude}{First 2 characters are degrees of latitude, next 2 are minutes, next 2 are tenths of minutes, and last is "N" or "S" for hemisphere, e.g. "90000N". Negatives are not allowed.}
-  \item{longitude}{First 3 characters are degrees of longitude, next 2 are minutes, next 2 are tenths of minutes, and last is "E" or "W" for hemisphere, e.g. "000000E".  Negatives are not allowed.}
-  \item{GMT.offset}{Offset from GMT.  (BUG: this is ignored.)}
-  \item{decimation.method}{1: filtered; 2: simple average of all samples; 3: spot readings; 4: other}
+  \item{t}{a list of times, in POSIXct format.}
+  \item{eta}{a list of sea-level heights in metres, in an hourly sequence.}
+  \item{header}{a character string as read from first line of a standard data file.}
+  \item{station.number}{three-character string giving station number.}
+  \item{station.version}{single character for version of station.}
+  \item{station.name}{the name of station (at most 18 characters).}
+  \item{region}{the name of the region or country of station (at most 19 characters).}
+  \item{year}{the year of observation.}
+  \item{latitude}{the latitude in decimal degrees, positive north of the equator.}
+  \item{longitude}{the longitude in decimal degrees, positive east of Greenwich.}
+  \item{GMT.offset}{offset from GMT.  (BUG: this is ignored.)}
+  \item{decimation.method}{a coded value, with 1 meaning filtered, 2 meaning a simple average of all samples, 3 meaning spot readings, and 4 meaning some other method.}
   \item{reference.offset}{?}
   \item{reference.code}{?}
-  \item{units}{\code{"MM"} or \code{"mm"} if the sea-level heights are in millimetres (the default for data files).  \code{"M"} or \code{"m"} if the heights are in metres.}
+  \item{processing.log}{a processing log}
 }
 \details{
   The arguments are based on the standard data format, as described
@@ -54,11 +54,12 @@ as.sealevel(eta,
 }
 \examples{
 library(oce)
-h <- 1:(24*100) # fake 100 days
+h <- 0:(24*100) # 100 days after 911
+t <- as.POSIXct("2001-09-11") + h * 3600
 eta <- 1.0 * sin(2*pi*h/12.4172) + 0.8 * sin(2*pi*h/24.0)
 eta <- eta + 0.1 * rnorm(length(h)) # add some noise
-h <- as.sealevel(eta, units="m")
-summary(h)
+sl <- as.sealevel(t, eta)
+summary(sl)
 }
 \references{
   \url{ftp://ilikai.soest.hawaii.edu/rqds/hourly.fmt}.

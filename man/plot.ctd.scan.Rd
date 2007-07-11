@@ -6,14 +6,14 @@
 }
 \usage{
 plot.ctd.scan(x, name = "scan", 
- col.S = "darkgreen", col.T = "darkred", col.p = "blue", \dots)
+ S.col = "darkgreen", T.col= "darkred", p.col = "blue", \dots)
 }
 \arguments{
   \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}.}
   \item{name}{name of variable for x axis}
-  \item{col.S}{color for salinity}
-  \item{col.T}{color for temperature}
-  \item{col.p}{color for pressure}
+  \item{S.col}{colour for salinity}
+  \item{T.col}{colour for temperature}
+  \item{p.col}{colour for pressure}
   \item{\dots}{optional arguments passed to plotting functions.}
 }
 \details{

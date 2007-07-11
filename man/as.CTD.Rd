@@ -7,10 +7,9 @@
 \usage{
 thectd <- as.CTD(
 S, T, p, header=NULL, filename=NA, ship=NA, scientist=NA,
-institute=NA, address=NA, cruise=NA, mooring=NA,
-date=NA, start.time=NA, start.time.list=NA,
-latitude=NA, latitude.dec=NA,
-longitude=NA, longitude.dec=NA,
+institute=NA, address=NA, cruise=NA, station=NA,
+date=NA, start.time=NA, 
+latitude=NA, longitude=NA,
 recovery=NA,
 water.depth=NA,
 sample.interval=NA)
@@ -26,14 +25,11 @@ sample.interval=NA)
   \item{institute}{ignored, for now}
   \item{address}{ignored, for now}
   \item{cruise}{ignored, for now}
-  \item{mooring}{ignored, for now}
+  \item{station}{ignored, for now}
   \item{date}{ignored, for now}
   \item{start.time}{ignored, for now}
-  \item{start.time.list}{ignored, for now}
   \item{latitude}{ignored, for now}
-  \item{latitude.dec}{ignored, for now}
   \item{longitude}{ignored, for now}
-  \item{longitude.dec}{ignored, for now}
   \item{recovery}{ignored, for now}
   \item{water.depth}{ignored, for now}
   \item{sample.interval}{ignored, for now}

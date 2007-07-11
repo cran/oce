@@ -1,24 +1,22 @@
-as.sealevel <- function(eta,header="",
-start.time=as.POSIXct("2000-01-01"),
-station.number="001",
-station.version="A",
-station.name="Santa",
-region="mythical",
-year="2000",
-latitude="90000N",
-longitude="000000E",
-GMT.offset=0,
-decimation.method=1,
-reference.offset=0,
-reference.code="",
-units="MM")
+as.sealevel <- function(
+	t=NULL,
+	eta=NULL,
+	header=NULL,
+	station.number=NA,
+	station.version=NA,
+	station.name=NULL,
+	region=NA,
+	year=NA,
+	latitude=NA,
+	longitude=NA,
+	GMT.offset=NA,
+	decimation.method=NA,
+	reference.offset=NA,
+	reference.code=NA,
+	processing.log=NULL)
 {    
-	n <- length(eta)
-	hour <- 1:n
-	if (units == "M" || units == "m") {
-		eta <- eta * 1000
-	}
-	processing.log <- list(time=c(Sys.time()), action=c("created by as.sealevel()"))
+	if (is.null(processing.log))
+		processing.log <- list(time=c(Sys.time()), action=c("created by as.sealevel()"))
 	rval <- list(header=header,
 		station.number=station.number,
 		station.version=station.version,
@@ -33,10 +31,8 @@ units="MM")
 		reference.code=reference.code,
 		units=units,
 		processing.log=processing.log,
-		n=n,
-		hour=hour, # 1, 2, ...
-		start.time=start.time, # POSIXct
-		eta=eta)
+		n=length(eta),
+		data=list(t=t, eta=eta))
 	class(rval) <- "sealevel"
 	rval
 }

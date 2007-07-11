@@ -28,13 +28,14 @@ BUG: the 'arc/info ungenerate' format is not yet understood.
 \value{
   A \code{coastline} object containing
   \item{processing.log}{A processing log.}
-  \item{lat}{North latitude, in decimal degrees.}
-  \item{lon}{East longitude, in decimal degrees.}
+  \item{data}{a list containing \code{longitude}, in decimal degrees, positive east of Greenwich, and \code{latitude}, in decimal degrees postive north of the equator.}
 }
 
 \seealso{
-  \code{\link{plot.coastline}}
-  \code{\link{summary.coastline}}
+The generic function \code{\link{read.oce}} provides an alternative to this.
+
+Coastlines may be summarized with \code{\link{summary.coastline}} and plotted with
+\code{\link{plot.coastline}}.
 }
 \examples{
 \dontrun{
@@ -43,12 +44,12 @@ cl <- read.coastline("7404.dat")
 # If no plot yet:
 plot(cl)
 # To add to an existing plot:
-lines(cl$lon, cl$lat)
+lines(cl$data$longitude, cl$data$latitude)
 # Note: another trick is to do something like the following,
 # to get issues of whether longitude is defined in (-180,180)
 # or (0,360)
-lines(cl$lon, cl$lat)
-lines(cl$lon_360, cl$lat)
+lines(cl$datas$longitude, cl$data$latitude)
+lines(cl$data$longitude-360, cl$data$latitude)
 }
 }
 \references{

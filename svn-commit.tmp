@@ -1,0 +1,14 @@
+Lots of twiddly bits, related to colours; also add WOCE section to vignette.
+--This line, and those below, will be ignored--
+
+M    R/plot.ctd.R
+M    R/plot.TS.R
+M    R/plot.lobo.R
+M    R/plot.ctd.scan.R
+M    R/read.ctd.R
+M    R/summary.ctd.R
+M    man/plot.ctd.scan.Rd
+M    man/read.ctd.Rd
+M    man/plot.ctd.Rd
+M    man/plot.TS.Rd
+M    inst/doc/oce.Rnw

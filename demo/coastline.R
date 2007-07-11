@@ -1,6 +1,6 @@
 library(oce)
-data(coastline)
-plot(coastline, col="darkred")
+data(coastline.maritimes)
+plot(coastline.maritimes, col="darkred")
 hfx.lat <-  44+39/60
 hfx.lon <- -(63+34/60)
 points(hfx.lon, hfx.lat, col="blue", cex=3, pch=20)

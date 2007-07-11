@@ -1,11 +1,11 @@
-This is pdfeTeXk, Version 3.141592-1.30.4-2.2 (Web2C 7.5.5) (format=pdflatex 2006.8.26)  2 JUN 2007 09:32
+This is pdfeTeXk, Version 3.141592-1.21a-2.2 (Web2C 7.5.4) (format=pdflatex 2006.7.16)  15 JUL 2007 12:40
 entering extended mode
  file:line:error style messages enabled.
 **\nonstopmode \input /Users/kelley/src/R-kelley/oce/inst/doc/oce.tex
 (/Users/kelley/src/R-kelley/oce/inst/doc/oce.tex
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/article.cls
+(/opt/local/share/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2004/02/16 v1.4f Standard LaTeX document class
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/size10.clo
+(/opt/local/share/texmf-dist/tex/latex/base/size10.clo
 File: size10.clo 2004/02/16 v1.4f Standard LaTeX file (size option)
 )
 \c@part=\count79
@@ -20,14 +20,15 @@ File: size10.clo 2004/02/16 v1.4f Standard LaTeX file (size option)
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
 )
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/url/url.sty
+(/opt/local/share/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip10
 Package: url 2004/03/15  ver 3.1  Verb mode for urls, etc.
 )
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/preprint/fullpage.sty
+(/opt/local/share/texmf-dist/tex/latex/preprint/fullpage.sty
 Package: fullpage 1999/02/23 1.1 (PWD)
 \FP@margin=\skip43
 )
+(/opt/local/share/texmf-dist/tex/latex/boxedminipage/boxedminipage.sty)
 (/Library/Frameworks/R.framework/Resources/share/texmf/Sweave.sty
 
 LaTeX Warning: You have requested package `/Library/Frameworks/R.framework/Reso
@@ -35,35 +36,35 @@ urces/share/texmf/Sweave',
                but the package provides `Sweave'.
 
 Package: Sweave 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/ifthen.sty
+(/opt/local/share/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
 )
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/graphics/graphicx.sty
+(/opt/local/share/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/graphics/keyval.sty
+(/opt/local/share/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
 \KV@toks@=\toks14
 )
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/graphics/graphics.sty
+(/opt/local/share/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2001/07/07 v1.0n Standard LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/graphics/trig.sty
+(/opt/local/share/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
 )
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/graphics/graphics.cfg
+(/opt/local/share/texmf-dist/tex/latex/graphics/graphics.cfg
 File: graphics.cfg 2005/02/03 v1.3 graphics configuration of teTeX/TeXLive
 )
 Package graphics Info: Driver file: pdftex.def on input line 80.
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/graphics/pdftex.def
+(/opt/local/share/texmf-dist/tex/latex/graphics/pdftex.def
 File: pdftex.def 2002/06/19 v0.03k graphics/color for pdftex
 \Gread@gobject=\count87
 ))
 \Gin@req@height=\dimen103
 \Gin@req@width=\dimen104
 )
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/fancyvrb/fancyvrb.sty
+(/opt/local/share/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
 Package: fancyvrb 1998/07/17
 
 Style option: `fancyvrb' v2.6, with DG/SPQR fixes <1998/07/17> (tvz)
@@ -79,7 +80,7 @@ No file fancyvrb.cfg.
 Package: upquote 2003/08/11 v1.1 Covington's upright-quote modification to verb
 atim and verb
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/textcomp.sty
+(/opt/local/share/texmf-dist/tex/latex/base/textcomp.sty
 Package: textcomp 2004/02/22 v1.99f Standard LaTeX package
 Package textcomp Info: Sub-encoding information:
 (textcomp)               5 = only ISO-Adobe without \textcurrency
@@ -94,7 +95,7 @@ Package textcomp Info: Sub-encoding information:
 (textcomp)             See the documentation for details.
 Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 71.
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/ts1enc.def
+(/opt/local/share/texmf-dist/tex/latex/base/ts1enc.def
 File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
 )
 LaTeX Info: Redefining \oldstylenums on input line 266.
@@ -146,52 +147,52 @@ Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 324.
 Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 325.
 Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 326.
 ))
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/fontenc.sty
+(/opt/local/share/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2004/02/22 v1.99f Standard LaTeX package
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/t1enc.def
+(/opt/local/share/texmf-dist/tex/latex/base/t1enc.def
 File: t1enc.def 2004/02/22 v1.99f Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
 ))
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/ae/ae.sty
+(/opt/local/share/texmf-dist/tex/latex/ae/ae.sty
 Package: ae 2001/02/12 1.3 Almost European Computer Modern
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/fontenc.sty
+(/opt/local/share/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2004/02/22 v1.99f Standard LaTeX package
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/t1enc.def
+(/opt/local/share/texmf-dist/tex/latex/base/t1enc.def
 File: t1enc.def 2004/02/22 v1.99f Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
 )
 LaTeX Font Info:    Try loading font information for T1+aer on input line 100.
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/ae/t1aer.fd
+(/opt/local/share/texmf-dist/tex/latex/ae/t1aer.fd
 File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
 )))) (./oce.aux)
 \openout1 = `oce.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 10.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 10.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 27.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 27.
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/base/ts1cmr.fd
+(/opt/local/share/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    ... okay on input line 27.
 
-(/usr/local/teTeX/share/texmf.tetex/tex/context/base/supp-pdf.tex
-(/usr/local/teTeX/share/texmf.tetex/tex/context/base/supp-mis.tex
+(/opt/local/share/texmf-dist/tex/context/base/supp-pdf.tex
+(/opt/local/share/texmf-dist/tex/context/base/supp-mis.tex
 loading : Context Support Macros / Miscellaneous (2004.10.26)
 \protectiondepth=\count91
 \scratchcounter=\count92
@@ -225,92 +226,76 @@ loading : Context Support Macros / PDF (2004.03.26)
 \everyMPtoPDFconversion=\toks18
 )
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 14.
+(Font)              <12> on input line 31.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 14.
+(Font)              <8> on input line 31.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 14.
-LaTeX Font Info:    Try loading font information for T1+aett on input line 20.
- (/usr/local/teTeX/share/texmf.tetex/tex/latex/ae/t1aett.fd
+(Font)              <6> on input line 31.
+LaTeX Font Info:    Try loading font information for T1+aett on input line 37.
+ (/opt/local/share/texmf-dist/tex/latex/ae/t1aett.fd
 File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
-) [1
-
-{/usr/local/teTeX/share/texmf.local/fonts/map/pdftex/updmap/pdftex.map}]
+)
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 90.
+(Font)              <7> on input line 67.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 90.
+(Font)              <5> on input line 67.
+ [1
 
-Overfull \hbox (7.26949pt too wide) in paragraph at lines 89--97
-[]\T1/aett/m/n/10 oce \T1/aer/m/n/10 pro-vides many func-tions for deal-ing wit
-h sea-wa-ter prop-er-ties. Prob-a-bly the most used is []\T1/aett/m/n/10 sw.rho
-(S, t, p)\T1/aer/m/n/10 ,
- []
-
-
-Overfull \hbox (14.89713pt too wide) in paragraph at lines 109--132
-[]\T1/aett/m/n/10 sw.alpha.over.beta\T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.beta\
-T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.conductivity\T1/aer/m/n/10 , []\T1/aett/m/
-n/10 sw.depth\T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.lapse.rate\T1/aer/m/n/10 , [
-]\T1/aett/m/n/10 sw.rho\T1/aer/m/n/10 , []\T1/aett/m/n/10 sw.sigma\T1/aer/m/n/1
-0 , []\T1/aett/m/n/10 sw.sigma.t\T1/aer/m/n/10 ,
- []
-
-<oce-ctdfig.pdf, id=29, 433.62pt x 361.35pt>
+{/opt/local/share/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+<oce-ctdfig.pdf, id=44, 650.43pt x 433.62pt>
 File: oce-ctdfig.pdf Graphic file (type pdf)
- <use oce-ctdfig.pdf> [2] [3 <./oce-ctdfig.pdf>]
-Overfull \hbox (42.46019pt too wide) in paragraph at lines 182--187
-[]\T1/aer/m/n/10 It is also pos-si-ble to plot the com-po-nents in-di-vid-u-all
-y, ei-ther by ac-cess-ing the data di-rectly (e.g. []\T1/aett/m/n/10 ctd$data$p
-ressure
- []
-
-<oce-ctdpycnoclinefig.pdf, id=63, 433.62pt x 289.08pt>
-File: oce-ctdpycnoclinefig.pdf Graphic file (type pdf)
-
-<use oce-ctdpycnoclinefig.pdf> [4 <./oce-ctdpycnoclinefig.pdf>]
-<oce-ctdrawfig.pdf, id=73, 578.16pt x 289.08pt>
+ <use oce-ctdfig.pdf>
+<oce-ctdrawfig.pdf, id=45, 578.16pt x 433.62pt>
 File: oce-ctdrawfig.pdf Graphic file (type pdf)
  <use oce-ctdrawfig.pdf>
-<oce-coastlinefig.pdf, id=74, 361.35pt x 361.35pt>
+[2] [3 <./oce-ctdfig.pdf> <./oce-ctdrawfig.pdf>]
+Overfull \hbox (12.78363pt too wide) in paragraph at lines 235--240
+[]\T1/aer/m/n/10 For a real-world ex-am-ple (with warts!), visit $\T1/aett/m/n/
+10 http : / / cchdo . ucsd . edu / data _ access ? ExpoCode = 58JH199410$
+ []
+
+[4] <oce-sectionfig.pdf, id=72, 650.43pt x 650.43pt>
+File: oce-sectionfig.pdf Graphic file (type pdf)
+ <use oce-sectionfig.pdf>
+<oce-coastlinefig.pdf, id=73, 361.35pt x 361.35pt>
 File: oce-coastlinefig.pdf Graphic file (type pdf)
  <use oce-coastlinefig.pdf>
-[5 <./oce-ctdrawfig.pdf>] <oce-sealevelfig.pdf, id=83, 722.7pt x 939.51pt>
+[5] [6 <./oce-sectionfig.pdf>]
+<oce-sealevelfig.pdf, id=89, 794.97pt x 1011.78pt>
 File: oce-sealevelfig.pdf Graphic file (type pdf)
+ <use oce-sealevelfig.pdf>
 
-<use oce-sealevelfig.pdf>
+LaTeX Warning: Float too large for page by 5.49234pt on input line 365.
 
-LaTeX Warning: Float too large for page by 24.19853pt on input line 298.
-
-[6 <./oce-coastlinefig.pdf>] [7 <./oce-sealevelfig.pdf>]
-<oce-lobofig.pdf, id=103, 722.7pt x 867.24pt>
+[7 <./oce-coastlinefig.pdf>] [8 <./oce-sealevelfig.pdf>]
+<oce-lobofig.pdf, id=108, 722.7pt x 867.24pt>
 File: oce-lobofig.pdf Graphic file (type pdf)
- <use oce-lobofig.pdf> [8]
-[9 <./oce-lobofig.pdf>] (./oce.aux) ) 
+ <use oce-lobofig.pdf> [9]
+[10 <./oce-lobofig.pdf>] [11] (./oce.aux) ) 
 Here is how much of TeX's memory you used:
- 2255 strings out of 95209
- 30765 string characters out of 1184724
- 2068357 words of memory out of 4523425
- 5339 multiletter control sequences out of 10000+50000
- 33113 words of font info for 72 fonts, out of 2000000 for 2000
- 22 hyphenation exceptions out of 5000
- 35i,6n,21p,311b,278s stack positions out of 5000i,500n,6000p,200000b,40000s
+ 2272 strings out of 94500
+ 30765 string characters out of 1153294
+ 73481 words of memory out of 1000000
+ 5378 multiletter control sequences out of 10000+50000
+ 35899 words of font info for 77 fonts, out of 500000 for 2000
+ 580 hyphenation exceptions out of 1000
+ 35i,6n,21p,632b,288s stack positions out of 1500i,500n,5000p,200000b,5000s
 PDF statistics:
- 115 PDF objects out of 300000
+ 123 PDF objects out of 300000
  0 named destinations out of 131072
- 31 words of extra memory for PDF output out of 10000
-</usr/local/teTeX/share/texmf.tetex/fonts/
-type1/bluesky/cm/cmsltt10.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/b
-luesky/cm/cmti10.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm
-/cmmi7.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmsy10.pf
-b></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmr7.pfb></usr/loc
-al/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmsy7.pfb></usr/local/teTeX/s
-hare/texmf.tetex/fonts/type1/bluesky/cm/cmmi10.pfb></usr/local/teTeX/share/texm
-f.tetex/fonts/type1/bluesky/cm/cmtt10.pfb></usr/local/teTeX/share/texmf.tetex/f
-onts/type1/bluesky/cm/cmr10.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1
-/bluesky/cm/cmbx12.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/
-cm/cmtt9.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmr9.pf
-b></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmbx9.pfb></usr/lo
-cal/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmr12.pfb></usr/local/teTeX/
-share/texmf.tetex/fonts/type1/bluesky/cm/cmr17.pfb>
-Output written on oce.pdf (9 pages, 562517 bytes).
+ 31 words of extra memory for PDF output out of 65536
+</opt/local/share/texmf-dist/fonts/t
+ype1/bluesky/cm/cmti10.pfb></opt/local/share/texmf-dist/fonts/type1/bluesky/cm/
+cmsltt10.pfb></opt/local/share/texmf-dist/fonts/type1/bluesky/cm/cmbx10.pfb></o
+pt/local/share/texmf-dist/fonts/type1/bluesky/cm/cmmi7.pfb></opt/local/share/te
+xmf-dist/fonts/type1/bluesky/cm/cmsy10.pfb></opt/local/share/texmf-dist/fonts/t
+ype1/bluesky/cm/cmr7.pfb></opt/local/share/texmf-dist/fonts/type1/bluesky/cm/cm
+sy7.pfb></opt/local/share/texmf-dist/fonts/type1/bluesky/cm/cmmi10.pfb></opt/lo
+cal/share/texmf-dist/fonts/type1/bluesky/cm/cmtt10.pfb></opt/local/share/texmf-
+dist/fonts/type1/bluesky/cm/cmr10.pfb></opt/local/share/texmf-dist/fonts/type1/
+bluesky/cm/cmbx12.pfb></opt/local/share/texmf-dist/fonts/type1/bluesky/cm/cmtt9
+.pfb></opt/local/share/texmf-dist/fonts/type1/bluesky/cm/cmr9.pfb></opt/local/s
+hare/texmf-dist/fonts/type1/bluesky/cm/cmbx9.pfb></opt/local/share/texmf-dist/f
+onts/type1/bluesky/cm/cmr12.pfb></opt/local/share/texmf-dist/fonts/type1/bluesk
+y/cm/cmr17.pfb>
+Output written on oce.pdf (11 pages, 511350 bytes).

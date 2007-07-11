@@ -29,7 +29,7 @@ geod.dist <- function (lat1, lon1, lat2, lon2) {
 	
   	res <- c()
   	for (i in 1:n1) {   
-		cat("values=",lat1[i],lon1[i],llat2[i],llon2[i],"\n")
+		#cat("values=",lat1[i],lon1[i],llat2[i],llon2[i],"\n")
     	if (!is.nan(lat1[i]) && !is.nan(lon1[i]) && !is.nan(llat2[i]) && !is.nan(llon2[i])) {
       		dist <- .Fortran("geoddist",
                        as.double(lat1[i]),as.double(lon1[i]),
@@ -38,12 +38,11 @@ geod.dist <- function (lat1, lon1, lat2, lon2) {
                        as.double(1),as.double(1),
                        dist = double(1),
                        PACKAGE = "oce")$dist
-			cat("dist=",dist,"\n")
     	} else {  
 			print("dist=a NaN\n") 
       		dist <- NaN
 		}
     	res <- c(res, dist)
   	}
-  	res
+  	res / 1000
 }

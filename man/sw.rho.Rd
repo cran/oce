@@ -24,7 +24,10 @@ rho <- sw.rho(S, t, p);
 }
 
 \seealso{
-  N/A.
+Related density routines include
+\code{\link{sw.sigma}}, 
+\code{\link{sw.sigma.t}}, and
+\code{\link{sw.sigma.theta}}. 
 }
 \examples{
  rho <- sw.rho(35, 13, 1000) # 1030.818

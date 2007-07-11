@@ -12,7 +12,7 @@
   \item{ref.lat}{Latitude of reference point for distance calculation}
   \item{ref.lon}{Longitude of reference point for distance calculation}
   \item{grid}{Set \code{TRUE} to get a grid on all plots.}
-  \item{col.grid}{Color of grid.}
+  \item{col.grid}{color of grid.}
   \item{\dots}{optional arguments passed to plotting functions. A common example is to set \code{df}, for 
 use in \link{sw.N2} calculations.}
 }

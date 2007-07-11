@@ -1,19 +1,28 @@
-plot.TS <- function (x, rho.levels = 8, 
+plot.TS <- function (x,
+	rho.levels = 6, 
  	grid = FALSE,
-	col.data="black", col.rho = "blue", col.grid = "lightgray",
-	cex.rho=0.8,
-	rho1000=TRUE,
-	debug = FALSE, ...) 
+	col.grid = "lightgray",
+	rho1000=FALSE,
+	col = par("col"),
+	col.rho = "darkgray",
+	cex.rho = 0.8 * par("cex"),
+	cex=par("cex"),
+	pch=20,
+	...) 
 {
     if (!inherits(x, "ctd")) 
         stop("method is only for ctd objects")
     plot(x$data$salinity, x$data$temperature, xlab = "", 
-        ylab = expression(paste("temperature [", degree, "c]")),col=col.data, ...)
-    mtext("salinity [psu]", side = 1, line = 2)
+        ylab = expression(paste("temperature [ ", degree, "C ]")), cex=cex, pch=pch, col=col, ...)
+	S.axis.min <- par()$usr[1]
+	S.axis.max <- par()$usr[2]
+	T.axis.min <- par()$usr[3]
+	T.axis.max <- par()$usr[4]
+    mtext("Salinity [ PSU ]", side = 1, line = 3)
 	if (grid)
-		grid(col=col.grid)
-	rho.min <- sw.sigma(min(x$data$salinity,na.rm=TRUE), max(x$data$temperature,na.rm=TRUE), 0)
-	rho.max <- sw.sigma(max(x$data$salinity,na.rm=TRUE), min(x$data$temperature,na.rm=TRUE), 0)
+		grid(col="lightgray")
+	rho.min <- sw.sigma(S.axis.min, T.axis.max, 0)
+	rho.max <- sw.sigma(S.axis.max, T.axis.min, 0)
     if (length(rho.levels) == 1) {
 		rho.list <- pretty(c(rho.min, rho.max), n=rho.levels)
 		# Trim first and last values, since not in box
@@ -23,20 +32,20 @@ plot.TS <- function (x, rho.levels = 8,
         rho.list <- rho.levels
     }
     t.n <- 100
-    t.line <- seq(par()$usr[3], par()$usr[4], (par()$usr[4] - 
-        par()$usr[3])/t.n)
-	S.axis.max <- par()$usr[2]
-	T.axis.max <- par()$usr[4]
+    t.line <- seq(T.axis.min, T.axis.max, length.out=t.n)
     for (rho in rho.list) {
 		rho.label <- if (rho1000) 1000+rho else rho
-        n <- length(t.line)
-        s.line <- sw.S.T.rho(t.line, rep(rho, n), rep(0, n))
-        lines(s.line, t.line, col = col.rho)
-		if (s.line[length(s.line)] > S.axis.max) {
-			i <- match(TRUE, s.line > S.axis.max)
-			mtext(rho.label, side=4, at=t.line[i], cex=cex.rho, col=col.rho) # to right of box
-		} else {
-			mtext(rho.label, side=3, at=s.line[t.n], adj=0, cex=cex.rho, col=col.rho) # above box
+        s.line <- sw.S.T.rho(t.line, rep(rho, t.n), rep(0, t.n))
+		ok <- !is.na(s.line) # crazy T can give crazy S
+		s.ok <- s.line[ok]
+		t.ok <- t.line[ok]
+        lines(s.ok, t.ok, col = col.rho)
+		if (s.ok[length(s.ok)] > S.axis.max) { # to right of box
+			i <- match(TRUE, s.ok > S.axis.max)
+			mtext(rho.label, side=4, at=t.line[i], line=0.25, cex=cex.rho, col=col.rho)
+		} else { # above box ... if the line got there
+			if (max(t.ok) > (T.axis.max - 0.05 * (T.axis.max - T.axis.min)))
+				mtext(rho.label, side=3, at=s.line[t.n], line=0.25, cex=cex.rho, col=col.rho)
 		}
     }
 	# Freezing point

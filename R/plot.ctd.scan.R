@@ -1,7 +1,8 @@
 plot.ctd.scan <- function(x,
 	name = "scan",
-	col.S = "darkgreen",
-	col.T = "darkred", col.p = "blue", ...)
+	S.col = "darkgreen",
+	T.col = "darkred", 
+	p.col = "blue", ...)
 {
 	if (!inherits(x, "ctd")) 
         stop("method is only for ctd objects")
@@ -21,7 +22,7 @@ plot.ctd.scan <- function(x,
 	box()
 	grid(col="brown")
 	axis(1)
-	axis(2,col=col.p, col.axis=col.p, col.lab = col.p)
+	axis(2,col=p.col, col.axis=p.col, col.lab = p.col)
 
 	par(mar=c(4,4,1,4)) # bot left top right
 	Slen <- length(x$data$salinity)
@@ -30,16 +31,16 @@ plot.ctd.scan <- function(x,
 		stop(paste("length mismatch.  'salinity' has length ", Slen, 
 		" but 'temperature' has length ", Tlen, sep=""))
 	plot(x$data[[name]], x$data$temperature, xlab="Scan", ylab="", type="l",
-		col = col.T, axes=FALSE)
+		col = T.col, axes=FALSE)
 	axis(1)
-	axis(2,col=col.T, col.axis = col.T, col.lab = col.T)
+	axis(2,col=T.col, col.axis = T.col, col.lab = T.col)
 	box()
 	grid(NULL, NA, col="brown")
-    mtext("Temperature [degC]", side = 2, line = 2, col = col.T)
+    mtext("Temperature [degC]", side = 2, line = 2, col = T.col)
 	#
 	par(new=TRUE) # overplot
-    plot(x$data[[name]], x$data$salinity, xlab="", ylab="", col=col.S, type="l", axes=FALSE)
-    mtext("Salinity [PSU]", side = 4, line = 2, col = col.S)
-	axis(4,col=col.S, col.axis = col.S, col.lab = col.S)
+    plot(x$data[[name]], x$data$salinity, xlab="", ylab="", col=S.col, type="l", axes=FALSE)
+    mtext("Salinity [PSU]", side = 4, line = 2, col = S.col)
+	axis(4,col=S.col, col.axis = S.col, col.lab = S.col)
 	par(oldpar)
 }

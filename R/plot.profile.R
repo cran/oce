@@ -1,16 +1,20 @@
-plot.profile <- function (x, type = "S", 
-	col.S = "darkgreen", col.t = "red", 
-    col.rho = "blue", col.N2 = "brown", 
-	grid = FALSE, col.grid = "lightgray",
+plot.profile <- function (x, 
+	type = "S", 
+	col.S = "darkgreen", 
+	col.t = "red", 
+    col.rho = "blue", 
+	col.N2 = "brown", 
+	grid = FALSE, 
+	col.grid = "lightgray",
 	...) 
 {
     if (!inherits(x, "ctd")) 
         stop("method is only for ctd objects")
-    pname <- "Pressure [dbar]"
+    pname <- "Pressure [ dbar ]"
     if (type == "S") {
         plot(x$data$salinity, x$data$pressure, ylim = rev(range(x$data$pressure)), 
             type = "n", xlab = "", ylab = pname, axes = FALSE)
-        mtext("Salinity [ PSU ]", side = 3, line = 2, col = col.S)
+        mtext("Salinity [ PSU ]", side = 3, line = 3, col = col.S)
         axis(2)
         axis(3, col = col.S, col.axis = col.S, col.lab = col.S)
         box()                                                   
@@ -22,7 +26,7 @@ plot.profile <- function (x, type = "S",
         plot(x$data$temperature, x$data$pressure, ylim = rev(range(x$data$pressure)), 
             type = "n", xlab = "", ylab = pname, axes = FALSE)
         mtext(expression(paste("Temperature [ ", degree, "C ]")), 
-            side = 3, line = 2, col = col.t)
+            side = 3, line = 3, col = col.t)
         axis(2)
         axis(3, col = col.t, col.axis = col.t, col.lab = col.t)
         box()
@@ -34,7 +38,7 @@ plot.profile <- function (x, type = "S",
         plot(x$data$sigma, x$data$pressure, ylim = rev(range(x$data$pressure)), 
             type = "n", xlab = "", ylab = pname, axes = FALSE)
         mtext(expression(paste(sigma, " [ ", kg/m^3, " ]")), side = 3, 
-            line = 2, col = col.rho)
+            line = 3, col = col.rho)
         axis(2)
         axis(3, col = col.rho, col.axis = col.rho, col.lab = col.rho)
         box()
@@ -48,7 +52,7 @@ plot.profile <- function (x, type = "S",
             type = "n", xlab = "", ylab = pname, axes = FALSE)
         axis(3, col = col.rho, col.axis = col.rho, col.lab = col.rho)
         mtext(expression(paste(sigma[theta], " [ ", kg/m^3, " ]")), side = 3, 
-            line = 2, col = col.rho)
+            line = 3, col = col.rho)
         axis(2)
         box()
         lines(st, x$data$pressure, col = col.rho)
@@ -58,9 +62,9 @@ plot.profile <- function (x, type = "S",
             type = "n", xlab = "", ylab = "", axes = FALSE)
         axis(1, col = col.N2, col.axis = col.N2, col.lab = col.N2)
         lines(N2, x$data$pressure, col = col.N2)
-        abline(v = 0, col = col.N2)
+        #abline(v = 0, col = col.N2)
         mtext(expression(paste(N^2, " [ ", (rad/s)^2, " ]")), side = 1, 
-            line = 2.5, col = col.N2)
+            line = 3, col = col.N2)
         box()
 		if (grid)
 			grid(col=col.grid)
@@ -70,7 +74,7 @@ plot.profile <- function (x, type = "S",
         plot(N2, x$data$pressure, ylim = rev(range(x$data$pressure)), 
             type = "n", xlab = "", ylab = pname, axes = FALSE)
         mtext(expression(paste(N^2, " [ ", (rad/s)^2, " ]")), side = 3, 
-            line = 2, col = col.N2)
+            line = 3, col = col.N2)
         axis(2)
         axis(3, col = col.N2, col.axis = col.N2, col.lab = col.N2)
         box()
@@ -84,8 +88,8 @@ plot.profile <- function (x, type = "S",
         plot(x$data$temperature, x$data$pressure, ylim = rev(range(x$data$pressure)), 
             type = "n", xlab = "", ylab = pname, axes = FALSE)
         axis(3, col = col.t, col.axis = col.t, col.lab = col.t)
-        mtext(expression(paste("Temperature [", degree, "C]")), 
-            side = 3, line = 2, col = col.t)
+        mtext(expression(paste("Temperature [ ", degree, "C ]")), 
+            side = 3, line = 3, col = col.t)
         axis(2)
         box()
         lines(x$data$temperature, x$data$pressure, col = col.t)
@@ -94,7 +98,7 @@ plot.profile <- function (x, type = "S",
             type = "n", xlab = "", ylab = "", axes = FALSE)
         axis(1, col = col.S, col.axis = col.S, col.lab = col.S)
         lines(x$data$salinity, x$data$pressure, col = col.S)
-        mtext("Salinity [PSU ]", side = 1, line = 2.5, col = col.S)
+        mtext("Salinity [ PSU ]", side = 1, line = 3, col = col.S)
         box()
 		if (grid)
 			grid(col=col.grid)

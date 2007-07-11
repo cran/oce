@@ -1,18 +1,19 @@
-plot.lobo.timeseries.TS <- function(lobo, col.S = "blue", col.T = "darkgreen", draw.legend=FALSE, ...)
+plot.lobo.timeseries.TS <- function(lobo,
+	S.col = "blue", T.col = "darkgreen", draw.legend=FALSE, ...)
 {
 	plot(lobo$time, lobo$S, type='l', ylab="", axes=FALSE, ...)
-	axis(2, col.lab=col.S)
+	axis(2, col.lab=S.col)
 	axis.POSIXct(1, lobo$time)
-	mtext("Salinity [PSU]", side=2, line=3, col=col.S)
+	mtext("Salinity [PSU]", side=2, line=3, col=S.col)
 	box()
-	lines(lobo$time, lobo$S, col=col.S, ...)
+	lines(lobo$time, lobo$S, col=S.col, ...)
 	par(new = TRUE)
 	plot(lobo$time, lobo$T, type='l', ylab="", axes=FALSE)
-	lines(lobo$time, lobo$T, col=col.T, ...)
-	axis(4, col=col.T)
-	mtext("Temperature [degC]", side=4, line=3, col=col.T)
+	lines(lobo$time, lobo$T, col=T.col, ...)
+	axis(4, col=T.col)
+	mtext("Temperature [degC]", side=4, line=3, col=T.col)
 	if (draw.legend)
-		legend("topright",c("S","T"),col=c(col.S,col.T),lwd=2)
+		legend("topright",c("S","T"),col=c(S.col,T.col),lwd=2)
 }
 plot.lobo.timeseries.uv <- function(lobo, col.u = "blue", col.v = "darkgreen", draw.legend=FALSE, ...)
 {
@@ -50,7 +51,7 @@ plot.lobo.timeseries.biology <- function(lobo, col.fluorescence = "blue", col.ni
 
 plot.lobo.TS <- function(lobo, ...)
 {
-	plot.TS(as.CTD(lobo$S, lobo$T, lobo$p),col.data="red",pch=20,cex=0.5, ...)
+	plot.TS(as.CTD(lobo$S, lobo$T, lobo$p), col="red", cex=0.5, ...)
 }
 plot.lobo <- function(x, ...)
 {

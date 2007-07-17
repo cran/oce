@@ -26,13 +26,15 @@ plot.ctd <- function (x, ref.lat = NaN, ref.lon = NaN,
         stop("method is only for ctd objects")
     oldpar <- par(no.readonly = TRUE)
     par(mfrow = c(2, 2))
-	par(mar=c(4,4,3.5,2))
+	par(mar=c(4,4,5,2))
     plot.profile(x, type = "S+T", grid=grid, col.grid=col.grid, ...)
+	par(mar=c(5,4,3,2))
     plot.TS(x, grid=grid, col.grid=col.grid, ...)
-    plot.profile(x, type = "sigmatheta+N2", grid=grid, col.grid=col.grid, ...)
+	par(mar=c(4,4,5,2))
+	plot.profile(x, type = "sigmatheta+N2", grid=grid, col.grid=col.grid, ...)
    	# Text
 	text.item <- function(item, label, cex=1) {
-		if (item != "NaN" && !is.na(item)) {
+		if (!is.null(item) && !is.na(item)) {
 			text(xloc, yloc, paste(label, item), adj = c(0, 0), cex=cex);
     		yloc <<- yloc - d.yloc;
 		}
@@ -47,23 +49,34 @@ plot.ctd <- function (x, ref.lat = NaN, ref.lon = NaN,
 	cex <- 0.9
     text(xloc, yloc, paste("CTD Station"), adj = c(0, 0), cex=cex)
     yloc <- yloc - d.yloc
-    text.item(x$filename, "  File:", cex=cex)
-    text.item(x$date,     "  Deployed: ", cex=cex)
-    if (!is.na(x$longitude) && !is.na(x$latitude)) {
-		text(xloc, yloc, paste("  At ", x$longitude, ",", x$latitude), adj = c(0, 0), cex=cex)
-    	yloc <- yloc - d.yloc
+	if (!is.null(x$filename))
+    	text.item(x$filename,    " File:     ", cex=cex)
+	if (!is.null(x$scientist))
+		text.item(x$scientist,   " Scientist:", cex=cex);
+	if (!is.null(x$institute))
+		text.item(x$institute,   " Institute:", cex=cex);
+	if (!is.null(x$date))
+    	text.item(x$date,        " Date:     ", cex=cex)
+	if (!is.null(x$ship))
+		text.item(x$ship,	     " Ship:     ", cex=cex);
+	if (!is.null(x$cruise))
+    	text.item(x$cruise,      " Cruise:   ", cex=cex)
+	if (!is.null(x$section))
+    	text.item(x$section,     " Section:  ", cex=cex)
+	if (!is.null(x$station))
+    	text.item(x$station,     " Station:  ", cex=cex)
+	if (!is.null(x$water.depth))
+    	text.item(x$water.depth, " Depth:    ", cex=cex)
+    if (!is.na(x$longitude) && !is.na(x$latitude)) { # See similar code in summary.ctd
+    	text.item(latlon.format(x$latitude, x$longitude),         " Location: ", cex=cex)
 	}
     if (!is.na(ref.lat) && !is.na(ref.lon)) {
-        dist <- geod.dist(x$latitude.dec, x$longitude.dec, ref.lat, 
+        dist <- geod.dist(x$latitude, x$longitude, ref.lat, 
             ref.lon)
         kms <- sprintf("%.2f km", dist/1000)
-        rlat <- text(xloc, yloc, paste("  Distance to (", dec_deg(ref.lon), 
+        rlat <- text(xloc, yloc, paste(" Distance to (", dec_deg(ref.lon), 
             ",", dec_deg(ref.lat), ") = ", kms), adj = c(0, 0), cex=cex)
         yloc <- yloc - d.yloc
     }
-	text.item(x$scientist,		"  Scientist:", cex=cex);
-	text.item(x$ship,			"  Ship:", cex=cex);
-	text.item(x$cruise,    		"  Cruise:", cex=cex);
-	text.item(x$institute, 		"  Institute:", cex=cex);
 	par(oldpar)
 }

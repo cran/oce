@@ -2,7 +2,7 @@
 library(oce)
 
 d <- geod.dist(45, 10, 46, 10)
-stopifnot(all.equal.numeric(d, 111141.5, 1e-2))
+stopifnot(all.equal.numeric(d, 111.1415, 1e-4))
 
 f <- coriolis(45)
 stopifnot(all.equal.numeric(f, 1.028445e-4, 1e-6))

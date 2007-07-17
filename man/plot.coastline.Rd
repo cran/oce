@@ -23,8 +23,8 @@
 }
 \examples{
 library(oce)
-data(coastline)
-plot(coastline)
+data(coastline.maritimes)
+plot(coastline.maritimes)
 }
 \references{
 \url{http://www.ngdc.noaa.gov/mgg/shorelines/shorelines.html}

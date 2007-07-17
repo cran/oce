@@ -13,7 +13,16 @@ read.lobo(file, cols=7)
   \item{cols}{Number of columns in dataset.}
 }
 \details{
-  This version of read.lobo is \strong{very crude}.
+
+This version of read.lobo is really quite crude, having been developed mainly for a ``predict the
+Spring bloom'' contest at Dalhousie University. In particular, the function assumes that the data
+columns are exactly as specified in the Examples section; if you reorder the columns or add new
+ones, this function is unlikely to work correctly. Furthermore, it should be noted that the file
+format was inferred simply by downloading files; the supplier makes no claims that the format will
+be fixed in time.
+
+It is also worth noting that there is no \code{\link{read.oce}} equivalent to \code{read.lobo},
+because the file format has no recognizable header.
 }
 \value{
   A \code{lobo} object containing:
@@ -39,21 +48,23 @@ that users should be able to alter it easily if, for example, the names of the c
 change to "current to the east", etc.
 }
 \seealso{
-\code{\link{summary.lobo}}
-\code{\link{plot.lobo}}
+A \code{lobo} object may be summarized with
+\code{\link{summary.lobo}} and plotted with
+\code{\link{plot.lobo}}.
 }
 \examples{
 \dontrun{
 library(oce)
 uri <- paste("http://loboviz.satlantic.com/cgi-bin/nph-data.cgi?",
-	"min_date=20070110&max_date=20091230",
+	"min_date=20070220&max_date=20070305",
  	"&x=date&",
  	"y=current_across1,current_along1,nitrate,fluorescence,salinity,temperature&",
  	"data_format=text",sep="")
-l <- read.lobo(uri)
-summary(l)
+lobo <- read.lobo(uri)
+summary(lobo)
 }
 }
+\source{The file was created with the lines given in the example.}
 \references{
 \url{http://www.satlantic.com/default.asp?mn=1.15.27.139}
 \url{http://www.mbari.org/lobo/}

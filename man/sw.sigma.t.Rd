@@ -22,13 +22,9 @@ minus 1000 kg/m\eqn{^3}{^3}.
   Quasi-potential density anomaly [kg/m\eqn{^3}{^3}].
 }
 \seealso{
-  Normally 
-  \eqn{\sigma_\theta}{sigma_theta}
-  is more useful than the present function.  Indeed,
-  \eqn{\sigma_t}{sigma_t} is mainly of historical interest,
-  going back to the days when it was too time-consuming 
-  to compute
-  \eqn{\sigma_\theta}{sigma_theta} by hand.
+Related density routines include: \code{link{sw.rho}}, 
+  \code{link{sw.sigma}}, and
+  \code{link{sw.sigma.theta}}.
 }
 \examples{
  sigma.t <- sw.sigma.t(35, 13, 1000) # 

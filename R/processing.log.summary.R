@@ -4,8 +4,9 @@ processing.log.summary <- function(object)
 		cat("Processing log:\n")
 		n <- length(object$processing.log$action)
 		for (i in 1:n) {
-			cat("  ", paste(as.character(as.POSIXlt(object$processing.log$time[i], "UTC")),
-				"UTC -", object$processing.log$action[i], "\n"))
+			cat(paste("  ",
+				paste(as.character(as.POSIXlt(object$processing.log$time[i], "UTC"),sep=""),
+				"UTC\n   ", object$processing.log$action[i], "\n"),sep=""))
 		}
 	}
 }

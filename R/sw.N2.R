@@ -6,5 +6,5 @@ sw.N2 <- function(p, sigma.theta, ...) # BUG: think more about best density meas
 	#cat(paste("df=",df,"\n"))
   	sigma.smooth <- smooth.spline(p[ok], sigma.theta[ok], df=df)
   	sigma.deriv <- predict(sigma.smooth, p, deriv = 1)
-  	9.8 * 9.8 * 1e-4 * sigma.deriv$y
+  	ifelse(ok, 9.8 * 9.8 * 1e-4 * sigma.deriv$y, NA)
 }

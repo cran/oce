@@ -1,5 +1,20 @@
+0.1.64: - add read.oce(), a generic function for reading several types of oceanographic files
+        - make read.ctd() understand WOCE-exchange files
+        - make read.sealevel() understand comma-separated data from MEDS
+        - make plot.sealevel() skip the spectral graphs, if the timeseries has NA values
+        - improve aesthetics of plot.ctd()
+        - extend plot.sealevel() by adding focus.time argument
+        - add ctd.decimate()
+        - add oce.as.POSIXlt()
+        - add latlon.format(), lat.format(), and lon.format()
+        - add as.coastline()
+        - add make.section()
+        - add summary.section()
+        - add plot.section()
+        - add data(section)
 0.1.63: - add sw.sound.speed()
-0.1.62: - add processing.log.append() and related code; improve ctd.trim()
+0.1.62: - add processing.log.append() and related code
+        - improve ctd.trim()
 0.1.61: - add rudimentary read/summary/plot functions for lobo datasets
 0.1.60: - add vignette; address some build-stage warning messages
 0.1.59: - set up data files to permit latin1 encoding of some content

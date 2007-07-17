@@ -12,6 +12,7 @@ ctd.add.column <- function (x, column=NULL, column.name="",
 		stop("must supply 'name'")
 	if (unit=="")
 		stop("must supply 'unit'")
+	result <- x
 	insert.in.header <- function(h, flag, content, content.name)
 	{
 		last.was.flag <- FALSE
@@ -47,15 +48,22 @@ ctd.add.column <- function (x, column=NULL, column.name="",
 			paste("# ", flag, " ", flags, " = ", content, sep=""),
 			h[after:n]))
 	}
-	h <- x$header
+	h <- result$header
 	h <- insert.in.header(h, "name", sprintf("%s: %s, [%s]", code, name, unit))
 	r <- range(column)
 	h <- insert.in.header(h, "span", sprintf("%f, %f",r[1],r[2]))
 	if (debug) {
-		cat("Original header:", x$header,sep="\n")
+		cat("Original header:", result$header,sep="\n")
 		cat("Modified header:", h,sep="\n")
 	}
-	x$header <- h
-    x$data[,column.name] <- column
-	return(x)
+	result$header <- h
+    result$data[,column.name] <- column
+	log.item <- paste("modified by ctd.add.column(x, column, column.name=\"", 
+		column.name, 
+		"\", code=\"", code,
+		"\", name=\"", name, 
+		"\", unit=\"", unit, 
+		"\", debug)",sep="")
+	result <- processing.log.append(result, log.item)
+	return(result)
 }

@@ -22,10 +22,9 @@ potential density of seawater, minus 1000 kg/m\eqn{^3}{^3}.
   Potential density anomaly [kg/m\eqn{^3}{^3}].
 }
 \seealso{
-  In the past, \eqn{\sigma_t}{sigma_t} was sometimes used
-  as an alternative, but today 
-  \eqn{\sigma_\theta}{sigma_theta}
-  is much more commonly used.
+Related density routines include: \code{link{sw.rho}}, 
+  \code{link{sw.sigma}}, and
+  \code{link{sw.sigma.t}}.
 }
 \examples{
  sigma.theta <- sw.sigma.theta(35, 13, 1000) #

@@ -1,85 +1,125 @@
-plot.sealevel <- function(x, ...)
+plot.sealevel <- function(x, focus.time=NULL, ...)
 {
 	# tidal constituents (in cpd):
 	# http://www.soest.hawaii.edu/oceanography/dluther/HOME/Tables/Kaw.htm
-    oldpar <- par(no.readonly = TRUE)
-	par(mfrow=c(4,1))
-	par(mar=c(4,5,4,1)+0.1)
-	par(cex=1)
-	eg.days <- 28
-	stop <- 24 * eg.days
-	eta.m <- x$eta / 1000 # use metres
-	MSL <- mean(eta.m, na.rm=TRUE)
-	tmp <- (pretty(max(eta.m-MSL,na.rm=TRUE)-min(eta.m-MSL,na.rm=TRUE))/2)[2]
-	ylim <- c(-tmp,tmp)
-	# Whole timeseries
-	par(mar=c(2,5,2,1)+0.1)
-	plot(x$start.time+x$hour*3600,eta.m-MSL,xlab="",ylab="Sealevel [m]",type='l',ylim=ylim)
-	abline(h=0,col="darkgreen")
-	mtext(side=4,text=sprintf("%.2f m",MSL),col="darkgreen")
-	grid()
-	title <- paste("Station: ",
-			x$station.number, " (",
-			x$station.name,   ",",
-			x$region,         ") ",
-			substr(x$latitude,1,2),
-				"o",
-				substr(x$latitude,3,4),
-				".",
-				substr(x$latitude,5,5), "'",
-				substr(x$latitude,6,6),
-			" ",
-			substr(x$longitude,1,3),
-				"o",
-				substr(x$longitude,4,5),
-				".",
-				substr(x$longitude,6,6), "'",
-				substr(x$longitude,7,7),
-			" ",
-			sep="")
-	title(main=list(title,cex=1))
-	# First bit
-	par(mar=c(2,5,1,1)+0.1)
-	plot(x$start.time+x$hour[1:stop]*3600,eta.m[1:stop]-MSL,xlab="",ylab="Sealevel [m]",type='l',ylim=ylim)
-	grid()
-	abline(h=0,col="darkgreen")
-	mtext(side=4,text=sprintf("%.2f m",MSL),col="darkgreen")
-#	title(paste("First",eg.days,"of",x$n/24,"days"))
-	Eta <- ts(eta.m,start=1,frequency=1)   
-	#s<-spectrum(Eta-mean(Eta),spans=c(5,5),xlim=c(0,0.1),plot=FALSE,log="y") 
-	#s<-spectrum(Eta-mean(Eta),xlim=c(0,0.1),plot=FALSE,log="y",demean=TRUE) 
-	s<-spectrum(Eta-mean(Eta),spans=3,plot=FALSE,log="y",demean=TRUE,detrend=TRUE) 
-	par(mar=c(2,5,1,1)+0.1)
-	plot(s$freq,s$spec,xlim=c(0,0.1),
-		xlab="",ylab=expression(paste("spectrum [",m^2/cph,"]")),
-		type='l',log="y")
-	grid()#col="lightgray",lty="dashed")
-	draw.constituent <- function(period=12,label="S2",col="darkred",side=1)
-	{
-		abline(v=1/period, col=col)
-		mtext(label, side=side, at=1/period, col=col,cex=0.8)
+	if (!is.null(focus.time)) {
+		focus.time <- as.POSIXct(focus.time)
+		focus <- (focus.time[1] <= x$data$t) & (x$data$t <= focus.time[2])
+		eta.m <- x$data$eta
+		MSL <- mean(eta.m, na.rm=TRUE)
+		eta <- (eta.m[focus] - MSL)
+		plot(as.POSIXct(x$data$t)[focus], eta, type='l',ylab="Sealevel Anomaly [m]")
+		abline(h=0,col="darkgreen")
+		mtext(side=4,text=sprintf("%.2f m", MSL),at=0,col="darkgreen")
+	} else {
+	    oldpar <- par(no.readonly = TRUE)
+		eg.days <- 28
+		stop <- 24 * eg.days
+		eta.m <- x$data$eta
+		MSL <- mean(eta.m, na.rm=TRUE)
+		tmp <- (pretty(max(eta.m-MSL,na.rm=TRUE)-min(eta.m-MSL,na.rm=TRUE))/2)[2]
+		ylim <- c(-tmp,tmp)
+		# Whole timeseries
+		n <- x$n
+		from <- as.POSIXlt(x$data$t[1])
+		from$mday <- 1
+		from$hour <- from$min <- from$sec <- 0
+		to <- as.POSIXlt(x$data$t[n])
+		to$mday <- 28
+		to$hour <- to$min <- to$sec <- 0
+		at.t <- seq(from=from, to=to, by="month")
+		num.NA <- sum(is.na(x$data$eta))
+		if (num.NA) {
+			warning("time series contains ", num.NA, " missing data, so no spectra will be drawn")
+			par(mfrow=c(2,1))
+			par(mar=c(4,5,3,1)+0.1)
+			par(cex=1)
+		} else {
+			par(mfrow=c(4,1))
+			par(mar=c(2,5,2,1)+0.1)
+			par(cex=1)
+		}
+		plot(as.POSIXlt(x$data$t)[1:n], eta.m-MSL,
+#			xlab="",ylab="Sealevel Anomaly [m]",type='l',ylim=ylim,
+			xlab="",ylab=expression(paste(eta-eta[0], "  [m]")), type='l',ylim=ylim,
+			lwd=0.5, axes=FALSE)	
+		axis(1, at.t, format(at.t, "%b %d"), cex=0.7)  # small font to get all 12 month names
+		yax <- axis(2)
+		box()
+		abline(h=yax, col="darkgray", lty="dotted")
+		abline(v=at.t, col="darkgray", lty="dotted")
+		abline(h=0,col="darkgreen")
+		mtext(side=4,text=sprintf("%.2f m",MSL),col="darkgreen")
+		title <- paste("Station ",
+				x$station.number, " (",
+				x$station.name,   ") ",
+				x$region,         "",
+				" ", latlon.format(x$latitude, x$longitude),
+				if (!is.na(x$year)) paste(" (", x$year, ")") else "",
+				sep="")
+		mtext(side=3, title, line=0.5)
+		# First bit
+		if (num.NA)
+			par(mar=c(3,5,0,1)+0.1)
+		else
+			par(mar=c(2,5,1,1)+0.1)
+		from <- as.POSIXlt(x$data$t[1])
+		from$hour <- from$min <- from$sec <- 0
+		to <- from + 28 * 86400 # 28 days
+		at.week <- seq(from=from, to=to, by="week")
+		at.day  <- seq(from=from, to=to, by="day")
+		tmp <- (pretty(max(eta.m[1:stop]-MSL,na.rm=TRUE)-min(eta.m[1:stop]-MSL,na.rm=TRUE))/2)[2]
+		ylim <- c(-tmp,tmp)
+		plot(x$data$t[1:stop], eta.m[1:stop] - MSL,
+#			xlab="",ylab="Sealevel Anomaly [m]",type='l',ylim=ylim, axes=FALSE)
+			xlab="",ylab=expression(paste(eta-eta[0], "  [m]")), type='l',ylim=ylim, axes=FALSE)
+		axis(1, at.week, labels=format(at.week, "%b %d"))
+		yax <- axis(2)
+		abline(h=yax, col="lightgray", lty="dotted")
+		box()
+		abline(v=at.week, col="darkgray", lty="dotted")
+		abline(v=at.day, col="lightgray", lty="dotted")
+		abline(h=0,col="darkgreen")
+		mtext(side=4,text=sprintf("%.2f m",MSL),col="darkgreen")
+		# 
+		# Draw spectra, if series has no NA, so that spectrum is easy to construct
+		if (!num.NA) {
+			Eta <- ts(eta.m,start=1,frequency=1)   
+			#s<-spectrum(Eta-mean(Eta),spans=c(5,5),xlim=c(0,0.1),plot=FALSE,log="y") 
+			#s<-spectrum(Eta-mean(Eta),xlim=c(0,0.1),plot=FALSE,log="y",demean=TRUE) 
+			s <- spectrum(Eta-mean(Eta),spans=3,plot=FALSE,log="y",demean=TRUE,detrend=TRUE) 
+			par(mar=c(2,5,1,1)+0.1)
+			plot(s$freq,s$spec,xlim=c(0,0.1),
+				xlab="",ylab=expression(paste(Gamma^2, "   [",m^2/cph,"]")),
+				type='l',log="y")
+			grid()#col="lightgray",lty="dashed")
+			draw.constituent <- function(frequency=0.0805114007,label="M2",col="darkred",side=1)
+			{
+				abline(v=frequency, col=col)
+				mtext(label, side=side, at=frequency, col=col,cex=0.8)
+			}
+			draw.constituents <- function()
+			{
+				draw.constituent(0.0387306544, "O1", side=1)
+				#draw.constituent(0.0416666721, "S1", side=3)
+				draw.constituent(0.0417807462, "K1", side=3)
+	    		draw.constituent(0.0789992488, "N2", side=1)
+				draw.constituent(0.0805114007, "M2", side=3)
+				draw.constituent(0.0833333333, "S2", side=1)
+			}
+			draw.constituents()
+			n <- x$n
+			n.cum.spec <- length(s$spec)
+			cum.spec <- sqrt(cumsum(s$spec) / n.cum.spec)
+			e<-eta.m-mean(eta.m)
+			par(mar=c(4,5,1,1)+0.1)
+			plot(s$freq,cum.spec,
+				xlab="Frequency [ cph ]",
+				ylab=expression(paste(integral(Gamma,0,f)," df [m]")),
+				type='l',xlim=c(0,0.1))
+			grid()
+			draw.constituents()
+		}
+		par(oldpar)
 	}
-	#draw.constituent(23.9344, "K1")
-	#draw.constituent(24.0659, "P1")
-	#draw.constituent(25.8194, "O1")        
-	draw.constituent(24,      "S1",side=1)             
-	draw.constituent(360/14.4966939, "M1",side=3,col="blue")       
-	draw.constituent(12, "S2")
-	draw.constituent(360/14.4966939/2, "M2",side=3,col="blue")
-                              
-	n <- x$n
-	n.cum.spec <- length(s$spec)
-	cum.spec <- sqrt(cumsum(s$spec) / n.cum.spec)
-	e<-eta.m-mean(eta.m)
-	par(mar=c(4,5,1,1)+0.1)
-	plot(s$freq,cum.spec,
-		xlab="frequency [cph]",
-		ylab=expression(paste(integral(spectrum,0,f)," df [m]")),
-		type='l',xlim=c(0,0.1))
-	grid()
-	draw.constituent(24,      "S1",side=1)             
-	draw.constituent(360/14.4966939, "M1",side=3,col="blue")       
-	draw.constituent(12, "S2")
-	draw.constituent(360/14.4966939/2, "M2",side=3,col="blue")
-	par(oldpar)
 }

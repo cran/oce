@@ -1,16 +1,221 @@
-# I really should add ability to specify column numbers, to avoid wasting time
-# on ad-hoc header tweaks.  DEK 2006-01-27
+#* Sea-Bird SBE 25 Data File:
+#CTD,20060609WHPOSIODAM
 
-# Read Seabird data file.  Note on headers: '*' is machine-generated,
-# '**' is a user header, and '#' is a post-processing header.
 read.ctd <- function(file,
-	   	type="SBE19",
+	   	type=NULL,
    		debug=FALSE,
 		columns=NULL,
 	   	check.human.headers=TRUE)
 {
-  	filename <- file
+	filename <- NULL
+	if (is.null(type)) {
+		if (is.character(file)) {
+			filename <- file
+	    	file <- file(file, "r")
+	    	on.exit(close(file))
+	  	}
+	  	if (!inherits(file, "connection")) {
+	    	stop("argument `file' must be a character string or connection")
+		}
+		if (!isOpen(file)) {
+	    	open(file, "r")
+	    	on.exit(close(file))
+	  	}
+		line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE);
+		pushBack(line, file)
+		if ("CTD" == substr(line, 1, 3))
+			type <- "WOCE"
+		else if ("* Sea-Bird" == substr(line, 1, 10))
+	 		type <- "SBE19"
+		else
+			stop("Cannot discover type in line", line, "\n")
+	} else {
+		#cat("type:",type,"\n")
+		if (!is.na(pmatch(type, "SBE19"))) {
+			type <- "SBE19"
+		} else if (!is.na(pmatch(type, "WOCE"))) {
+			type <- "WOCE"
+		} else {
+			stop("type must be SBE19 or WOCE, not ", type)
+		}
+	}
+	switch(type,
+		SBE19 = read.ctd.SBE19(file, filename, debug, columns, check.human.headers),
+		WOCE  = read.ctd.WOCE(file, filename, debug, columns, missing.value=-999))
+}
+
+read.ctd.WOCE <- function(file,
+		filename,
+   		debug=FALSE,
+		columns=NULL,
+	   	missing.value=-999)
+{
   	if (is.character(file)) {
+		filename <- file
+	   	file <- file(file, "r")
+    	on.exit(close(file))
+  	}
+  	if (!inherits(file, "connection")) {
+    	stop("argument `file' must be a character string or connection")
+	}
+	if (!isOpen(file)) {
+    	open(file, "r")
+    	on.exit(close(file))
+  	}
+	# Header
+	scientist <- ship <- institute <- address <- NULL
+	filename.orig <- NULL
+	sample.interval <- NaN
+	section.id <- NULL
+	station <- NULL
+	system.upload.time <- NULL
+  	latitude <- longitude <- NaN
+  	start.time <- NULL
+  	water.depth <- NaN
+  	date <- recovery <- NULL
+  	header <- c();
+  	col.names.inferred <- NULL
+  	found.temperature <- found.salinity <- found.pressure <- FALSE
+  	found.sigma.theta <- found.sigma.t <- found.sigma <- FALSE
+	found.conductivity <- found.conductivity.ratio <- FALSE
+	conductivity.standard <- 4.2914
+	# http://www.nodc.noaa.gov/woce_V2/disk02/exchange/exchange_format_desc.htm
+	# First line
+	line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE);
+	if(debug)
+  		cat(paste("examining header line '",line,"'\n"));
+	header <- line
+	#	CTD, 20000718WHPOSIOSCD
+	if ("CTD" != substr(line, 1, 3))
+		stop("Can only read WOCE files of type CTD")
+	tmp <- sub("(.*), ", "", line);
+	date <- substr(tmp, 1, 8)
+	diw <- substr(tmp, 9, nchar(tmp)) # really, divisionINSTITUTEwho
+	institute <- diw # BUG: really, it is division, institute, who, strung together
+	if (0 < regexpr("SIO", diw))
+		institute <- "SIO"
+  	while (TRUE) {
+	   	line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE);
+    	if(debug)
+	  		cat(paste("examining header line '",line,"'\n"));
+    	header <- c(header, line);
+		# SAMPLE:
+		#      EXPOCODE = 31WTTUNES_3
+		#      SECTION_ID = P16C
+		#      STNNBR = 221
+		#      CAST = 1
+		#      DATE = 19910901
+		#      TIME = 0817
+		#      LATITUDE = -17.5053
+		#      LONGITUDE = -150.4812
+		#      BOTTOM = 3600
+		if (!(0 < (r<-regexpr("^#", line)))) {
+			# NUMBER_HEADERS = 10
+			nh <- as.numeric(sub("(.*)NUMBER_HEADERS = ", "", ignore.case=TRUE, line))
+      		#cat("nh=",nh,"\n")
+			for (i in 2:nh) {
+			   	line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE);
+				header <- c(header, line)
+				if ((0 < (r<-regexpr("LATITUDE",  line))))
+					latitude  <- as.numeric(sub("[a-zA-Z =]*","", line))
+				# The section ID appears in various ways ("SECT", "SECTION_ID")
+				if ((0 < (r<-regexpr("SECT",  line))))
+					section.id <- sub("(.*)[ \t]*=[ \t]*", "", line)
+				if ((0 < (r<-regexpr("LONGITUDE", line))))
+					longitude <- as.numeric(sub("(.*) =","", line))
+				if ((0 < (r<-regexpr("DATE", line)))) {
+					d <- sub("[ ]*DATE[ ]*=[ ]*", "", line)
+					#cat(paste("d is", d, "\n"))
+					date <- oce.as.POSIXlt(d, "%Y%m%d")
+					#cat(paste("the date is", date, "\n"))
+				}
+				if ((0 < (r<-regexpr("DEPTH", line))))
+					water.depth <- as.numeric(sub("[a-zA-Z =]*","", line))
+				if ((0 < (r<-regexpr("DEPTH", line))))
+					water.depth <- as.numeric(sub("[a-zA-Z =]*","", line))
+				if ((0 < (r<-regexpr("STNNBR", line))))
+					station <- as.numeric(sub("[a-zA-Z =]*","", line))
+			}
+			break
+		}
+	}
+	# catch any remaining "#" lines.
+	while (TRUE) {
+	   	line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE)
+		if (!(0 < (r<-regexpr("^#", line))))
+			break
+		header <- c(header, line)
+	}
+	#CTDPRS,CTDPRS_FLAG_W,CTDTMP,CTDTMP_FLAG_W,CTDSAL,CTDSAL_FLAG_W,CTDOXY,CTDOXY_FLAG_W,
+	var.names <- strsplit(line, split=",")[[1]]
+   	line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE)
+	var.units <- strsplit(line, split=",")[[1]]
+	pcol <- pmatch("CTDPRS", var.names)
+	if (is.na(pcol))	stop("cannot find pressure column in list", paste(var.names,","))
+	Scol <- pmatch("CTDSAL", var.names)
+	if (is.na(Scol))	stop("cannot find salinity column in list", paste(var.names,","))
+	Tcol <- pmatch("CTDTMP", var.names)
+	if (is.na(Tcol))	stop("cannot find temperature column in list", paste(var.names,","))
+
+	var.names <- strsplit(line, split=",")[[1]]
+   	line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE)
+	var.units <- strsplit(line, split=",")[[1]]
+	pressure <- NULL
+	temperature <- NULL
+	salinity <- NULL
+	while (TRUE) {
+	   	line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE)
+		if (0 < (r<-regexpr("END_DATA", line)))
+			break
+		items <- strsplit(line, ",")[[1]]
+		pressure    <- c(pressure,    as.numeric(items[pcol]))
+		salinity    <- c(salinity,    as.numeric(items[Scol]))
+		temperature <- c(temperature, as.numeric(items[Tcol]))
+	}
+	pressure[pressure == missing.value] <- NA
+	salinity[salinity == missing.value] <- NA
+	temperature[temperature == missing.value] <- NA
+	sigma <- sw.sigma(salinity, temperature, pressure)
+	data <- data.frame(pressure=pressure, salinity=salinity, temperature=temperature, sigma=sigma)
+	processing.log <- list(time=c(Sys.time()), 
+		action=c(paste("created by read.ctd.WOCE(\"",filename,"\", type=\"WOCE\")",sep="")))
+  	res <- list(header=header, 
+	      		filename=filename, # provided to this routine
+			    filename.orig=filename.orig, # from instrument
+				system.upload.time=system.upload.time,
+              	ship=ship,
+              	scientist=scientist,
+              	institute=institute,
+              	address=address,
+              	cruise=NULL,
+				section.id=section.id,
+				station=station,
+              	date=date,
+	      		start.time=start.time,
+              	latitude=latitude,
+              	longitude=longitude,
+              	recovery=recovery,
+              	water.depth=water.depth,
+              	sample.interval=sample.interval,
+				processing.log=processing.log,
+              	data=data);
+  	class(res) <- "ctd"
+	res
+}
+
+read.ctd.SBE19 <- function(file,
+		filename,
+   		debug=FALSE,
+		columns=NULL,
+	   	check.human.headers=TRUE)
+{
+	# I really should add ability to specify column numbers, to avoid wasting time
+	# on ad-hoc header tweaks.  DEK 2006-01-27
+
+	# Read Seabird data file.  Note on headers: '*' is machine-generated,
+	# '**' is a user header, and '#' is a post-processing header.
+  	if (is.character(file)) {
+		filename <- file
     	file <- file(file, "r")
     	on.exit(close(file))
   	}
@@ -21,16 +226,15 @@ read.ctd <- function(file,
     	open(file, "r")
     	on.exit(close(file))
   	}
-  	if (type != "SBE19") {
-   		stop("Only the type 'SBE19' is understood.  Try using this value (the default) no matter what your instrument is")
-	}
-  	# Header
-  	scientist <- ship <- institute <- address <- NaN
-  	sample.interval <- NaN
-  	mooring <- NaN
-  	latitude <- longitude <- latitude.dec <- longitude.dec <- NaN
-  	start.time <- NaN
-  	start.time.list <- NaN
+	# Header
+	scientist <- ship <- institute <- address <- NULL
+	filename.orig <- NULL
+	sample.interval <- NaN
+	section.id <- NULL
+	station <- NULL
+	system.upload.time <- NULL
+  	latitude <- longitude <- NaN
+  	start.time <- NULL
   	water.depth <- NaN
   	date <- recovery <- NaN
   	header <- c();
@@ -95,12 +299,24 @@ read.ctd <- function(file,
       		col.names.inferred <- c(col.names.inferred, name)
     	}
     	if (0 < (r<-regexpr("date:", lline))) {
-      		date <- sub("(.*)date:([ ])*", "", lline);
+      		d <- sub("(.*)date:([ ])*", "", lline);
+			date <- oce.as.POSIXlt(d)
+		}
+	   	if (0 < (r<-regexpr("filename", lline))) {
+			#cat("FileName... ",lline,"\n")
+	    	filename.orig <- sub("(.*)FileName =([ ])*", "", ignore.case=TRUE, lline);
+			#cat(" ... '",filename.orig,"'\n")
+		}
+		if (0 < (r<-regexpr("system upload time", lline))) {
+			#cat(lline, "\n")
+			d <- sub("([^=]*)[ ]*=[ ]*", "", ignore.case=TRUE, lline);
+			#cat(d,"\n")
+			system.upload.time <- oce.as.POSIXlt(d)
+      		#cat(paste("system upload time:", system.upload.time, "\n"))
 		}
     	if (0 < (r<-regexpr("latitude:", lline))) {
       		north <- TRUE
-      		latitude <- sub("(.*)latitude:([ ])*", "", ignore.case=TRUE, line);
-      		trimmed <- latitude
+      		trimmed <- sub("(.*)latitude:([ ])*", "", ignore.case=TRUE, line);
       		if (0 < (r <- regexpr("[Nn]", trimmed))) {
         		trimmed <- sub("n", "", ignore.case=TRUE, trimmed)
       		}
@@ -110,9 +326,9 @@ read.ctd <- function(file,
       		}
       		lat <- strsplit(trimmed, " ")
       		if (length(lat[[1]]) == 2) {
-        		latitude.dec <- as.double(lat[[1]][1]) + as.double(lat[[1]][2]) / 60
+        		latitude <- as.double(lat[[1]][1]) + as.double(lat[[1]][2]) / 60
         		if (!north) {
-          			latitude.dec <- -(latitude.dec)
+          			latitude <- -(latitude)
         		}
       		}
 			else {
@@ -121,8 +337,7 @@ read.ctd <- function(file,
     	}
     	if (0 < (r<-regexpr("longitude:", lline))) {
       		east <- TRUE
-      		longitude <- sub("(.*)longitude:([ ])*", "", ignore.case=TRUE, line);
-      		trimmed <- longitude
+      		trimmed <- sub("(.*)longitude:([ ])*", "", ignore.case=TRUE, line);
       		if (0 < (r <- regexpr("[Ee]", trimmed))) {
         		trimmed <- sub("e", "", ignore.case=TRUE, trimmed)
       		}
@@ -132,9 +347,9 @@ read.ctd <- function(file,
       		}
       		lon <- strsplit(trimmed, " ")
       		if (length(lon[[1]]) == 2) {
-        		longitude.dec <- as.double(lon[[1]][1]) + as.double(lon[[1]][2]) / 60
+        		longitude <- as.double(lon[[1]][1]) + as.double(lon[[1]][2]) / 60
         		if (!east) {
-          			longitude.dec <- -(longitude.dec)
+          			longitude <- -(longitude)
         		}
       		}
  			else {
@@ -142,35 +357,8 @@ read.ctd <- function(file,
       		}
     	}
     	if (0 < (r<-regexpr("start_time =", lline))) {
-       		#    # start_time = Aug 28 2002 18:25:50
-       		#    1      2     3  4   5   6     7
-       		items <- strsplit(lline, " ")
-       		if (length(items[[1]]) != 7) {
-         		warning("cannot parse start_time in header since need 7 items but got ", length(items[[1]]), " items in '", line, "'\n")
-       		}
-			else {
-				month <- items[[1]][4]; # UGLY: ascii
-				if (month=="jan") month= 1; # FILL IN LATER
-				if (month=="feb") month= 2; # FILL IN LATER
-				if (month=="mar") month= 3; # FILL IN LATER
-				if (month=="apr") month= 4; # FILL IN LATER
-				if (month=="may") month= 5; # FILL IN LATER
-				if (month=="jun") month= 6; # FILL IN LATER
-				if (month=="jul") month= 7; # FILL IN LATER
-				if (month=="aug") month= 8; # FILL IN LATER
-				if (month=="sep") month= 9; # FILL IN LATER
-				if (month=="oct") month= 10; # FILL IN LATER
-				if (month=="nov") month= 11; # FILL IN LATER
-				if (month=="dec") month= 12; # FILL IN LATER
-				day <- as(items[[1]][5], "numeric")
-				year <- as(items[[1]][6], "numeric");
-				hms <- strsplit(items[[1]][7],":")
-				hour <- hms[[1]][1]
-				min  <- hms[[1]][2]
-				sec  <- hms[[1]][3]
-				start.time <- ISOdatetime(year,month,day,hour,min,sec,"GMT")
-				start.time.list <- c(year,month,day,hour,min,sec)
-      		}
+			d <- sub("#[ ]*start_time[ ]*=[ ]*", "", lline)
+			start.time <- oce.as.POSIXlt(d)
     	}
     	if (0 < (r<-regexpr("ship:", lline))) {
 			#cat(line);cat("\n");
@@ -185,8 +373,6 @@ read.ctd <- function(file,
       		address <- sub("(.*)address:([ ])*", "", ignore.case=TRUE, line); # full string
     	if (0 < (r<-regexpr("cruise:", lline)))
       		cruise <- sub("(.*)cruise:([ ])*", "", ignore.case=TRUE, line); # full string
-    	if (0 < (r<-regexpr("mooring:", lline)))
-      		mooring <- sub("(.*)mooring:([ ])*", "", lline);
     	if (0 < (r<-regexpr("recovery:", lline)))
       		recovery <- sub("(.*)recovery:([ ])*", "", lline);
     	if (0 < (r<-regexpr("water depth:", lline))) {
@@ -242,9 +428,9 @@ read.ctd <- function(file,
     		warning("'** Latitude:' not found in header");
   		if (is.nan(longitude))
     		warning("'** Longitude:' not found in header");
-  		if (is.nan(date))
+  		if (is.null(date))
     		warning("'** Date:' not found in header");
-  		if (is.nan(recovery))
+  		if (is.null(recovery))
     		warning("'** Recovery' not found in header"); 
   	}
   	# Require p,S,T data at least
@@ -264,22 +450,22 @@ read.ctd <- function(file,
 #  	data <- read.table(file,col.names=col.names.forced,colClasses="numeric");
   	data <- read.table(file,col.names=col.names.inferred,colClasses="numeric");
 	processing.log <- list(time=c(Sys.time()), 
-		action=c(paste("created by read.ctd(\"",filename,"\", type=",type,")",sep="")))
+		action=c(paste("created by read.ctd.SBE19(\"",filename,"\", type=\"SBE19\")",sep="")))
   	res <- list(header=header, 
-	      		filename=filename,
+	      		filename=filename, # provided to this routine
+			    filename.orig=filename.orig, # from instrument
+				system.upload.time=system.upload.time,
               	ship=ship,
               	scientist=scientist,
               	institute=institute,
               	address=address,
               	cruise=cruise,
-              	mooring=mooring,
+				section.id=section.id,
+				station=station,
               	date=date,
 	      		start.time=start.time,
-	      		start.time.list=start.time.list,
               	latitude=latitude,
-              	latitude.dec=latitude.dec,
               	longitude=longitude,
-              	longitude.dec=longitude.dec,
               	recovery=recovery,
               	water.depth=water.depth,
               	sample.interval=sample.interval,

@@ -1,6 +1,6 @@
 read.lobo <- function(file, cols=7) {
-	header <- scan(file, what=character(), sep="\t", nlines=1)
-	d <- scan(file, what=character(), sep="\t", skip=1)
+	header <- scan(file, what=character(), sep="\t", nlines=1, quiet=TRUE)
+	d <- scan(file, what=character(), sep="\t", skip=1,  quiet=TRUE)
 	# find columns. BUG: assumes names don't change
 	col.date         <- grep("date", header)
 	col.u            <- grep("current across", header)

@@ -5,10 +5,14 @@
   Plot a CTD profile, in any of several common formats.
 }
 \usage{
-plot.profile(x, type="S", 
-col.S="darkgreen", col.t="red",
-col.rho="blue", col.N2="brown",
-grid=FALSE, col.grid="lightgray",
+plot.profile(x,
+type="S", 
+col.S="darkgreen",
+col.t="red",
+col.rho="blue",
+col.N2="brown",
+grid=FALSE, 
+col.grid="lightgray",
 \dots)
 }
 \arguments{

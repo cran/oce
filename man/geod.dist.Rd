@@ -2,7 +2,7 @@
 \alias{geod.dist}
 \title{Geodesic distance on earth}
 \description{
-  Compute geodesic distance on surface of earth [km].
+  Compute geodesic distance on surface of earth.
 }
 \usage{
   km <- geod.dist(lat1, lon1, lat2, lon2);
@@ -32,7 +32,7 @@ along the track starting from zero.
 
 }
 \value{
-  Distance between "1" and "2" in kilometres, measured along the surface of
+  Distance between "1" and "2" in metres, measured along the surface of
   the earth.  If "1" is a vector, the returned value is a vector of the same length.
 }
 
@@ -44,5 +44,5 @@ along the track starting from zero.
  km <- geod.dist(45, 100, 46, 100)/1000 
 }
 \references{}
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley \email{Dan.Kelley@Dal.Ca} packaged this, based on R code sent to him by Darren Gillis, who in 2003 had modified Fortran code written in 1974 by (according to comment cards in the source) L. Pfeifer and J. G. Gergen.}
 \keyword{misc}

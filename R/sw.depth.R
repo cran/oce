@@ -1,4 +1,4 @@
-sw.depth <-function(p, lat, degrees=TRUE)
+sw.depth <- function(p, lat, degrees=TRUE)
 {
   	if (degrees)
     	lat <- lat * 0.0174532925199433

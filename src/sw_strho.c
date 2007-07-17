@@ -12,10 +12,10 @@ sw_strho(double *pT, double *prho, double *pp, double *res)
 	*res = NA_REAL;
 	if (ISNA(*pT) || ISNA(*prho) || ISNA(*pp))
 		return;
-#define SLOW  0.001		/* left bracket on T search region */
-#define SHIGH 100.0		/* right bracket on T search region */
+#define SLOW  0.001		/* left bracket on search region */
+#define SHIGH 200.0		/* right bracket on search region */
 #define RHO_TOL 0.001		/* stop if get to within this rho value */
-#define S_RES   0.001		/* stop if bracket T to within this resolution */
+#define S_RES   0.001		/* stop if bracket to within this resolution */
 	bs_res = strho_bisection_search(&S, SLOW, SHIGH, S_RES, RHO_TOL);/* BUG: ignoring result */
 	//printf(" trsho(S=%f  rho=%f  p=%f) returning %f\n",S,sig_0,p_ref,T);
 	*res = S;

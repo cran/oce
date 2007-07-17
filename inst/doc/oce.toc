@@ -1,0 +1,10 @@
+\contentsline {section}{\numberline {1}Why is the package needed?}{1}
+\contentsline {section}{\numberline {2}Calculations of seawater properties}{2}
+\contentsline {section}{\numberline {3}CTD data}{3}
+\contentsline {subsection}{\numberline {3.1}Example with pre-trimmed data}{3}
+\contentsline {subsection}{\numberline {3.2}Example with raw data}{3}
+\contentsline {subsection}{\numberline {3.3}Example with WOCE archive data}{6}
+\contentsline {subsection}{\numberline {3.4}Section plots}{7}
+\contentsline {section}{\numberline {4}Coastline data}{7}
+\contentsline {section}{\numberline {5}Sea-level data}{10}
+\contentsline {section}{\numberline {6}Lobo data}{10}

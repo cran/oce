@@ -1,5 +1,6 @@
 sw.spice <- function(S, t, p)
 {
+	dim <- dim(S)
   	nS <- length(S)
   	nt <- length(t)
   	np <- length(p)
@@ -15,9 +16,10 @@ sw.spice <- function(S, t, p)
         	spice = double(1), 
 			NAOK=TRUE, PACKAGE = "oce")$spice
     	if (i == 1)
-			res <- this.spice
+			rval <- this.spice
 		else
-			res <- c(res, this.spice)
+			rval <- c(rval, this.spice)
   	}
-  	res
+	dim(rval) <- dim
+  	rval
 }

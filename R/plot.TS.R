@@ -12,8 +12,10 @@ plot.TS <- function (x,
 {
     if (!inherits(x, "ctd")) 
         stop("method is only for ctd objects")
-    plot(x$data$salinity, x$data$temperature, xlab = "", 
-        ylab = expression(paste("temperature [ ", degree, "C ]")), cex=cex, pch=pch, col=col, ...)
+    plot(x$data$salinity, x$data$temperature, xlab = "",
+		xaxs = if (min(x$data$salinity)==0) "i" else "r", # avoid plotting S<0
+        ylab = expression(paste("temperature [ ", degree, "C ]")), 
+		cex=cex, pch=pch, col=col, ...)
 	S.axis.min <- par()$usr[1]
 	S.axis.max <- par()$usr[2]
 	T.axis.min <- par()$usr[3]
@@ -21,7 +23,7 @@ plot.TS <- function (x,
     mtext("Salinity [ PSU ]", side = 1, line = 3)
 	if (grid)
 		grid(col="lightgray")
-	rho.min <- sw.sigma(S.axis.min, T.axis.max, 0)
+	rho.min <- sw.sigma(max(0,S.axis.min), T.axis.max, 0)
 	rho.max <- sw.sigma(S.axis.max, T.axis.min, 0)
     if (length(rho.levels) == 1) {
 		rho.list <- pretty(c(rho.min, rho.max), n=rho.levels)
@@ -49,6 +51,6 @@ plot.TS <- function (x,
 		}
     }
 	# Freezing point
-	Sr <- range(x$data$salinity, na.rm=TRUE)
+	Sr <- c(max(0, S.axis.min), S.axis.max)
 	lines(Sr, sw.T.freeze(Sr, p=0), col="darkblue")
 }

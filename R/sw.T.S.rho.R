@@ -1,5 +1,6 @@
-sw.T.S.rho <- function(S, rho, p)
+sw.T.S.rho <- function(S, rho, p) # FIXME: should be vectorized
 {
+	dim <- dim(S)
   	nS <- length(S)
   	nrho <- length(rho)
   	np <- length(p)
@@ -19,9 +20,10 @@ sw.T.S.rho <- function(S, rho, p)
             t = double(1), 
 			NAOK=TRUE, PACKAGE = "oce")$t
     	if (i == 1)
-			res <- this.t
+			rval <- this.t
 		else
-			res <- c(res, this.t)
+			rval <- c(rval, this.t)
   	}
-  	res
+	dim(rval) <- dim
+  	rval
 }

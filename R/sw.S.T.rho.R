@@ -1,5 +1,6 @@
-sw.S.T.rho <- function(t, rho, p)
+sw.S.T.rho <- function(t, rho, p) # FIXME: should be vectorized for speed
 {
+	dim <- dim(t)
   	nt <- length(t)
   	nrho <- length(rho)
   	np <- length(p)
@@ -19,9 +20,10 @@ sw.S.T.rho <- function(t, rho, p)
 			S = double(1),
 			NAOK=TRUE, PACKAGE = "oce")$S
     	if (i == 1)
-			res <- this.S
+			rval <- this.S
 		else
-			res <- c(res, this.S)
+			rval <- c(rval, this.S)
   	}
-  	res
+	dim(rval) <- dim
+  	rval
 }

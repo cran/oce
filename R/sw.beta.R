@@ -1,5 +1,6 @@
 sw.beta <- function(S, t, p, is.theta = FALSE)
 {
+	dim <- dim(S)
   	nS <- length(S)
   	nt <- length(t)
 	if (!is.theta)
@@ -14,11 +15,13 @@ sw.beta <- function(S, t, p, is.theta = FALSE)
 	}
   	if (nS != np)
     	stop("lengths of S and p must agree, but they are ", nS, " and ", np, ", respectively")
-  	.C("sw_beta",
+  	rval <- .C("sw_beta",
 		as.integer(nS),
 		as.double(S),
 		as.double(t),
 		as.double(p),
 		value = double(nS),
 		NAOK=TRUE, PACKAGE = "oce")$value
+	dim(rval) <- dim
+	rval
 }

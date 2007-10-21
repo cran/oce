@@ -2,7 +2,7 @@
 #include <Rdefines.h>
 
 void
-sw_alpha_over_beta(int *n, double *pS, double *ptheta, double *pp, double *value) // T is theta
+sw_alpha_over_beta(int *n, double *pS, double *ptheta, double *pp, double *value)
 {
 	int i;
 	for (i = 0; i < *n; i++) {

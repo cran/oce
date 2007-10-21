@@ -1,6 +1,6 @@
 Package: oce
-Version: 0.1.64
-Date: 2007-07-11
+Version: 0.1.67
+Date: 2007-10-21
 Title: Analysis of Oceanographic data
 Author: Dan Kelley <Dan.Kelley@Dal.Ca>
 Maintainer: Dan Kelley <Dan.Kelley@Dal.Ca>
@@ -10,7 +10,7 @@ Description: Supports the analysis of Oceanographic data,
  files, etc.  Also includes functions for calculating
  seawater properties such as density, and derived properties
  such as buoyancy frequency.
-License: GPL version 2 or newer
+License: GPL (>= 2)
 URL: http://myweb.dal.ca/kelley/pub/sof/oce/index.php
 LazyLoad: yes
-Packaged: Mon Jul 16 21:59:55 2007; hornik
+Packaged: Sun Oct 21 17:06:20 2007; hornik

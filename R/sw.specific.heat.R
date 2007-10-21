@@ -2,6 +2,7 @@
 # check value: cpsw = 3849.500 j/(kg deg. c) for s = 40 (ipss-78),
 sw.specific.heat <- function(S, t, p)
 {
+	dim <- dim(S)
   	nS <- length(S)
   	nt <- length(t)
   	np <- length(p)
@@ -14,9 +15,10 @@ sw.specific.heat <- function(S, t, p)
 				as.double(t[i]), as.double(p[i]),
                 CP = double(1), PACKAGE = "oce")$CP
     	if (i == 1)
-			res <- this.CP
+			rval <- this.CP
 		else
-			res <- c(res, this.CP)
+			rval <- c(rval, this.CP)
   	}
-	res
+	dim(rval) <- dim
+	rval
 }

@@ -17,7 +17,7 @@ sw_strho(double *pT, double *prho, double *pp, double *res)
 #define RHO_TOL 0.001		/* stop if get to within this rho value */
 #define S_RES   0.001		/* stop if bracket to within this resolution */
 	bs_res = strho_bisection_search(&S, SLOW, SHIGH, S_RES, RHO_TOL);/* BUG: ignoring result */
-	//printf(" trsho(S=%f  rho=%f  p=%f) returning %f\n",S,sig_0,p_ref,T);
+	/* printf(" trsho(S=%f  rho=%f  p=%f) returning %f\n",S,sig_0,p_ref,T); */
 	*res = S;
 }
 
@@ -30,7 +30,7 @@ strho_f(double x)
 	double this_rho;
 	int n=1;
 	sw_rho(&n, &x, &T, &p_ref, &this_rho);
-	//printf(" f returning %f\n", this_rho-1000.0-sig_0);
+	/* printf(" f returning %f\n", this_rho-1000.0-sig_0); */
 	return (this_rho - 1000.0 - sig_0);
 }
 
@@ -46,7 +46,7 @@ strho_f(double x)
 int
 strho_bisection_search(double *x, double x1, double x2, double xresolution, double ftol)
 {
-	//printf("in bisection_search(x=%f,  x1=%f,  x2=%f)\n",*x,x1,x2);
+	/* printf("in bisection_search(x=%f,  x1=%f,  x2=%f)\n",*x,x1,x2); */
 	extern double strho_f(double x);
 	double g1, g2, g;
 	g1 = strho_f(x1);
@@ -55,19 +55,19 @@ strho_bisection_search(double *x, double x1, double x2, double xresolution, doub
 		*x = NA_REAL;
 		return 0;
 	}
-	//printf("TOP of bs.  g1=%f   g2=%f\n",g1,g2);
+	/* printf("TOP of bs.  g1=%f   g2=%f\n",g1,g2); */
 	while (fabs (g = strho_f (*x = (x1 + x2) / 2.0)) > ftol || fabs (x1 - x2) > xresolution) {
-		//printf("in bis loop x=%f   g=%f   g1=%f\n",*x,g,g1);
+		/* printf("in bis loop x=%f   g=%f   g1=%f\n",*x,g,g1); */
 		if (g1 * g < 0) { /* root is nearer x1 so move x2 to x */
 			x2 = *x;
 			g2 = g;
-			//printf("bs CASE 1.  x1=%f  x2=%f  g1=%f  g2=%f\n",x1,x2,g1,g2);
+			/* printf("bs CASE 1.  x1=%f  x2=%f  g1=%f  g2=%f\n",x1,x2,g1,g2); */
 		} else if (g2 * g < 0) { /* root is nearer x2 so move x1 to x */
 			x1 = *x;
 			g1 = g;
-			//printf("bs CASE 2.  x1=%f  x2=%f  g1=%f  g2=%f\n",x1,x2,g1,g2);
+			/* printf("bs CASE 2.  x1=%f  x2=%f  g1=%f  g2=%f\n",x1,x2,g1,g2); */
 		} else {	/* not bracketed BUG */
-			//printf("bs CASE 3 (not bracketed)  x1=%f  x2=%f  g1=%f  g2=%f\n",x1,x2,g1,g2);
+			/* printf("bs CASE 3 (not bracketed)  x1=%f  x2=%f  g1=%f  g2=%f\n",x1,x2,g1,g2);*/
 			*x = NA_REAL;
 			return (1); /* exact solution */
 		}

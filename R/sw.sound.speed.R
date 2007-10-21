@@ -1,5 +1,6 @@
 sw.sound.speed <- function(S, t, p)
 {
+	dim <- dim(S)
   	nS <- length(S)
   	nt <- length(t)
   	np <- length(p)
@@ -12,11 +13,13 @@ sw.sound.speed <- function(S, t, p)
 	}
   	if (nS != np)
     	stop("lengths of S and p must agree, but they are ", nS, " and ", np, ", respectively")
-  	.C("sw_svel",
+  	rval <- .C("sw_svel",
 		as.integer(nS),
 		as.double(S),
 		as.double(t),
 		as.double(p),
 		value = double(nS),
 		NAOK=TRUE, PACKAGE = "oce")$value
+	dim(rval) <- dim
+	rval
 }

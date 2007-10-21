@@ -1,3 +1,7 @@
+0.1.67: - allow sw.rho() and similar routines take matrices as arguments for S, t, etc
+0.1.66: - fix bug in plot.TS() that prevented it from showing some isopycnals if min(S)=0
+0.1.65: - switch to using UNESCO formulation for sw potential temperature by default
+        - prevent warnings with C90 compiler on some machines
 0.1.64: - add read.oce(), a generic function for reading several types of oceanographic files
         - make read.ctd() understand WOCE-exchange files
         - make read.sealevel() understand comma-separated data from MEDS

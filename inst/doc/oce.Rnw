@@ -19,7 +19,7 @@
 \newcommand{\workedanswer}[1]{
 \goodbreak
 \vskip 1.5ex plus 0.5ex minus 0.5ex
-\noindent\textbf{Exercise #1.} 
+\noindent\textbf{Exercise #1.}
 }
 
 
@@ -107,7 +107,9 @@ Details and examples are, of course, provided in the documentation of these func
 $100$dbar, with salinity $34$PSU and temperature $10^\circ$C?
 (b) What temperature would the parcel have if raised adiabatically to the surface?
 (c) What density would it have if raised adiabatically to the surface?
-(d) What density would it have if lowered about 100m, increasing the pressure to $200$dbar?}
+(d) What density would it have if lowered about 100m, increasing the pressure to $200$dbar?
+(e) Draw a blank TS diagram with $S$ from $30$ to $40$PSU and $T$ from $-2$ to $20^\circ C$.
+}
 
 
 \section{CTD data}
@@ -424,7 +426,7 @@ adjustment of existing features, as well as ideas for new features.
 
 \vspace{2cm}
 
-See the last page of this document for answers to exercises.
+See the end of the document for answers to exercises.
 
 \end{center}
 
@@ -434,16 +436,19 @@ See the last page of this document for answers to exercises.
 	
 \section*{Answers to exercises}
 
+
 \workedanswer{1}
 The first two lines should be self-explanatory.  Comparing the last two lines
 reveals that \verb@sw.theta@ has an optional parameter \verb@pref@ that gives 
 the reference pressure.  Consult the documentation (e.g. \verb@?sw.rho@) for the 
 details of these parameters.
-<<eval=FALSE>>=
+<<>>=
+library(oce)
 sw.rho(S=34, t=10, p=100)
 sw.theta(S=34, t=10, p=100)
 sw.rho(S=34, t=sw.theta(S=34, t=10, p=100), p=0)
 sw.rho(S=34, t=sw.theta(S=34, t=10, p=100, pref=200), p=200)
+plot.TS(as.CTD(c(30,40),c(-2,20),rep(0,2)), grid=TRUE, col="white")
 @
 
 \workedanswer{2}

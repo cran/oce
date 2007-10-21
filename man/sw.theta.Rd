@@ -6,7 +6,7 @@ Compute \eqn{\theta}{theta}, the potential temperature of seawater.
 }
 \usage{
   t.potential <- sw.theta(S, t, p, pref=0, 
-	       method=c("Bryden1973","UNESCO1983"));
+	       method=c("UNESCO1983","Bryden1973"));
 }
 \arguments{
   \item{S}{\emph{in-situ} salinity [PSU]}

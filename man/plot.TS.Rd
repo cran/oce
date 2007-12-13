@@ -6,15 +6,17 @@
 }
 \usage{
 plot.TS(x,
-    rho.levels = 6,
+	rho.levels = 6,
 	grid = FALSE,
 	col.grid = "lightgray",
-    rho1000 = FALSE,
-    col = par("col"),
+	rho1000 = FALSE,
+	col = par("col"),
 	col.rho = "darkgray",
-    cex.rho = 0.8*par("cex"),
+	cex.rho = 0.9*par("cex"),
 	cex = par("cex"),
 	pch = 20,
+	rotate.rho.labels = FALSE,
+	connect.points = FALSE,
 	\dots)
 }
 \arguments{
@@ -30,6 +32,8 @@ plot.TS(x,
   \item{cex.rho}{size of isopycnal labels.}
   \item{cex}{size of symbols on graph.}
   \item{pch}{code for symbols on graph.}
+  \item{rotate.rho.labels}{if TRUE, labels in right-hand margin are written vertically}
+  \item{connect.points}{if TRUE, the points are connected with line segments, in sequence}
   \item{\dots}{optional arguments passed to plotting functions.}
 }
 \details{
@@ -56,7 +60,7 @@ Srange <- c(34.15, 35.94)
 Trange <- c(3.3,18)
 SS <- Srange[1] + (Srange[2] - Srange[1]) *(1:N)/(N-1) + 0.01*rnorm(N)
 TT <- Trange[1] + (Trange[2] - Trange[1]) *(1:N)/(N-1) + 0.01*rnorm(N)
-plot.TS(as.CTD(S=SS, T=TT, p=0))
+plot.TS(as.ctd(S=SS, T=TT, p=0))
 }
 }
 \references{}

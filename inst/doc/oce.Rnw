@@ -1,11 +1,13 @@
 \documentclass{article}
+%--------- adjust textmate window until this just fits ----------------------------------------
+
 \usepackage{url}
 \usepackage{fullpage}
 \usepackage{boxedminipage}
 
 \parskip=1.25ex plus 1ex minus 1.25ex
 
-% \VignetteIndexEntry{Introduction to the oce package}
+% \VignetteIndexEntry{Introduction to oce}
 % \VignetteDepends{oce}
 % \VignetteKeyword{oceanography}
 
@@ -29,7 +31,6 @@
 \author{Dan E. Kelley}
 \maketitle
 
-%--------- adjust textmate window until this just fits ----------------------------------------
 
 \begin{abstract}
 
@@ -108,7 +109,7 @@ $100$dbar, with salinity $34$PSU and temperature $10^\circ$C?
 (b) What temperature would the parcel have if raised adiabatically to the surface?
 (c) What density would it have if raised adiabatically to the surface?
 (d) What density would it have if lowered about 100m, increasing the pressure to $200$dbar?
-(e) Draw a blank TS diagram with $S$ from $30$ to $40$PSU and $T$ from $-2$ to $20^\circ C$.
+(e) Draw a blank TS diagram with $S$ from $30$ to $40$PSU and $T$ from $-2$ to $20^\circ C$.  (Answers are provided at the end of this document.)
 }
 
 
@@ -266,7 +267,7 @@ data(coastline.halifax)
 plot(section, coastline=coastline.halifax)
 @
 will plot a summary diagram (Figure~\ref{fig:section}) containing sections of $T$, $S$, and
-$\sigma$, along with a chart indicating station locations. In addition to such overview
+$\sigma_\theta$, along with a chart indicating station locations. In addition to such overview
 diagrams, \verb@plot@ can also create individual plots of individual properties.
 
 \begin{figure}
@@ -276,18 +277,47 @@ diagrams, \verb@plot@ can also create individual plots of individual properties.
 <<sectionplot>>
 @
 \end{center}
-\caption{CTD section of data acquired in Halifax Harbour in the autumn of 2003
-by students in the \emph{Introduction to Physical Oceanography} class at
-Dalhousie University.  (Dan Kelley
-teaches this class, but the work at sea was
-supervised by his teaching assistant
-Natacha Bernier, who received her PhD from Dalhousie in 2005.)
-The stations go from a site near
-the Sackville river inflow at the northwest portion of Bedford Basin
-to site at the entrance of the harbour.}
-\label{fig:section}
+\caption{\label{fig:section}
+CTD section of data acquired in Halifax Harbour in the autumn
+of 2003 by students in the \emph{Introduction to Physical
+Oceanography} class at Dalhousie University.  (Dan Kelley teaches this
+class, and the work at sea was supervised by his teaching assistant
+Natacha Bernier, who received her PhD from Dalhousie in 2005.)  The
+stations go from a site near the Sackville river inflow at the
+northwest portion of Bedford Basin to site at the entrance of the
+harbour. (The author's office at Dalhousie is located near
+the bottom axis at 63.58W.)}
 \end{figure}
 
+The Halifax section is supplied in a pre-gridded format, but some
+datasets have different pressure levels at each station.  For such
+cases, the \verb@section.grid@ function may be used, e.g.
+<<label=sectionplota03,include=FALSE>>=
+# File source -- http://cchdo.ucsd.edu/data_access?ExpoCode=90CT40_1
+# a03 <- read.section("a03_hy1.csv")
+data(a03)
+a03g <- section.grid(a03, p=seq(0,2000,50))
+data(coastline.world)
+# Select the Gulf Stream region
+plot(a03g,station.indices=seq(124,102),coastline=coastline.world,map.xlim=c(-80,-60))
+@
+produces Figure~\ref{fig:sectiona03}.  The ship doing the sampling was travelling
+westward from the Mediterranean towards North America, taking 124 stations in total;
+the \verb@station.indices@ value selects the last few stations of the section, during
+which the ship heading was changed to run in a northwesterly direction, to cross
+isobaths (and perhaps, the Gulf Stream) at right angles.
+
+\begin{figure}
+\begin{center}
+\setkeys{Gin}{width=1\textwidth}
+<<label=sectionfiga03,fig=TRUE,width=9, height=9, echo=FALSE>>=
+<<sectionplota03>>
+@
+\end{center}
+\caption{\label{fig:sectiona03}
+Portion of CTD A03, showing the region of the Gulf Stream.
+}
+\end{figure}
 
 
 \section{Coastline data}
@@ -302,7 +332,8 @@ produce a map of the coastline of Eastern Canada (Figure~\ref{fig:coastline}). S
 data are available from a variety of sources. The NOAA site
 \url{http://www.ngdc.noaa.gov/mgg_coastline/}
 is particularly popular, and it has the advantage
-of providing data in Splus format.
+of providing data in Splus format.  The function \verb@read.coastline@ can handle
+reading that format (plus some other formats).
 \begin{figure}
 \begin{center}
 \setkeys{Gin}{width=0.5\textwidth}
@@ -398,61 +429,56 @@ and using plotting tricks to reduce the obscuring of this time signal.}
 
 \section{The future of oce}
 
-The present version of \verb@oce@ can only handle data types that I have been using lately in my
-research. I am quite aware that there are some prominent gaps in the coverage. For example, the
-package should handle acoustic-Doppler current profiler data, which are a part of many field
-programs. I would like to see \verb@oce@ handle microstructure data as well, but I realize that this
-is mostly a personal interest; the wider community probably regards ADCP support as a higher
-priority.
+The present version of \verb@oce@ can only handle data types that the
+author has been using lately in his research. New data types will be
+added as the need arises in that work.  The author would be happy to
+add other data types, if a convincing argument is made that they will
+be useful to the Oceanographic community.  (The data types need not be
+restricted to Physical Oceanography, but the author will need some
+help in dealing with other types of data, given his research focus.)
 
-Omissions in the category of oceanographic algorithms include tidal analysis, formulae for air-sea
-fluxes, and the handling of numerical model output. Tidal analysis will be added soon, but there are
-no definite plans for other algorithms, partly because it is not clear which has the highest
-priority.
+As for algorithms, there are plenty of gaps in \verb@oce@.  The
+package should have routines for tidal decomposition, for example, but
+that is just one example of many that could be listed.  
 
-I would like to learn what ideas \verb@oce@ users have for new features. I cannot promise to add
-every feature that might be suggested, but I do hope to build up a prioritized list that will
-motivate me to apply my time and skill in a useful way.
+Two principles will guide the addition of data types and functions:
+(a) the need, as perceived by the author or by other contributors and
+(b) the ease with which the additions can be made.  
 
-My hope is that \verb@oce@ will develop into a tool that many oceanographers find to be useful. For
-this reason, I hope \verb@oce@ users will take the time to send me reports of bugs, and ideas for
-adjustment of existing features, as well as ideas for new features.
+The site \url{http://code.google.com/p/r-oce/} provides a window on
+the development that goes on between the CRAN releases of the
+package. Please visit the site to report bugs, to suggest new
+features, or just to see how \verb@oce@ development is coming along.
 
-\begin{center}
+%\begin{center}
+%\vspace{2cm}
+%
+%------
+%
+%\vspace{2cm}
+%
+%See the end of the document for answers to exercises.
+%
+%\end{center}
+%
+%\newpage	
 
-\vspace{2cm}
+\goodbreak
 
-------
-
-\vspace{2cm}
-
-See the end of the document for answers to exercises.
-
-\end{center}
-
-
-
-\newpage	
-	
 \section*{Answers to exercises}
 
-
 \workedanswer{1}
-The first two lines should be self-explanatory.  Comparing the last two lines
-reveals that \verb@sw.theta@ has an optional parameter \verb@pref@ that gives 
-the reference pressure.  Consult the documentation (e.g. \verb@?sw.rho@) for the 
-details of these parameters.
 <<>>=
 library(oce)
 sw.rho(S=34, t=10, p=100)
 sw.theta(S=34, t=10, p=100)
 sw.rho(S=34, t=sw.theta(S=34, t=10, p=100), p=0)
 sw.rho(S=34, t=sw.theta(S=34, t=10, p=100, pref=200), p=200)
-plot.TS(as.CTD(c(30,40),c(-2,20),rep(0,2)), grid=TRUE, col="white")
+plot.TS(as.ctd(c(30,40),c(-2,20),rep(0,2)), grid=TRUE, col="white")
 @
 
 \workedanswer{2}
-One may argue as to the limits of the pycnocline, taken for illustration here to be the range from 5dbar to 12dbar.
+Although one may argue as to the limits of the pycnocline, for illustration let us say it is in 5bar to 12dbar range.
 <<>>=
 library(oce)
 data(ctd)
@@ -462,7 +488,7 @@ plot.profile(pycnocline, type="sigmatheta+N2")
 
 \workedanswer{3} A web search will tell you that Hurricane Juan hit about midnight, 2003-sep-28.
 The author can verify that the strongest winds occurred a bit after midnight -- that was the time
-he moved to a room without windows to escape from the threat of flying glass.
+he moved to a room without windows, in fear of flying glass.
 <<>>=
 library(oce)
 data(sealevel)
@@ -484,7 +510,7 @@ mtext("M2",at=1/12.42,side=3)
 
 \workedanswer{5}
 The resampling with \verb@i@ is to avoid obscuring colours by overplotting.  Note 
-the use of \verb@as.CTD@ to assemble the data into something that \verb@plot.TS@ can handle.
+the use of \verb@as.ctd@ to assemble the data into something that \verb@plot.TS@ can handle.
 This is an example of the practicality of \verb@oce@; eventually, \verb@plot.TS@ may be altered to take simple columns of data, but for now it seems reasonable to require the user to assemble
 these data into a CTD object, and to spend development time on something that will pay
 off better.
@@ -494,7 +520,7 @@ data(lobo)
 i <- sample(length(lobo$T))
 a <- as.numeric(lobo$time[i] - lobo$time[1])
 col <- hsv(0.5 * a / max(a), 1, 1)
-plot.TS(as.CTD(lobo$S[i], lobo$T[i], 0), col=col, pch=1)
+plot.TS(as.ctd(lobo$S[i], lobo$T[i], 0), col=col, pch=1)
 @
 
 \end{document}

@@ -5,7 +5,8 @@ read.ctd <- function(file,
 	   	type=NULL,
    		debug=FALSE,
 		columns=NULL,
-	   	check.human.headers=TRUE)
+		station="",
+	   	check.human.headers=FALSE)
 {
 	filename <- NULL
 	if (is.null(type)) {
@@ -40,14 +41,15 @@ read.ctd <- function(file,
 		}
 	}
 	switch(type,
-		SBE19 = read.ctd.SBE19(file, filename, debug, columns, check.human.headers),
-		WOCE  = read.ctd.WOCE(file, filename, debug, columns, missing.value=-999))
+		SBE19 = read.ctd.SBE19(file, filename, debug, columns, station=station, check.human.headers=check.human.headers),
+		WOCE  = read.ctd.WOCE(file, filename, debug, columns, station=station, missing.value=-999))
 }
 
 read.ctd.WOCE <- function(file,
 		filename,
    		debug=FALSE,
 		columns=NULL,
+		station="",
 	   	missing.value=-999)
 {
   	if (is.character(file)) {
@@ -67,7 +69,6 @@ read.ctd.WOCE <- function(file,
 	filename.orig <- NULL
 	sample.interval <- NaN
 	section.id <- NULL
-	station <- NULL
 	system.upload.time <- NULL
   	latitude <- longitude <- NaN
   	start.time <- NULL
@@ -175,8 +176,8 @@ read.ctd.WOCE <- function(file,
 	pressure[pressure == missing.value] <- NA
 	salinity[salinity == missing.value] <- NA
 	temperature[temperature == missing.value] <- NA
-	sigma <- sw.sigma(salinity, temperature, pressure)
-	data <- data.frame(pressure=pressure, salinity=salinity, temperature=temperature, sigma=sigma)
+	sigma.theta <- sw.sigma.theta(salinity, temperature, pressure)
+	data <- data.frame(pressure=pressure, salinity=salinity, temperature=temperature, sigma.theta=sigma.theta)
 	processing.log <- list(time=c(Sys.time()), 
 		action=c(paste("created by read.ctd.WOCE(\"",filename,"\", type=\"WOCE\")",sep="")))
   	res <- list(header=header, 
@@ -207,6 +208,7 @@ read.ctd.SBE19 <- function(file,
 		filename,
    		debug=FALSE,
 		columns=NULL,
+		station="",
 	   	check.human.headers=TRUE)
 {
 	# I really should add ability to specify column numbers, to avoid wasting time
@@ -231,7 +233,6 @@ read.ctd.SBE19 <- function(file,
 	filename.orig <- NULL
 	sample.interval <- NaN
 	section.id <- NULL
-	station <- NULL
 	system.upload.time <- NULL
   	latitude <- longitude <- NaN
   	start.time <- NULL
@@ -239,7 +240,7 @@ read.ctd.SBE19 <- function(file,
   	date <- recovery <- NaN
   	header <- c();
   	col.names.inferred <- NULL
-  	found.temperature <- found.salinity <- found.pressure <- FALSE
+  	found.temperature <- found.salinity <- found.pressure <- found.time <- FALSE
   	found.sigma.theta <- found.sigma.t <- found.sigma <- FALSE
 	found.conductivity <- found.conductivity.ratio <- FALSE
 	conductivity.standard <- 4.2914
@@ -255,13 +256,17 @@ read.ctd.SBE19 <- function(file,
 		lline <- tolower(aline);
     	# BUG: the discovery of CTD column names is brittle to file-format changes
     	if (0 < (r <- regexpr("# name ", lline))) {
-	  		if (debug)
-				print(paste("line=",line))
+			if (debug) cat("lline: '",lline,"'\n",sep="")
       		tokens <- strsplit(line, split=" ")
       		name <- tokens[[1]][6]
+			if (debug) cat("  name: '",name,"'\n",sep="")
       		if (0 < regexpr("pressure", lline)) {
         		name <- "pressure"
         		found.pressure <- TRUE
+      		}
+      		if (0 < regexpr("time", lline)) {
+        		name <- "time"
+        		found.time <- TRUE
       		}
       		if (0 < regexpr("salinity", lline)) {
         		name <- "salinity"
@@ -421,10 +426,10 @@ read.ctd.SBE19 <- function(file,
   	}
   	if (debug)
     	cat("Finished reading header\n")
-  	if (is.nan(sample.interval))
-    	warning("'* sample rate =' not found in header");
   	if (check.human.headers) {
-		if (is.nan(latitude))
+		if (is.nan(sample.interval))
+    		warning("'* sample rate =' not found in header");
+		if (is.nan(latitude)  & check.human.headers)
     		warning("'** Latitude:' not found in header");
   		if (is.nan(longitude))
     		warning("'** Longitude:' not found in header");
@@ -485,7 +490,7 @@ read.ctd.SBE19 <- function(file,
 		}
 		res <- ctd.add.column(res, S, "salinity", "sal", "salinity", "PSU")
   	}
-	res <- ctd.add.column(res, sw.sigma(res$data$salinity, res$data$temperature, res$data$pressure),
-		"sigma", "sigma", "sigma", "kg/m^3")
+	res <- ctd.add.column(res, sw.sigma.theta(res$data$salinity, res$data$temperature, res$data$pressure),
+		"sigma.theta", "sigma.theta", "sigma.theta", "kg/m^3")
 	return(res)
 }

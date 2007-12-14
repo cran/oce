@@ -22,7 +22,7 @@ ctd.add.column <- function (x, column=NULL, column.name="",
 		n <- length(h)
 		for (i in 1:n) {
 			if (flag == "name") { # increment nquan (skip on e.g. "span")
-				g <- grep("#[\t ]*nquan[\t ]*=[\t ]*", h[i], useBytes=TRUE)
+				g <- grep("#[\t ]*nquan[\t ]*=[\t ]*", h[i], perl=TRUE, useBytes=TRUE)
 				if (length(g)) {
 					nquan <- unlist(strsplit(h[i], "\\s"))[4]
 					nquan.new <- as.character(1 + as.integer(nquan))
@@ -30,12 +30,12 @@ ctd.add.column <- function (x, column=NULL, column.name="",
 				}
 			}
 			if (last.was.flag) {
-				if (!length(grep(pattern, h[i], useBytes=TRUE))) {
+				if (!length(grep(pattern, h[i], perl=TRUE, useBytes=TRUE))) {
 					after <- i
 					break
 				}
 			}
-			if (length(grep(pattern, h[i], useBytes=TRUE))) {
+			if (length(grep(pattern, h[i], perl=TRUE, useBytes=TRUE))) {
 				last.was.flag <- TRUE
 				flags <- flags + 1
 			}

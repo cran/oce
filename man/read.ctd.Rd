@@ -6,7 +6,7 @@ Read a CTD data file, producing an object of type \code{ctd}.
 }
 \usage{
 read.ctd(file, type=NULL, debug=FALSE,
- 	columns=NULL, check.human.headers=TRUE)
+ 	columns=NULL, station="", check.human.headers=FALSE)
 }
 \arguments{
   \item{file}{a connection or a character string giving the name of the
@@ -20,6 +20,7 @@ WOCE-exchange file is assumed.}
 				 of columns.  The list must include \code{"pressure"}, \code{"temperature"}
 				 and either \code{"conductivity"} or \code{"salinity"}, or else very little
 				 can be done with the file.}
+  \item{station}{Station number.}
   \item{check.human.headers}{produces warnings for missing human-written header items.}
 }
 \details{
@@ -99,10 +100,15 @@ plot.TS(x) # just the TS
 }
 }
 \references{
-The Seabird CTD instrument is described at
-\url{http://www.seabird.com/products/spec_sheets/19plusdata.htm},
-and  
-the WOCE-exchange format is described at
+The Sea-Bird SBE 19plus profiler is described at
+\url{http://www.seabird.com/products/spec_sheets/19plusdata.htm}.
+The company recommends the use of their own software, and perhaps for this reason
+it is difficult to find a specification for the data files.  Inspection of
+data files led to most of the code used in Oce.  If the company ever publishes
+standards for the data formats, of course Oce will be adjusted.  In the meantime,
+it does a reasonable job in many instances.
+
+The WOCE-exchange format is described at
 \url{http://www.nodc.noaa.gov/woce_V2/disk02/exchange/exchange_format_desc.htm}
 }
 \author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}

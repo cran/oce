@@ -27,14 +27,13 @@ BUG: the 'arc/info ungenerate' format is not yet understood.
 }
 \value{
   A \code{coastline} object containing
-  \item{processing.log}{A processing log.}
-  \item{data}{a list containing \code{longitude}, in decimal degrees, positive east of Greenwich, and \code{latitude}, in decimal degrees postive north of the equator.}
+  \item{processing.log}{A processing log in the standard oce format.}
+  \item{data}{a list containing \code{longitude}, in decimal degrees positive east of Greenwich, and \code{latitude}, in decimal degrees positive north of the equator.}
 }
 
 \seealso{
 The generic function \code{\link{read.oce}} provides an alternative to this.
-
-Coastlines may be summarized with \code{\link{summary.coastline}} and plotted with
+Coastlines may be created from latitude/longitude pairs with \code{\link{as.coastline}}, summarized with \code{\link{summary.coastline}} and plotted with
 \code{\link{plot.coastline}}.
 }
 \examples{
@@ -53,7 +52,8 @@ lines(cl$data$longitude-360, cl$data$latitude)
 }
 }
 \references{
-  \url{http://www.ngdc.noaa.gov/mgg/shorelines/shorelines.html}
+The NOAA site \url{http://www.ngdc.noaa.gov/mgg/shorelines/shorelines.html}
+is a good source for coastline data files.
 }
 \author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
 \keyword{misc}

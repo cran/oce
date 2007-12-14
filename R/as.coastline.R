@@ -9,7 +9,3 @@ as.coastline <- function(latitude, longitude)
 	class(res) <- "coastline"
 	res
 }
-# d<-read.table("bbasin.dat",header=FALSE)
-# harbour<-c(1645:2105)
-# georges <-c(4866:4885)
-# coastline.halifax<-as.coastline(latitude[c(harbour,georges)],longitude[c(harbour,georges)]-360)

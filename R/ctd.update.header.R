@@ -7,7 +7,7 @@ ctd.update.header <- function (x, debug = FALSE)
 	replace.header.element <- function(h, match, new)
 	{
 		for (i in 1:length(h)) {
-			if (length(grep(match, h[i], useBytes=TRUE))) {
+			if (length(grep(match, h[i], perl=TRUE, useBytes=TRUE))) {
 				h[i] <- new;
 				break;
 			}

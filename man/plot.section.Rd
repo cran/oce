@@ -10,7 +10,6 @@
 	at=NULL,
 	labels=TRUE,
 	grid=FALSE,
-	col.grid="lightgray",
 	station.indices,
 	coastline=NULL,
 	map.xlim=NULL,
@@ -21,8 +20,7 @@
   \item{field}{is the field to plot.  Common options are \code{"temperature"}, \code{"salinity"}, and \code{"density"}, although \code{plot.section} will accept any named field that is present in the constituent CTD profiles. If \code{NULL} (the default) is given, then temperature, salinity and density are graphed.}
   \item{at}{if \code{NULL} (the default), the x axis will indicate the distance of the stations from the first in the section.  (This may give errors in the contouring routine, if the stations are not present in a geographical order.)  If a list, then it indicates the values at which stations will be plotted.}
   \item{labels}{either a logical, indicating whether to put labels on the x axis, or a vector that is a list of labels to be placed at the x positions indicated by \code{at}.}
-  \item{grid}{if \code{TRUE}, grid lines will be drawn on plots.}
-  \item{col.grid}{color of grid lines.}
+  \item{grid}{if \code{TRUE}, points are drawn at data locations.}
   \item{station.indices}{optional list of the indices of stations to use.  Note that these are indices, not the names of stations, e.g. to focus on the first four stations, use \code{station.numbers=c(1,4)}.}
   \item{coastline}{optional \code{coastline} to be used in a station map}
   \item{map.xlim}{optional xlim for station location, which can be helpful in ensuring that a recognizable coastline can be seen}
@@ -57,16 +55,14 @@ be summarized with \code{\link{summary.section}}.
 library(oce)
 # Halifax Harbour
 data(section)
-data(coastline.halifax)
-plot(section, coastline=coastline.halifax)
+data(coastline.hal)
+plot(section, coastline=coastline.hal)
 # Gulf Stream
-# File source -- http://cchdo.ucsd.edu/data_access?ExpoCode=90CT40_1
-# a03 <- read.section("a03_hy1.csv")
 data(a03)
-a03g <- section.grid(a03, p=seq(0,2000,10))
+Gulf.Stream <- section.subset(a03, 124:102)
+Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0,2000,10))
 data(coastline.world)
-# Select the Gulf Stream region
-plot(a03g,station.indices=seq(124,102),coastline=coastline.world,map.xlim=c(-80,-60))
+plot(Gulf.Stream.gridded, coastline=coastline.world, map.xlim=c(-80,-60))
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

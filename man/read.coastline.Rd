@@ -25,10 +25,14 @@ The MapGen format is of the form
 BUG: the 'arc/info ungenerate' format is not yet understood.
 
 }
-\value{
-  A \code{coastline} object containing
-  \item{processing.log}{A processing log in the standard oce format.}
-  \item{data}{a list containing \code{longitude}, in decimal degrees positive east of Greenwich, and \code{latitude}, in decimal degrees positive north of the equator.}
+\value{An object of \code{\link[base]{class}} \code{"coastline"}, 
+which is a \code{\link[base]{list}} containing
+  \item{data}{a list containing 
+      \item{longitude}{the longitude in decimal degrees positive east of Greenwich.}
+      \item{latitude}{the latitude in decimal degrees positive north of the equator.}
+  }
+  \item{metadata}{a NULL item that may be used in a future version.}
+  \item{processing.log}{A processing log, in the standard \code{oce} format.}
 }
 
 \seealso{
@@ -55,5 +59,5 @@ lines(cl$data$longitude-360, cl$data$latitude)
 The NOAA site \url{http://www.ngdc.noaa.gov/mgg/shorelines/shorelines.html}
 is a good source for coastline data files.
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

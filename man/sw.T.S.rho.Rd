@@ -5,7 +5,7 @@
   Compute \emph{in-situ} temperature, given salinity, density, and pressure.
 }
 \usage{
-  temperature <- sw.T.S.rho(S, sig, p);
+temperature <- sw.T.S.rho(S, sig, p)
 }
 \arguments{
   \item{S}{\emph{in-situ} salinity [PSU]}
@@ -34,5 +34,5 @@
  Gill, A.E., 1982. \emph{Atmosphere-ocean Dynamics}, 
  Academic Press, New York, 662 pp.
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

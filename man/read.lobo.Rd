@@ -24,31 +24,37 @@ be fixed in time.
 It is also worth noting that there is no \code{\link{read.oce}} equivalent to \code{read.lobo},
 because the file format has no recognizable header.
 }
-\value{
-  A \code{lobo} object containing:
-\item{header}{The files' header.}
-\item{processing.log}{The processing log.}
-\item{time}{Times of observations in the time series.}
-\item{u}{Time series of u component of velocity.}
-\item{v}{Time series of v component of velocity.}
-\item{nitrate}{Time series of nitrate concentration.} 
-\item{fluorescence}{Time series of fluorescence.}
-\item{S}{Time series of salinity.}
-\item{T}{Time series of temperature.}
-\item{p}{Time series of pressure.}
-\item{data}{The files's data, as a simple list.}
+
+\value{An object of \code{\link[base]{class}} \code{"lobo"}, which is a \code{\link[base]{list}} containing
+  \item{data}{a \code{\link{data.frame}} containing the following vectors:
+    \item{\code{time}}{the times of observation}
+    \item{\code{u}}{one horizontal component of velocity (necessarily eastward) [m/s]}
+    \item{\code{v}}{an orthogonal component of horizontal velocity [m/s]}
+    \item{\code{salinity}}{the salinity [PSU]}
+    \item{\code{temperature}}{the in-situ temperature [degC]}
+    \item{\code{p}}{the pressure [dbar]}
+    \item{\code{nitrate}}{the nitrate concentration [unit?]}
+    \item{\code{fluorescence}}{[unit?]}
+  }
+  \item{metadata}{a list containing \code{header}, the header from the data file.}
+  \item{processing.log}{A processing log, in the standard \code{oce} format.}
 }
 
 \note{The \code{oce} author was unable to find a description of the data format, and so
-\code{read.lobo} makes some restrictive assumptions about the data format, expecting to find
-exactly 7 columns, whose names in the header contain the words "date", "current across", "current
-along", "nitrate", "fluorescence", "salinity", and "temperature". If these are not found,
-\code{read.lobo} is likely to fail in some way. Luckily, the code is written in a simple way, so
+\code{read.lobo} makes some restrictive assumptions about the data format, e.g.
+requiring that there be exactly 7 columns, whose names in the header are 
+\code{"date"}, 
+\code{"current across"}, 
+\code{"current along"},
+\code{"nitrate"},
+\code{"fluorescence"},
+\code{"salinity"},
+and \code{"temperature"}.  If these are not found,
+\code{read.lobo} is likely to fail in some way.  Luckily, the code is written in a simple way, so
 that users should be able to alter it easily if, for example, the names of the current components
 change to "current to the east", etc.
 }
-\seealso{
-A \code{lobo} object may be summarized with
+\seealso{A \code{"lobo"} object may be summarized with
 \code{\link{summary.lobo}} and plotted with
 \code{\link{plot.lobo}}.
 }
@@ -69,5 +75,5 @@ summary(lobo)
 \url{http://www.satlantic.com/default.asp?mn=1.15.27.139}
 \url{http://www.mbari.org/lobo/}
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

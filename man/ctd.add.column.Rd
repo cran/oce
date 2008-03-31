@@ -2,7 +2,7 @@
 \alias{ctd.add.column}
 \title{Add a column to a CTD file}
 \description{
-  Add a column to a CTD file, updating the header as appropriate.
+  Add a column to a \code{ctd} file, updating the header as appropriate.
 }
 \usage{
 ctd.add.column(x, column=NULL, column.name="", 
@@ -24,12 +24,11 @@ ctd.add.column(x, column=NULL, column.name="",
   sort of format to use, to avoid confusion if you share the resultant
   file.
 }
-\value{
-  A new \code{ctd} object.
-}
-\seealso{
-\code{read.ctd} reads a CTD object, and \code{write.ctd} writes one.
-}
+
+\value{An object of \code{\link[base]{class}} \code{"ctd"}, with a new column.}
+
+\seealso{\code{read.ctd} reads a \code{ctd} object, and \code{write.ctd} writes one.}
+
 \examples{
 library(oce)
 data(ctd) 
@@ -45,5 +44,5 @@ ctd.new <- ctd.add.column(ctd,
   The Seabird CTD instrument is described at
   \url{http://www.seabird.com/products/spec_sheets/19plusdata.htm}.
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

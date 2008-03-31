@@ -1,11 +1,11 @@
 as.coastline <- function(latitude, longitude)
 {
-	n <- length(latitude)
-	if (n != length(longitude))
-		stop("Lengths of longitude and latitude must be equal")
-	processing.log <- list(time=c(Sys.time()), action=c("created by as.coastline()"))
-	data <- list(longitude=longitude, latitude=latitude)
-	res <- list(processing.log=processing.log, data=data)
-	class(res) <- "coastline"
-	res
+    n <- length(latitude)
+    if (n != length(longitude))
+        stop("Lengths of longitude and latitude must be equal")
+    data <- data.frame(longitude=longitude, latitude=latitude)
+    log.item <- list(time=c(Sys.time()), action=c("created by as.coastline()"))
+    res <- list(data=data, metadata=NULL, processing.log=log.item)
+    class(res) <- c("coastline", "oce")
+    res
 }

@@ -6,21 +6,24 @@ Read a CTD data file, producing an object of type \code{ctd}.
 }
 \usage{
 read.ctd(file, type=NULL, debug=FALSE,
- 	columns=NULL, station="", check.human.headers=FALSE)
+ 	columns=NULL, station=NULL, check.human.headers=FALSE)
 }
 \arguments{
   \item{file}{a connection or a character string giving the name of the
     file to load.}
-  \item{type}{if \code{NULL}, then the first line is studied, in order to determine the file type.  If \code{type="SBE19"}, then a \emph{Seabird 19} (or similar) CTD
-format is assumed. If \code{type="WOCE"} then a 
-WOCE-exchange file is assumed.}
+  \item{type}{if \code{NULL}, then the first line is studied, in order to determine the
+    file type.  If \code{type="SBE19"}, then a \emph{Seabird 19} (or similar) CTD
+    format is assumed. If \code{type="WOCE"} then a 
+    WOCE-exchange file is assumed.}
   \item{debug}{a flag that can be set to \code{TRUE} to turn on debugging.}
   \item{columns}{if \code{NULL}, then \code{read.ctd} tries to infer column names from the
-                 header.  If a list, then it will be taken to be the list
-				 of columns.  The list must include \code{"pressure"}, \code{"temperature"}
-				 and either \code{"conductivity"} or \code{"salinity"}, or else very little
-				 can be done with the file.}
-  \item{station}{Station number.}
+    header.  If a list, then it will be taken to be the list
+    of columns.  The list must include \code{"pressure"}, \code{"temperature"}
+    and either \code{"conductivity"} or \code{"salinity"}, or else very little
+    can be done with the file.}
+  \item{station}{optional character string containing an identifying name (or
+    number) for the station. (This can be useful if the routine cannot determine
+    the name automatically, or if another name is preferred.)}
   \item{check.human.headers}{produces warnings for missing human-written header items.}
 }
 \details{
@@ -41,60 +44,83 @@ WOCE-exchange file is assumed.}
   in the wide variety of ways that humans choose.  Still, such limitations
   are not really pressing in practice, since the \code{ctd} object is made available
   for manipulation.  If \code{read.ctd} cannot scan \code{33 and a third} as a latitude,
-  just examine the header (stored as a list in \code{object$header}), and do something
-  like \code{object$latitude <- 33 + 1/3}.
+  just examine the header (stored as a list in \code{object$metadata$header}),
+  and do something like \code{object$metadata$latitude <- 33 + 1/3}.
 
   It should be noted that different file types provide different meta-information.
-  For example, the WOCE exchange format binds together the institute name and the initials
-  of the chief scientist into a single string that \code{read.ctd} cannot parse, so
-  both \code{object$institute} and \code{object$scientist} are left blank for WOCE files.
+  For example, the WOCE exchange format binds together the institute name and the
+  initials of the chief scientist into a single string that \code{read.ctd} cannot
+  parse, so both \code{object$institute} and \code{object$scientist} are left 
+  blank for WOCE files.
 }
-\value{
-  A \code{ctd} object containing information about the station
-  (e.g. \code{latitude}, etc.), along with vectors containing the
-  acquired data (e.g. \code{S}, etc.).  The full header is also
-  contained in the list.  The returned list is as follows, but the reader
-  is cautioned that some items may be blank for some file formats.
-  \item{header[]}{the header itself, normally containing several dozen lines of information}
-  \item{filename}{name of the file passed to read.ctd}
-  \item{filename.orig}{name of the original file saved by the instrument (normally a hex file)}
-  \item{system.upload.time}{system upload time}
-  \item{ship}{name of the ship from which the CTD was deployed}
-  \item{scientist}{name of the scientist taking the data}
-  \item{institute}{name of the institute}
-  \item{address}{the address of the institute where the scientist}
-  \item{cruise}{name of cruise}
-  \item{section.id}{name of section}
-  \item{station}{station number or name}
-  \item{date}{date of lowering of CTD into the water}
-  \item{latitude}{latitude, in decimal degrees, positive north of equator}
-  \item{longitude}{longitude, in decimal degrees, positive if east
-    of Greenwich and west of dateline} 
-  \item{recovery}{date of recovery of CTD}
-  \item{sample.interval}{time interval between samples [s]}
-  \item{water.depth}{the water depth at the site [m]}
-  \item{processing.log}{A processing log.}
-  \item{data}{A data table containing the profile data as vectors.  The column
-    names are discovered from the header, and may thus differ from file
+\value{An object of \code{\link[base]{class}} \code{"ctd"}, which is a list with elements detailed below.
+  The most important elements are the station name and position, along
+  with the profile data that are contained in the data frame named \code{data}.
+  (Other elements in the list may be deleted in future versions of the
+  package, if they prove to be of little use in practice, or if they prove
+  to have been idiosyncratic features of the particular files used in
+  early development of \code{oce}.)
+  \item{data}{a data table containing the profile data.  The column
+    names are discovered from the header, and may differ from file
     to file.  For example, some CTD instruments may have a fluorometer
-    connected, others may not.  The following vectors are normally
-    present: \code{data$pressure}, 
-    \code{data$salinity}, \code{data$temperature}, and \code{data$sigma}.
-    Note that \code{data$sigma} is calculated 
-    from the pressure, salinity, and temperature in the file, using 
-    \code{\link{sw.sigma}}.}
+    connected, others may not.  The order of the columns may vary from
+    case to case, and so it is important to refer to them by name.
+    The following vectors are normally present: \code{data$pressure},
+    \code{data$salinity}, \code{data$temperature}, and
+    \code{data$sigma.theta}. (\eqn{\sigma_\theta}{sigma-theta} is calculated
+    using \code{\link{sw.sigma.theta}}.)}
+  \item{metadata}{a list containing the following items
+    \item{\code{header}}{the header itself, normally containing several dozen lines of
+      information.}
+    \item{\code{filename}}{name of the file passed to \code{read.ctd}.}
+    \item{\code{filename.orig}}{name of the original file saved by the instrument
+      (normally a hex file).}
+    \item{\code{system.upload.time}}{system upload time.}
+    \item{\code{ship}}{name of vessel from which the CTD was deployed.}
+    \item{\code{scientist}}{name of the scientist leading the work at sea.}
+    \item{\code{institute}}{name of the institute behind the work.}
+    \item{\code{address}}{the address of the institute where the scientist works.}
+    \item{\code{cruise}}{name of cruise.}
+    \item{\code{station}}{station number or name.}
+    \item{\code{date}}{date of lowering of CTD into the water.}
+    \item{\code{start.time}}{time when instrument started recording data.}
+    \item{\code{latitude}}{latitude, in decimal degrees, positive north of equator.}
+    \item{\code{longitude}}{longitude, in decimal degrees, positive if east
+      of Greenwich and west of dateline.}
+    \item{\code{recovery}}{date of recovery of CTD.}
+    \item{\code{water.depth}}{the water depth at the site.}
+    \item{\code{sample.interval}}{time interval between samples, in seconds.}
+  }
+  \item{processing.log}{a processing log, in the standard \code{oce} format.}
 }
 
 \seealso{
 The generic function \code{\link{read.oce}} provides an alternative to this.
 
-A \code{ctd} object may be summarized with \code{\link{summary.ctd}} and plotted
-with \code{\link{plot.ctd}}.
+Data from a CTD cast may be assembled into a \code{ctd} object using \code{\link{as.ctd}}.  
+A \code{ctd} object may be summarized with \code{\link{summary.ctd}}.
+Overview plots may be made with \code{\link{plot.ctd}}, while
+\code{\link{plot.TS}} produces TS plots and
+\code{\link{plot.ctd.scan}} produces scan plots that may help with data editing.
+Extraneous data such as those collected during upcasts and equilibration intervals
+may be trimmed with \code{\link{ctd.trim}},
+and the data may be cast onto specified pressure levels with \code{\link{ctd.decimate}}.
+Low-level manipulation may be done with \code{\link{ctd.add.column}}
+and \code{\link{ctd.update.header}}, as well as by direct manipulation of the items
+within \code{ctd} objects.
+
+In many cases, CTD instruments are set up to report dates in English.
+This can cause a problem for users running in different locales, since
+.e.g month names differ.  Therefore, if you know your datafile is
+written in the English notation, you might want to do
+\code{\link[base]{Sys.setlocale}("LC_TIME", "en_US")}
+before you try to read the data.
+
 }
 \examples{
 \dontrun{
 library(oce)
-x <- read.ctd("/usr/local/lib/R/library/oce/demo/ctdprofile.cnv")
+x <- read.ctd("BED0301.cnv")
 plot(x) # summary with TS and profiles
 plot.TS(x) # just the TS
 }
@@ -111,5 +137,5 @@ it does a reasonable job in many instances.
 The WOCE-exchange format is described at
 \url{http://www.nodc.noaa.gov/woce_V2/disk02/exchange/exchange_format_desc.htm}
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

@@ -1,34 +1,31 @@
 summary.section <- function(object, quiet=FALSE, ...)
 {
-	if (!inherits(object, "section")) stop("method is only for section objects")
-	num.stations <- length(object$stations)
-	if (!quiet) cat("Section", object$section.id, "has stations:\n")
-	have.water.depth <- !is.na(object$stations[[1]]$water.depth)
-	filename <- station <-lat <- lat.fmt <- lon <- lon.fmt <- distance <- levels <- NULL		
-	if (have.water.depth)
-		depth <- NULL
-	lat.1 <- object$stations[[1]]$latitude
-	lon.1 <- object$stations[[1]]$longitude
-	for (i in 1:num.stations) {
-		stn <- object$stations[[i]]
-		station  <- c(station,  stn$station)
-		filename <- c(filename, stn$filename)
-    	lat      <- c(lat,      stn$latitude)
-    	lon      <- c(lon,      stn$longitude)
-    	lat.fmt  <- c(lat.fmt,  lat.format(stn$latitude))
-    	lon.fmt  <- c(lon.fmt,  lon.format(stn$longitude))
-		if (have.water.depth)
-			depth    <- c(depth,   stn$water.depth)
-		distance <- c(distance, sprintf("%.1f km", geod.dist(lat.1, lon.1, stn$latitude, stn$longitude)))
-		levels   <- c(levels,  length(stn$data$pressure))
-	}
-	if (!quiet) {
-		if (have.water.depth) {
-			print(data.frame(Filename=filename, Station=station, Latitude=lat.fmt, Longitude=lon.fmt, Water.Depth=depth, Distance=distance, Levels=levels))
-		} else {
-			print(data.frame(Filename=filename, Station=station, Latitude=lat.fmt, Longitude=lon.fmt, Distance=distance, Levels=levels))
-		}
-		processing.log.summary(object)
-	}
-	invisible(data.frame(filename=filename, station=station, latitude=lat, longitude=lon))
+    if (!inherits(object, "section")) stop("method is only for section objects")
+    num.stations <- length(object$data$station)
+    if (!quiet) cat("Section", object$metadata$section.id, "has stations:\n")
+    have.water.depth <- !is.na(object$data$station[[1]]$metadata$water.depth)
+    lat1 <- object$metadata$latitude[1]
+    lon1 <- object$metadata$longitude[1]
+    depth <- vector("numeric", num.stations)
+    distance <- vector("numeric", num.stations)
+    levels <- vector("numeric", num.stations)
+    station.id <- object$metadata$station.id
+    lat.fmt  <- lat.format(object$metadata$latitude)
+    lon.fmt  <- lon.format(object$metadata$longitude)
+    for (i in 1:num.stations) {
+        stn <- object$data$station[[i]]
+        depth[i] <- if (have.water.depth) stn$metadata$water.depth else max(stn$data$pressure, na.rm=TRUE)
+        distance[i] <- sprintf("%.1fkm", geod.dist(lat1, lon1, stn$metadata$latitude, stn$metadata$longitude))
+        levels[i] <- length(object$station[[i]]$data$pressure)
+    }
+    if (!quiet) {
+        if (have.water.depth) {
+            print(data.frame(Station=station.id, Latitude=lat.fmt, Longitude=lon.fmt, Depth=depth, Distance=distance, Levels=levels))
+        }
+        else {
+            print(data.frame(Station=station.id, Latitude=lat.fmt, Longitude=lon.fmt, Distance=distance, Levels=levels))
+        }
+        processing.log.summary(object)
+    }
+    invisible(data.frame(station=station.id, latitude=object$metadata$latitude, longitude=object$metadata$longitude))
 }

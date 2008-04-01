@@ -5,17 +5,21 @@
 Compute \eqn{\theta}{theta}, the potential temperature of seawater. 
 }
 \usage{
-  t.potential <- sw.theta(S, t, p, pref=0, 
-	       method=c("UNESCO1983","Bryden1973"));
+tpot <- sw.theta(ctd, pref=0, method=c("UNESCO1983","Bryden1973"))
+tpot <- sw.theta(S, t=NULL, p=NULL, pref=0, method=c("UNESCO1983","Bryden1973"))
 }
 \arguments{
-  \item{S}{\emph{in-situ} salinity [PSU]}
+  \item{ctd}{an object of \code{\link[base]{class}} "\code{ctd}".}
+  \item{S}{salinity [PSU]}
   \item{t}{\emph{in-situ} temperature [\eqn{^\circ}{deg}C]}
-  \item{p}{\emph{in-situ} pressure [dbar]}
+  \item{p}{pressure [dbar]}
   \item{pref}{reference pressure [dbar]}
   \item{method}{algorithm to be used (see details)}
 }
 \details{
+In the first form, the argument is a \code{ctd} object, from which the
+salinity, temperature and pressure values are extracted and used to
+for the calculation.
 
 The potential temperature is defined to be the temperature that a water
 parcel of salinity \code{S}, \emph{in-situ} temperature \code{t} and pressure
@@ -38,11 +42,11 @@ users may note from the example that the two typically yield values that
 agree to a few millidegrees.
 
 }
-\value{
-Potential temperature [\eqn{^\circ}{deg}C] of seawater.
-}
+\value{Potential temperature [\eqn{^\circ}{deg}C] of seawater.}
 \seealso{
-  N/A.
+The corresponding potential density anomaly
+\eqn{\sigma_\theta}{sigma-theta} can be calculated with
+\code{\link{sw.sigma.theta}}.
 }
 \examples{
 library(oce)
@@ -66,5 +70,5 @@ fundamental properties of seawater. \emph{Unesco Technical Papers in Marine
 Science}, \bold{44}, 53 pp.
 
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

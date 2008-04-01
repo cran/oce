@@ -6,14 +6,21 @@ Compute \eqn{\sigma_t}{sigma-t}, a quasi-potential density of seawater,
 minus 1000 kg/m\eqn{^3}{^3}.
 }
 \usage{
-  sigma.t <- sw.sigma.t(S, t, p);
+sigma.t <- sw.sigma.t(ctd)
+sigma.t <- sw.sigma.t(S, t=NULL, p=NULL)
 }
 \arguments{
-  \item{S}{\emph{in-situ} salinity [PSU]}
+  \item{ctd}{an object of \code{\link[base]{class}} "\code{ctd}".}
+  \item{S}{salinity [PSU]}
   \item{t}{\emph{in-situ} temperature [\eqn{^\circ}{deg}C]}
-  \item{p}{\emph{in-situ} pressure [dbar]}
+  \item{p}{pressure [dbar]}
 }
 \details{
+In the first form, the argument is a \code{ctd} object, from which the
+salinity, temperature and pressure values are extracted and used to
+for the calculation.
+
+
   Definition: 
   \eqn{\sigma_t=\rho(S,t,0)}{sigma_t=rho(S,t,0)}
   - 1000 kg/m\eqn{^3}{^3}.
@@ -37,5 +44,5 @@ Related density routines include: \code{link{sw.rho}},
  Gill, A.E., 1982. \emph{Atmosphere-ocean Dynamics}, 
  Academic Press, New York, 662 pp.
 }
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

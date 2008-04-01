@@ -20,12 +20,10 @@ The object, with a new entry in its log.
 \examples{
 \dontrun{
 # This (and another typographical correction) was done in creating data(section).
-stn15 <- ctd.decimate(ctd.trim(read.ctd("BED0315.CNV")),p=p)
-stn15$latitude <- stn15$latitude + 1
-stn15 <- processing.log.append(stn15, "DEK: add 1 to latitude, correcting a typo")
+data(ctd)
+ctd$metadata$latitude <- ctd$metadata$latitude + 1
+ctd <- processing.log.append(ctd, "DEK: move station a degree north")
 }
 }
-\references{
-}
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

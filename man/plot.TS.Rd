@@ -17,6 +17,8 @@ plot.TS(x,
 	pch = 20,
 	rotate.rho.labels = FALSE,
 	connect.points = FALSE,
+	xlab,
+	ylab,
 	\dots)
 }
 \arguments{
@@ -34,10 +36,12 @@ plot.TS(x,
   \item{pch}{code for symbols on graph.}
   \item{rotate.rho.labels}{if TRUE, labels in right-hand margin are written vertically}
   \item{connect.points}{if TRUE, the points are connected with line segments, in sequence}
+  \item{xlab}{optional label for the x axis, with default "Salinity [PSU]".}
+  \item{ylab}{optional label for the y axis, with default "Temperature [C]".}
   \item{\dots}{optional arguments passed to plotting functions.}
 }
 \details{
-  Creates a temperature-salinity plot for a CTD cast, with labeled isopycnals.
+Creates a temperature-salinity plot for a CTD cast, with labeled isopycnals.
 }
 \value{
   None.
@@ -48,21 +52,13 @@ plot.TS(x,
   \code{\link{read.ctd}} scans it from a file.
 }
 \examples{
-\dontrun{
 library(oce)
-profile <- read.ctd("/usr/local/lib/R/library/oce/demo/ctdprofile.cnv")
-attach(profile)
+# Plot TS diagram for a mid-Atlantic station at 36N
+# See demo(TS) for a section-spanning TS diagram
+data(a03)
+profile <- a03$data$station[[60]] # 124 stations in total
 plot.TS(profile)
-# North Atlantic thermocline water, mixing to Antarctic Intermediate Water
-# (after Defant's analysis)
-N <- 10
-Srange <- c(34.15, 35.94)
-Trange <- c(3.3,18)
-SS <- Srange[1] + (Srange[2] - Srange[1]) *(1:N)/(N-1) + 0.01*rnorm(N)
-TT <- Trange[1] + (Trange[2] - Trange[1]) *(1:N)/(N-1) + 0.01*rnorm(N)
-plot.TS(as.ctd(S=SS, T=TT, p=0))
+title("Mid-Atlantic at 36N")
 }
-}
-\references{}
-\author{Dan Kelley \email{Dan.Kelley@Dal.Ca}}
+\author{Dan Kelley}
 \keyword{misc}

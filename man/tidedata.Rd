@@ -1,0 +1,86 @@
+\name{tidedata}
+
+\docType{data}
+
+\alias{tidedata}
+
+\title{Tidal constituent information}
+
+\description{The \code{tidedata} dataset contains Tide-constituent
+  information that is use by \code{\link{tidem}} to fit tidal models.
+  \code{tidedata} is a list containing
+
+  \item{\code{const}}{a list containing vectors 
+    \code{name} (a string with constituent name),
+    \code{freq} (the frequency, in cycles per hour),
+    \code{kmpr} (a string naming the comparison constituent, blank if there is
+    none),
+    \code{ikmpr} (index of comparison constituent, or \code{0} if there is none),
+    \code{df} (frequency difference betwee constituent and its comparison,
+    used in the Rayleigh criterion),
+    \code{d1} (first Doodson number),
+    \code{d2},
+    \code{d3}, 
+    \code{d4},
+    \code{d5},
+    \code{d6} (sixth Doodson number),
+    \code{semi},
+    \code{nsat} (number of satellite constituents),
+    \code{ishallow},
+    \code{nshallow},
+    \code{doodsonamp},
+    and \code{doodsonspecies}.}
+
+  \item{\code{sat}}{a list containing vectors
+    \code{deldood},
+    \code{phcorr},
+    \code{amprat},
+    \code{ilatfac},
+    and \code{iconst}.}
+
+  \item{\code{shallow}}{a list containing vectors
+    \code{iconst},
+    \code{coef},
+    and \code{iname}.
+  }
+
+  Apart from the use of \code{d1} through \code{d6}, the naming and
+  content follows \code{T_TIDE}.  All of this is based on Foreman
+  (1977), to which the reader is referred for details.
+
+  To get a list of all the available tidal constituents, do
+  \preformatted{
+cat("all constituents:",tidedata$const$name)
+  }
+  and to get a list of the so-called standard coefficients, do
+  \preformatted{
+cat("standard constituents:",tidedata$const$name[tidedata$const$ikmpr])
+  }
+}
+
+\usage{data(tidedata)}
+
+\source{The data come from the \code{tide3.dat} file of the
+  \code{T_TIDE} package (Pawlowicz et al., 2002), and derive from
+  Appendices provided by Foreman (1977).  The data are scanned using
+  \file{tests/tide.R} in this package, which also performs some tests using
+  \code{T_TIDE} values as a reference.
+}
+
+\seealso{
+\code{\link{tidem}} is used to fit tidal models using \code{tidedata}.
+}
+\references{
+  Foreman, M. G. G., 1977.
+  Manual for tidal heights analysis and prediction.
+  Pacific Marine Science Report 77-10,
+  Institute of Ocean Sciences, Patricia Bay, Sidney, BC, 58pp.
+  
+  Pawlowicz, Rich, Bob Beardsley, and Steve Lentz, 2002.
+  Classical tidal harmonic analysis including error estimates in MATLAB using \code{T_TIDE}.
+  Computers and Geosciences, 28, 929-937.
+}
+
+\author{Dan Kelley}
+\keyword{misc}
+\concept{tide}

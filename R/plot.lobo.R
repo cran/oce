@@ -11,7 +11,7 @@ plot.lobo.timeseries.TS <- function(lobo,
     plot(lobo$data$time, lobo$data$temperature, type='l', ylab="", axes=FALSE)
     lines(lobo$data$time, lobo$data$temperature, col=T.col, ...)
     axis(4, col=T.col)
-    mtext("Temperature [degC]", side=4, line=2.5, col=T.col, cex=par("cex"))
+    mtext(expression(paste("Temperature [ ", degree, "C ]")), side=4, line=2.5, col=T.col, cex=par("cex"))
     if (draw.legend)
         legend("topright",c("S","T"),col=c(S.col,T.col),lwd=2)
 }
@@ -19,14 +19,13 @@ plot.lobo.timeseries.uv <- function(lobo, col.u = "blue", col.v = "darkgreen", d
 {
     peak <- max(range(c(lobo$data$u,lobo$data$v),na.rm=TRUE))
     ylim <- c(-peak,peak)
-    ylim <- c(-0.5,0.5)
     plot(lobo$data$time, lobo$data$u, ylim=ylim, type='l', axes=FALSE, col=col.u, ylab="", ...)
     box()
     lines(lobo$data$time, lobo$data$v, col=col.v, ...)
     axis.POSIXct(1, lobo$data$time)
-    axis(2, col.lab=col.u)
+    axis(2, col=col.u)
+    axis(4, col=col.v)
     mtext("U [m/s]", side=2, line=2.5, col=col.u, cex=par("cex"))
-    axis(4, col.lab=col.v)
     mtext("V [m/s]", side=4, line=2.5, col=col.v, cex=par("cex"))
     if (draw.legend)
         legend("topright",c("U","V"),col=c(col.u,col.v),lwd=2)
@@ -51,17 +50,17 @@ plot.lobo.timeseries.biology <- function(lobo, col.fluorescence = "blue", col.ni
 
 plot.lobo.TS <- function(lobo, ...)
 {
-    plot.TS(as.ctd(lobo$data$salinity, lobo$data$temperature, lobo$data$p), col="red", cex=0.75, ...)
+    plot.TS(as.ctd(lobo$data$salinity, lobo$data$temperature, lobo$data$p), col="red", ...)
 }
 plot.lobo <- function(x, ...)
 {
     par(mfrow=c(4,1))
-    par(mar=c(2,4,1,4))
+    par(mar=c(2,5,1,5))
     plot.lobo.timeseries.TS(x, ...)
-    par(mar=c(2,4,1,4))
+    par(mar=c(2,5,1,5))
     plot.lobo.timeseries.uv(x, ...)
-    par(mar=c(2,4,1,4))
+    par(mar=c(2,5,1,5))
     plot.lobo.timeseries.biology(x, ...)
-    par(mar=c(5,4,3,4))
+    par(mar=c(5,5,3,5))
     plot.lobo.TS(x, ...)
 }

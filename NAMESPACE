@@ -10,6 +10,7 @@ export(
        ctd.trim,
        ctd.update.header,
        ctd.write,
+       gebco.colors,
        geod.dist,
        gravity,
        lat.format,
@@ -18,10 +19,12 @@ export(
        magic,
        make.section,
        oce.as.POSIXlt,
+       oce.edit,
        plot.TS,
        plot.coastline,
        plot.ctd,
        plot.ctd.scan,
+       plot.topo,
        plot.profile,
        plot.sealevel,
        plot.section,
@@ -32,6 +35,7 @@ export(
        processing.log.summary,
        read.coastline,
        read.ctd,
+       read.topo,
        read.lobo,
        read.oce,
        read.sealevel,
@@ -66,6 +70,7 @@ export(
 
 S3method(plot, ctd)
 S3method(plot, coastline)
+S3method(plot, topo)
 S3method(plot, lobo)
 S3method(plot, sealevel)
 S3method(plot, section)
@@ -74,6 +79,7 @@ S3method(predict, tide)
 S3method(plot, windrose)
 S3method(summary, ctd)
 S3method(summary, coastline)
+S3method(summary, topo)
 S3method(summary, lobo)
 S3method(summary, sealevel)
 S3method(summary, section)

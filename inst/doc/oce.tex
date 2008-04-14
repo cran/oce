@@ -70,15 +70,18 @@ The need to scan diverse data files was one motivation for the creation of
 they are in the system.  This was accomplished partly by the provision of
 functions to work with the data, and partly by developing a uniform object
 design that lets users reach inside without guesswork\footnote{Each \texttt{oce}
-object is a list containing three elements: (a) \texttt{data}, a list or a data
-frame containing the actual data, for a CTD object, this will contain pressure,
-temperature, etc., (b) \texttt{metadata}, a list containing data such things as
-file headers, the location of a CTD cast, etc., and (c) \texttt{processing.log},
-a list that documents how the file was created (often by a \texttt{read} or
-\texttt{as} method) and how it was changed thereafter (e.g. by decimating a CTD
-cast).}, and partly by adhering to a policy of adding features according to the
-priorities of practical research. The net result is that \verb@oce@ is a fairly
-comfortable tool today, and one that should to remain so as it grows.
+  object is a list containing three elements: (a) \texttt{data}, a list or a
+  data frame containing the actual data, for a CTD object, this will contain
+  pressure, temperature, etc., (b) \texttt{metadata}, a list containing data
+  such things as file headers, the location of a CTD cast, etc., and (c)
+  \texttt{processing.log}, a list that documents how the file was created (often
+  by a \texttt{read} or \texttt{as} method) and how it was changed thereafter
+  (e.g. by decimating a CTD cast).  Elements in the \texttt{metadata} can be
+  edited with\index{object structure} \texttt{oce.edit()}, a function that adds
+  a line to the object's changelog file for every change that is made.}, and
+partly by adhering to a policy of adding features according to the priorities of
+practical research. The net result is that \verb@oce@ is a fairly comfortable
+tool today, and one that should to remain so as it grows.
 
 
 \section{Calculations of seawater properties}
@@ -279,13 +282,38 @@ institute itself (SIO), and the name of the investigator (DAM). The problem is
 that no dividers separate these items, and that there are no standards for the
 item lengths. The approach to \verb@oce@ development is to tackle easy and
 important problemss before complicated special cases, and so no attempt has been
-made to parse this part of the header. Of course, R provides access to object
-constituents, so that a human working with this file could easily do e.g.
+made to parse this part of the header.
+
+Of course, R provides access to object constituents, so that you are
+free to do such things as
 \begin{Schunk}
 \begin{Sinput}
 > x <- read.ctd("nnsa_00934_00001_ct1.csv", type = "WOCE")
 > x$metadata$institute <- "SIO"
 > x$metadata$scientist <- "DAM"
+\end{Sinput}
+\end{Schunk}
+but it is \emph{bad practice} to alter metadata in such a way, because
+the changes will not be documented in the object.  Instead, do
+\index{changelogs in oce objects}
+\index{oce object changelog}
+\index{logged changes to oce objects}
+\index{editing oce objects}
+\index{oce.edit}
+\begin{Schunk}
+\begin{Sinput}
+> x <- read.ctd("nnsa_00934_00001_ct1.csv", type = "WOCE")
+> x <- oce.edit(x, "institute", "SIO")
+> x <- oce.edit(x, "scientist", "DAM")
+\end{Sinput}
+\end{Schunk}
+so that the changes will be noted in the object's log.  Even better,
+provide a reason for the change, and sign the change with your name:
+\begin{Schunk}
+\begin{Sinput}
+> x <- read.ctd("nnsa_00934_00001_ct1.csv", type = "WOCE")
+> x <- oce.edit(x, "institute", "SIO", "human-parsed", "Dan Kelley")
+> x <- oce.edit(x, "scientist", "DAM", "human-parsed", "Dan Kelley")
 \end{Sinput}
 \end{Schunk}
 
@@ -576,10 +604,24 @@ Two principles will guide the addition of data types and functions:
 (a) the need, as perceived by the author or by other contributors and
 (b) the ease with which the additions can be made.
 
+\section{Development website}
+
 The site \url{http://code.google.com/p/r-oce/} provides a window on the
 development that goes on between the CRAN releases of the package. Please visit
 the site to report bugs, to suggest new features, or just to see how \verb@oce@
 development is coming along.
+
+Oce versions are only made official, i.e. released to the CRAN package system,
+when they are considered to be of a high quality.  However, you may also get the
+bleeding-edge version from the development website, perhaps to see whether the
+author has successfully addressed a deficiency that you reported.  You will need
+to have subversion installed on you machine, and then can do e.g.
+
+\verb@svn checkout http://r-oce.googlecode.com/svn/trunk/ -r 441 r-oce-read-only@
+
+\noindent to retrieve the intermediate version number 441. Naturally, you should
+rename the directory from \verb@r-oce-read-only@ to \verb@oce@ before attempting
+to check, build, or install the package.
 
 %\begin{center}
 %\vspace{2cm}
@@ -593,6 +635,7 @@ development is coming along.
 %\end{center}
 %
 %\newpage
+
 
 \goodbreak
 

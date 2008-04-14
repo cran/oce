@@ -1,0 +1,66 @@
+plot.topo <- function(x, water.z, water.colors, land.z, land.colors, legend.loc="topright",
+                      lwd=par("lwd"), ...)
+{
+    if (!inherits(x, "topo")) stop("method is only for topo objects")
+    lat.range <- range(x$data$lat)
+    asp <- 1 / cos(mean(lat.range)*pi/180)
+    zr <- range(x$data$z)
+
+    plot(range(x$data$lon), range(x$data$lat), asp=asp, xaxs="i", yaxs="i",
+         type="n", xlab="", ylab="")
+
+    contour(x$data$lon, x$data$lat, x$data$z, levels=0, drawlabels=FALSE, add=TRUE,
+            col="black", lwd=lwd)
+    w <- c()
+    wc <- c()
+    if (zr[1] < 0) {
+        if (missing(water.z)) {
+            if (zr[2] > 0) {
+                w <- pretty(c(zr[1], 0))
+                w <- w[w!=0]
+            } else {
+                w <- pretty(zr)
+            }
+            w <- rev(w)
+        } else {
+            w <- water.z
+        }
+        if (missing(water.colors))
+            wc <- gebco.colors(length(w), "water", "line")
+        else
+            wc <- water.colors
+        contour(x$data$lon, x$data$lat, x$data$z, levels=w,
+                col=wc,
+                drawlabels=FALSE,
+                add=TRUE, ...)
+    }
+    l <- c()
+    lc <- c()
+    if (zr[2] > 0) {
+        if (missing(land.z)) {
+            if (zr[1] < 0) {
+                l <- pretty(c(0, zr[2]))
+                l <- l[l!=0]
+            } else {
+                l <- pretty(zr)
+            }
+        } else {
+            l <- land.z
+        }
+        if (missing(land.colors))
+            lc <- gebco.colors(length(l), "land", "line")
+        else
+            lc <- land.colors
+        contour(x$data$lon, x$data$lat, x$data$z, levels=l,
+                lwd=lwd,
+                col=lc,
+                drawlabels=FALSE,
+                add=TRUE, ...)
+    }
+    if (!is.null(legend.loc)) {
+        nl <- length(w) + length(l)
+        legend(legend.loc, lwd=lwd, bg="white",
+               legend=c(rev(l),0, w),
+               col=c(rev(lc), "black", wc))
+    }
+}

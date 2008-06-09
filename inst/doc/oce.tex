@@ -65,23 +65,41 @@ software for scanning the data files and producing some standard plots, but this
 is of limited use to researchers who work with several instrument types at the
 same time, and who need to carry the analysis beyond the first step.
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.6\hsize]{ctd-object}
+  \end{center}
+  \caption{\label{f:ctdobject}Sketch of the contents of a \texttt{ctd}
+    object. The elements \texttt{data}, \texttt{metadata}, and
+    \texttt{processing.log} are shared by all \texttt{oce} objects, although
+    their contents vary from object to object.}
+\end{figure}
+
 The need to scan diverse data files was one motivation for the creation of
 \verb@oce@, but an equal goal was to make it easy to work with the data once
 they are in the system.  This was accomplished partly by the provision of
 functions to work with the data, and partly by developing a uniform object
-design that lets users reach inside without guesswork\footnote{Each \texttt{oce}
-  object is a list containing three elements: (a) \texttt{data}, a list or a
-  data frame containing the actual data, for a CTD object, this will contain
-  pressure, temperature, etc., (b) \texttt{metadata}, a list containing data
-  such things as file headers, the location of a CTD cast, etc., and (c)
-  \texttt{processing.log}, a list that documents how the file was created (often
-  by a \texttt{read} or \texttt{as} method) and how it was changed thereafter
-  (e.g. by decimating a CTD cast).  Elements in the \texttt{metadata} can be
-  edited with\index{object structure} \texttt{oce.edit()}, a function that adds
-  a line to the object's changelog file for every change that is made.}, and
-partly by adhering to a policy of adding features according to the priorities of
-practical research. The net result is that \verb@oce@ is a fairly comfortable
-tool today, and one that should to remain so as it grows.
+design that lets users reach inside without guesswork. 
+
+At the core of the \verb@oce@ design process is a policy of adding features
+according to the priorities of practical research. As a result, \verb@oce@ is a
+fairly comfortable tool today, and it should remain so as it grows.
+
+
+\section{Object design}
+
+As illustrated in Figure~\ref{f:ctdobject}, each \texttt{oce} object is a list
+containing three elements: (a) \texttt{data}, a list or a data frame containing
+the actual data, for a CTD object, this will contain pressure, temperature,
+etc., (b) \texttt{metadata}, a list containing data such things as file headers,
+the location of a CTD cast, etc., and (c) \texttt{processing.log}, a list that
+documents how the file was created (often by a \texttt{read} or \texttt{as}
+method) and how it was changed thereafter (e.g. by decimating a CTD cast).
+Elements in the \texttt{metadata} can be edited with\index{object structure}
+\texttt{oce.edit()}, a function that adds a line to the object's changelog file
+for every change that is made.  The uniformity of the various \texttt{oce}
+objects makes it easy to build skill in examining and modifying objects.
+
 
 
 \section{Calculations of seawater properties}
@@ -372,27 +390,12 @@ The commands
 > plot(section, coastline = coastline.hal)
 \end{Sinput}
 \end{Schunk}
-will plot a summary diagram (Figure~\ref{fig:section}) containing sections of
+will plot a summary diagram containing sections of
 $T$, $S$, and $\sigma_\theta$, along with a chart indicating station
 locations. In addition to such overview diagrams, \verb@plot@ can also create
 individual plots of individual properties.
 
 \workedexercise{3}{Draw a TS diagram for the section data, colour-coded by station}
-
-\begin{figure}
-\begin{center}
-\setkeys{Gin}{width=1\textwidth}
-\includegraphics{oce-sectionfig}
-\end{center}
-\caption{\label{fig:section}
-CTD section of data acquired in Halifax Harbour in the autumn of 2003 by
-students in the \emph{Introduction to Physical Oceanography} class at Dalhousie
-University.  (Dan Kelley teaches this class, and the work at sea was supervised
-by his teaching assistant Natacha Bernier, who received her PhD from Dalhousie
-in 2005.)  The stations go from a site near the Sackville river inflow at the
-northwest portion of Bedford Basin to site at the entrance of the harbour. (The
-author's office at Dalhousie is located near the bottom axis at 63.58W.)}
-\end{figure}
 
 \index{reading!ctd section}
 \index{data!section \verb@a03@, North Atlantic along 36$^\circ$N}
@@ -434,34 +437,38 @@ in the station at about 200km.)
 
 \workedexercise{4}{Plot dynamic height across the Gulf Stream, and show the corresponding geostrophic velocity.}
 
-\section{Coastline data}
+\section{Coastline and topographic data}
 
 \index{data!coastline}
+\index{data!topography}
 
-The commands
+Coastline data are available from a variety of sources. The NOAA site
+\url{http://www.ngdc.noaa.gov/mgg_coastline/} is particularly popular, and it
+has the advantage of providing data in Splus format.  The function
+\verb@read.coastline@ can handle reading that format (plus some other formats),
+and \verb@plot@ on the resulting object will produce a simple coastline map.
+The only real advantage over plotting things yourself is that latitude and
+longitude are scaled to give natural shapes near the centre of the plot.
+
+Bathymetric charts, or more generally topographic maps, can be produced easily.
+A sample data set is provided, so that 
 \begin{Schunk}
 \begin{Sinput}
 > library(oce)
-> data(coastline.maritimes)
-> plot(coastline.maritimes, col = "darkred")
-> points(-(63 + 34/60), 44 + 39/60, cex = 3, col = "blue")
+> data(topo.maritimes)
+> plot(topo.maritimes)
 \end{Sinput}
 \end{Schunk}
-produce a map of the coastline of Eastern Canada
-(Figure~\ref{fig:coastline}). Such coastline data are available from a variety
-of sources. The NOAA site \url{http://www.ngdc.noaa.gov/mgg_coastline/} is
-particularly popular, and it has the advantage of providing data in Splus
-format.  The function \verb@read.coastline@ can handle reading that format (plus
-some other formats).
+will produce a chart of the land and sea topography of Eastern Canada
+(Figure~\ref{fig:topo}). 
 \begin{figure}
 \begin{center}
-\setkeys{Gin}{width=0.5\textwidth}
-\includegraphics{oce-coastlinefig}
+\setkeys{Gin}{width=\textwidth}
+\includegraphics{oce-topofig}
 \end{center}
-\caption{Coastline of eastern Canada, showing Prince Edward Island, New
-Brunswick, and Nova Scotia.  The blue circle indicates the location of Halifax,
-the capital of Nova Scotia.}
-\label{fig:coastline}
+\caption{Topography of eastern Canada, centred on the shallow waters north of
+Prince Edward Island.  (Note the differing contour intervals over land and water.)}
+\label{fig:topo}
 \end{figure}
 
 \section{Sea-level data}
@@ -489,7 +496,7 @@ narrow-banded constituents quite visible.
 
 \begin{figure}
 \begin{center}
-\setkeys{Gin}{width=.8\textwidth}
+\setkeys{Gin}{width=\textwidth}
 \includegraphics{oce-sealevelfig}
 \end{center}
 \caption{Sea-level timeseries measured in 2003 in Halifax Harbour.  (The spike
@@ -505,51 +512,52 @@ to ever hit Canada.}
 
 \subsection{Tidal analysis}
 
-Tidal analysis is provided in a rudimentary way, as is illustrated in the
-example below, which shows the storm surge experienced in Halifax in 2003, with
-Hurricane Juan.
+In a future version, tidal analysis will be provided, along the lines of the
+t-tide package in Matlab.  A preliminary version of tidal analysis is provided
+by the \verb@tidem@ function provided in this version of the package, but
+readers are cautioned that the results are certain to change in a future
+version.  (The problems involve phase, and the inference of satellite nodes.)
 
-\index{sea level!storm surge during Hurricane Juan}
-\index{Hurricane Juan!surge detection by detiding}
-
-\begin{Schunk}
-\begin{Sinput}
-> library(oce)
-> data(sealevel.hal)
-> tide <- tidem(sealevel.hal)
-> days <- 15
-> n <- length(sealevel.hal$data$eta)
-> i <- seq(n - 24 * days, n)
-> t <- sealevel.hal$data$t[i]
-> eta <- sealevel.hal$data$eta[i]
-> eta.pred <- predict(tide)[i]
-> plot(t, eta, type = "l", ylim = c(-0.5, 3))
-> abline(h = 0, col = "pink")
-> lines(t, eta - eta.pred, col = "red")
-\end{Sinput}
-\end{Schunk}
-produce Figure~\ref{fig:tide}, illustrating the use of tidal analysis to detect
-storm surges.  Note the use of the \verb@model@ that is returned by the tide
-analysis.
-
-(It should be noted that the tidal analysis portion of \verb@oce@ is still in
-active development, and the features are subject to change.  Use
-\verb@?tidem@ to learn more about this.)
-
-\begin{figure}
-	\begin{center}
-\setkeys{Gin}{width=0.8\textwidth}
-\includegraphics{oce-tidefig}
-\end{center}
-\caption{Sea-level variation in Halifax Harbour in 2003 (black line) and the residual
-after removal of tides using \texttt{tidem()}.  The spike on September 28th
-is a storm surge caused by Hurricane Juan, which caused a great deal of damage
-to the region.}
-\label{fig:tide}
-\end{figure}
-
-\goodbreak
-
+%%% \index{sea level!storm surge during Hurricane Juan}
+%%% \index{Hurricane Juan!surge detection by detiding}
+%%% 
+%%% <<label=tideplot,eval=FALSE>>=
+%%% library(oce)
+%%% data(sealevel.hal)
+%%% tide <- tidem(sealevel.hal)
+%%% days <- 15 # focus on these days at end of series
+%%% n <- length(sealevel.hal$data$eta)
+%%% i <- seq(n-24*days, n)
+%%% t   <- sealevel.hal$data$t[i]
+%%% eta <- sealevel.hal$data$eta[i]
+%%% eta.pred <- predict(tide)[i]
+%%% plot(t, eta, type="l", ylim=c(-0.5,3))
+%%% abline(h=0, col="pink")
+%%% lines(t, eta - eta.pred, col="red")
+%%% @
+%%% produce Figure~\ref{fig:tide}, illustrating the use of tidal analysis to detect
+%%% storm surges.  Note the use of the \verb@model@ that is returned by the tide
+%%% analysis.
+%%% 
+%%% (It should be noted that the tidal analysis portion of \verb@oce@ is still in
+%%% active development, and the features are subject to change.  Use
+%%% \verb@?tidem@ to learn more about this.)
+%%% 
+%%% \begin{figure}
+%%% 	\begin{center}
+%%% \setkeys{Gin}{width=0.8\textwidth}
+%%% <<label=tidefig,fig=TRUE,width=8,height=5,echo=FALSE>>=
+%%% <<tideplot>>
+%%% @
+%%% \end{center}
+%%% \caption{Sea-level variation in Halifax Harbour in 2003 (black line) and the residual
+%%% after removal of tides using \texttt{tidem()}.  The spike on September 28th
+%%% is a storm surge caused by Hurricane Juan, which caused a great deal of damage
+%%% to the region.}
+%%% \label{fig:tide}
+%%% \end{figure}
+%%% 
+%%% \goodbreak
 
 \section{Lobo data}
 The commands
@@ -574,7 +582,7 @@ University.
 
 \begin{figure}
 \begin{center}
-\setkeys{Gin}{width=0.66\textwidth}
+\setkeys{Gin}{width=\textwidth}
 \includegraphics{oce-lobofig}
 \end{center}
 \caption{Lobo measurements in Northwest Arm of Halifax Harbour, at

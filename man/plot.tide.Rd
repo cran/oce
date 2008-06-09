@@ -24,12 +24,10 @@
   \item{\dots}{optional arguments passed to plotting functions.}
 }
 
-\details{Creates a plot for a "\code{tide}" object.}
+\details{Creates a plot for a "\code{tide}" object.  See
+  \code{\link{tidem}} for examples.}
 
-%\value{ None.}
-
-\seealso{
-\code{\link{tidem}} fits a "\code{tide}" object, and
+\seealso{\code{\link{tidem}} fits a "\code{tide}" object, and
 \code{\link{summary.tide}} summarizes such an object.
 }
 
@@ -39,6 +37,6 @@ data(sealevel.hal)
 tide <- tidem(sealevel.hal)
 plot(tide)
 }
-%\references{}
+
 \author{Dan Kelley}
 \keyword{misc}

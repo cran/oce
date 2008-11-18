@@ -1,11 +1,13 @@
 plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
                           grid = FALSE,
+                          contour.levels=NULL,
+                          contour.labels=NULL,
                           station.indices,
                           coastline=NULL,
                           map.xlim=NULL,
                           ...)
 {
-    plot.subsection <- function(variable="temperature", title="Temperature", indicate.stations=TRUE, ...)
+    plot.subsection <- function(variable="temperature", title="Temperature", indicate.stations=TRUE, contour.levels=NULL, contour.labels=NULL, ...)
     {
         if (variable == "map") {
             lat <- array(NA, num.stations)
@@ -44,27 +46,38 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
                 text(xlab, ylab, x$metadata$station.id[num.stations])
             }
         } else {
+            if (!length(which(names(x$data$station[[1]]$data) == variable))) {
+                stop("this section does not contain a variable named '", variable, "'")
+            }
+
             ## FIXME: contours don't get to plot edges
             xxrange <- range(xx)
             yyrange <- range(yy)
             ##yyrange[1] <- -1
+
+            ylab <- if ("ylab" %in% names(list(...))) list(...)$ylab else "Pressure [ dbar ]"
+
             if (is.null(at)) {
                 plot(xxrange, yyrange,
                      xaxs="i", yaxs="i", ylim=rev(yyrange), col="white",
-                     xlab="Distance [ km ]",	ylab="Pressure [ dbar ]")
+                     xlab="Distance [ km ]", ylab=ylab)
+                axis(4, labels=FALSE)
             } else {
                 plot(xxrange, yyrange,
                      xaxs="i", yaxs="i", ylim=rev(yyrange), col="white",
-                     xlab="", ylab="Pressure [ dbar ]", axes=FALSE)
+                     xlab="", ylab=ylab, axes=FALSE)
                 axis(1, at=at, labels=labels)
                 axis(2)
+                axis(4, labels=FALSE)
                 box()
             }
             water.depth <- NULL
             for (i in 1:num.stations) {
                 zz[i,] <- rev(x$data$station[[station.indices[i]]]$data[[variable]])
                 if (grid)
-                    points(rep(xx[i], length(yy)), yy, col="gray", pch=20, cex=0.5)
+                    points(rep(xx[i], length(yy)), yy, col="gray", pch=20, cex=1/3)
+                else
+                    Axis(side=3, at=xx, labels=FALSE, lwd=0.5) # station locations
                 water.depth <- c(water.depth,
                                  max(x$data$station[[station.indices[i]]]$data$depth, na.rm=TRUE))
             }
@@ -75,10 +88,21 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
             polygon(bottom.x, bottom.y, col="gray") # bottom trace
             par(new=TRUE)
             dots <- list(...) # adjust plot parameter labcex, unless user did
-            if (is.null(dots$labcex)) {
-                contour(x=xx, y=yy, z=zz, axes=FALSE, labcex=0.8, ...)
+            if (!is.null(contour.levels) && !is.null(contour.labels)) {
+                if (is.null(dots$labcex)) {
+                    contour(x=xx, y=yy, z=zz, axes=FALSE, labcex=0.8,
+                            levels=contour.levels,
+                            labels=contour.labels,
+                            ...)
+                } else {
+                    contour(x=xx, y=yy, z=zz, axes=FALSE, ...)
+                }
             } else {
-                contour(x=xx, y=yy, z=zz, axes=FALSE, ...)
+                if (is.null(dots$labcex)) {
+                    contour(x=xx, y=yy, z=zz, axes=FALSE, labcex=0.8, ...)
+                } else {
+                    contour(x=xx, y=yy, z=zz, axes=FALSE, ...)
+                }
             }
             legend("topright", title, bg="white", x.intersp=0, y.intersp=0.5)
         }
@@ -86,7 +110,7 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
 
     if (!inherits(x, "section")) stop("method is only for section objects")
     oldpar <- par(no.readonly = TRUE)
-
+    if (!"mgp" %in% names(list(...))) par(mgp = c(2, 2/3, 0))
     if (missing(station.indices)) {
         num.stations <- length(x$data$station)
         station.indices <- 1:num.stations
@@ -121,15 +145,23 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
     yy <- x$data$station[[station.indices[1]]]$data$pressure
     if (is.null(field)) {
         par(mfrow=c(2,2))
-        par(mar=c(4.5,4,1,1))
+        if (!"mgp" %in% names(list(...))) par(mar = c(3.0, 3.0, 1, 1))
+        else par(mar=c(4.5,4,1,1))
         plot.subsection("temperature", "T", ...)
-        plot.subsection("salinity",    "S", ...)
+        plot.subsection("salinity",    "S", ylab="",...)
         plot.subsection("sigma.theta",  expression(sigma[theta]), ...)
         plot.subsection("map", indicate.stations=FALSE)
     } else {
         field.name <- field
         if (field == "sigma.theta") field.name <- expression(sigma[theta])
-        plot.subsection(field, field.name, ...)
+        if (!missing(contour.levels) && !missing(contour.labels)) {
+            plot.subsection(field, field.name,
+                            contour.levels=contour.levels,
+                            contour.labels=contour.labels,
+                            ...)
+        } else {
+            plot.subsection(field, field.name, ...)
+        }
     }
-    par(oldpar)
+#    par(oldpar)
 }

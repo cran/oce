@@ -144,7 +144,7 @@ A partial list of seawater functions is as follows:
 \verb@sw.theta@ (potential temperature in $^\circ$C),
 and
 \verb@sw.viscosity@ (viscosity).
-Details and examples are, of course, provided in the documentation of these functions.
+Details and examples are provided in the documentation of these functions.
 
 
 \workedexercise{1}{(a) What is the density of a seawater parcel at pressure
@@ -187,8 +187,8 @@ names(ctd$data)
 @
 to find out what sensors were attached to the instrument, thus providing data columns.
 
-Naturally, you may apply any \verb@R@ techniques to any of the data stored in an
-object, e.g. \verb@hist(ctd$data$temperature)@ would produce a histogram of
+Of course, you may apply any \verb@R@ techniques to the data in \verb@oce@
+objects, e.g. \verb@hist(ctd$data$temperature)@ would produce a histogram of
 temperature for the \verb@ctd@ object.  It is always worth checking, though, to
 see if \verb@oce@ has already defined a function that you may be applying,
 e.g. \verb@plot.TS@ will produce a lovely temperature-salinity diagram, with
@@ -205,14 +205,13 @@ this in action with \verb@?section@.)
 \begin{figure}
 \begin{center}
 \setkeys{Gin}{width=\textwidth}
-<<label=ctdfig, width=10, height=6, fig=TRUE, echo=FALSE>>=
+<<label=ctdfig, width=9, height=6, fig=TRUE, echo=FALSE>>=
 <<ctdplot>>
 @
 \end{center}
 \caption{Overview graph of the sample CTD dataset \texttt{ctd}, acquired in
 the St Lawrence Estuary Internal Wave Experiment.  (This dataset has been
-trimmed to the downcast; see the text and Figure~\ref{fig:ctdraw} for more
-on trimming.)}
+trimmed to the downcast; see the text and Figure~\ref{fig:ctdraw}.)}
 \label{fig:ctd}
 \end{figure}
 
@@ -231,7 +230,7 @@ plot.ctd.scan(ctd.raw)
 \begin{figure}
 \begin{center}
 \setkeys{Gin}{width=0.55\textwidth}
-<<label=ctdrawfig,fig=TRUE,width=9, height=6, echo=FALSE>>=
+<<label=ctdrawfig,fig=TRUE,width=6, height=4, echo=FALSE>>=
 <<ctdrawplot>>
 @
 \end{center}
@@ -279,27 +278,30 @@ The package has a harder time scanning the headers of data files in the WOCE
 archive format than it does in the Seabird format illustrated in the previous
 examples. This is mainly because front-line researchers tend to work in the
 Seabird format, and partly because the WOCE format is odd. For example, the
-first line of a WOCE file is of the form \texttt{CTD,20060609WHPOSIODAM}.  Only
-the first part of this is easy to scan. To the left of the comma is the string
-\texttt{CTD}, which seems straightforward, except that in some cases it is
-written \texttt{CTDO}. After the comma is found the file date (yyyymmdd), and
-that is easy to parse. But then things get tricky.  The next sequence is a
-string of characters that indicate the division of the institute (WHPO), the
-institute itself (SIO), and the name of the investigator (DAM). The problem is
-that no dividers separate these items, and that there are no standards for the
-item lengths. The approach to \verb@oce@ development is to tackle easy and
-important problemss before complicated special cases, and so no attempt has been
-made to parse this part of the header.
+first line of a WOCE file is of the form \texttt{CTD,20060609WHPOSIODAM} (or
+\texttt{BOTTLE,...}).  Scanning the item to the left of the comma is not
+difficult (although there are variants to the two shown, e.g. \texttt{CTDO}
+sometimes occurs).  The part to the right of the comma is more difficult.  The
+first part is a date (yyyymmdd) so that's no problem.  But then things start to
+get tricky.  In the example provided, this text contains the division of the
+institute (WHPO), the institute itself (SIO), and initial of the investigator
+(DAM). The problem is that no dividers separate these items, and that there seem
+to be no standards for the item lengths. Rather than spend a great deal of time
+coding special cases (e.g. scanning to see if the string \texttt{WHOI} occurs in
+the header line), the approach taken with \verb@oce@ is to ignore such issues
+relating to quirky headers.  This frees up time to work on more important
+things, such as plotting the data.
 
 Of course, R provides access to object constituents, so that you are
 free to do such things as
 <<ctdfix1,eval=false>>=
 x <- read.ctd("nnsa_00934_00001_ct1.csv", type="WOCE")
-x$metadata$institute <- "SIO" # do NOT alter directly, in this way
-x$metadata$scientist <- "DAM" # do NOT alter directly, in this way
+x$metadata$institute <- "SIO" # bad way
+x$metadata$scientist <- "DAM" # bad way
 @
 but it is \emph{bad practice} to alter metadata in such a way, because
-the changes will not be documented in the object.  Instead, do
+doing so alters the object without altering its documentation.  The
+preferred scheme is to do as follows.
 \index{changelogs in oce objects}
 \index{oce object changelog}
 \index{logged changes to oce objects}
@@ -307,11 +309,12 @@ the changes will not be documented in the object.  Instead, do
 \index{oce.edit}
 <<ctdfix2,eval=false>>=
 x <- read.ctd("nnsa_00934_00001_ct1.csv", type="WOCE")
-x <- oce.edit(x, "institute", "SIO") # a better way
-x <- oce.edit(x, "scientist", "DAM") # a better way
+x <- oce.edit(x, "institute", "SIO") # better way
+x <- oce.edit(x, "scientist", "DAM") # better way
 @
-so that the changes will be noted in the object's log.  Even better,
-provide a reason for the change, and sign the change with your name:
+which will store a note about the changes in the object's log.  Even
+better, provide a reason for the change, and sign the change with your
+name:
 <<ctdfix3,eval=false>>=
 x <- read.ctd("nnsa_00934_00001_ct1.csv", type="WOCE")
 x <- oce.edit(x, "institute", "SIO", "human-parsed","Dan Kelley") # best way
@@ -337,7 +340,7 @@ for (i in 1:length(files)) {
 }
 @
 
-What you'll see is an overall $T-S$ diagram for the entire dataset. It may take
+What you'll see is an overall $T$-$S$ diagram for the entire dataset. It may take
 a while, since the dataset contains over 90,000 observations. You may note that,
 even though this is an official, quality-controlled dataset, it is not without
 problems. The graph that is produced by this code has several spurious lines
@@ -386,7 +389,7 @@ different pressure levels at each station.  For such cases, the
 # a03 <- read.section("a03_hy1.csv")
 data(a03)
 Gulf.Stream <- section.subset(a03, 124:102)
-Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0, 5000, 10))
+Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0, 1600, 25))
 data(coastline.world)
 plot(Gulf.Stream.gridded, coastline=coastline.world, map.xlim=c(-80,-60))
 @
@@ -405,9 +408,7 @@ right angles.
 @
 \end{center}
 \caption{\label{fig:sectiona03}
-Portion of the CTD section designated A03 (Cruise chief scientist: Tereschenkov, SOI.), showing the region of the Gulf Stream.  (The small number of S contours
-in the upper water column is the result of a near-bottom salinity anomaly
-in the station at about 200\,km.)
+Portion of the CTD section designated A03 (Cruise chief scientist: Tereschenkov, SOI.), showing the region of the Gulf Stream.
 }
 \end{figure}
 
@@ -569,7 +570,7 @@ the time of the 2007 Spring bloom.}
 \label{fig:lobo}
 \end{figure}
 
-\workedexercise{7}{Draw a $T-S$ plot for these data, using a colour coding to indicate time,
+\workedexercise{7}{Draw a $T$-$S$ plot for these data, using a colour coding to indicate time,
 and using plotting tricks to reduce the obscuring of this time signal.}
 
 

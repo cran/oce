@@ -14,11 +14,12 @@ plot.TS <- function (x,
                      ...)
 {
     if (!inherits(x, "ctd")) stop("method is only for ctd objects")
-    mar <- par("mar")
-    if (!rotate.rho.labels) { # make space
-        if (mar[4] < 3)
-            par(mar=c(mar[1:3], 3))
-    }
+    old.mgp <- par("mgp")
+    if (!"mgp" %in% names(list(...))) par(mgp = c(2, 2/3, 0))
+    axis.name.loc <- par("mgp")[1]
+    old.mar <- par("mar")
+    if (!rotate.rho.labels && old.mar[4] < 3) par(mar=c(old.mar[1:3], 2))
+
     plot(x$data$salinity, x$data$temperature,
          xlab = if (missing(xlab)) "Salinity [ PSU ]" else xlab,
          ylab = if (missing(ylab)) expression(paste("Temperature [ ", degree, "C ]")) else ylab,
@@ -52,6 +53,7 @@ plot.TS <- function (x,
     }
     t.n <- 300
     t.line <- seq(T.axis.min, T.axis.max, length.out=t.n)
+    cex.par <- par("cex")               # need to scale text() differently than mtext()
     for (rho in rho.list) {
         rho.label <- if (rho1000) 1000+rho else rho
         s.line <- sw.S.T.rho(t.line, rep(rho, t.n), rep(0, t.n))
@@ -64,7 +66,7 @@ plot.TS <- function (x,
             if (rotate.rho.labels)
                 mtext(rho.label, side=4, at=t.line[i], line=0.25, cex=cex.rho, col=col.rho)
             else
-                text(par("usr")[2], t.line[i], rho.label, pos=4, cex=cex.rho, col=col.rho, xpd=TRUE)
+                text(par("usr")[2], t.line[i], rho.label, pos=4, cex=cex.rho/cex.par, col=col.rho, xpd=TRUE)
         } else { # above box ... if the line got there
             if (max(t.ok) > (T.axis.max - 0.05 * (T.axis.max - T.axis.min)))
                 mtext(rho.label, side=3, at=s.line[t.n], line=0.25, cex=cex.rho, col=col.rho)
@@ -73,5 +75,6 @@ plot.TS <- function (x,
                                         # Freezing point
     Sr <- c(max(0, S.axis.min), S.axis.max)
     lines(Sr, sw.T.freeze(Sr, p=0), col="darkblue")
-    par(mar=mar)
+    par(mar=old.mar)
+    par(mgp=old.mgp)
 }

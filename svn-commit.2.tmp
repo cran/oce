@@ -1,0 +1,7 @@
+Fix problem with isopycnals, issue 17, http://code.google.com/p/r-oce/issues/detail?id=17
+--This line, and those below, will be ignored--
+
+M    R/plot.TS.R
+M    DESCRIPTION
+M    src/sw_strho.c
+M    NEWS

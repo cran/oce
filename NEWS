@@ -1,3 +1,29 @@
+0.1-75
+- add add.column()
+- add undrift.time()
+- add tdr.patm()
+- make read.tdr() gather serial no. info; show this on plot.tdr()
+- switch to recommended verion-number format
+- remove section.subset(), replaced by subset()
+- improve log items in functions that read and assemble oce objects
+    http://code.google.com/p/r-oce/issues/detail?id=38
+- add subset.oce()
+- add header()
+- add argument 'which' to read.rbrdtr()
+- make read.rbrdtr() understand headers better
+- add arguments 'xtype' and 'ytype' to plot.section()
+- improve accuracy of bottom drawn by plot.section()
+- add section.smooth()
+- fix bug making section.smooth() fail if fewer than 4 good data at any given level
+    http://code.google.com/p/r-oce/issues/detail?id=36
+- fix bug making summary.ctd() fail for stations within sections made by section.smooth()
+    http://code.google.com/p/r-oce/issues/detail?id=34
+- fix bug making sw.dynamic.height() choke on empty stations
+    http://code.google.com/p/r-oce/issues/detail?id=33
+- fix bug making plot.section() die if x is unordered
+    http://code.google.com/p/r-oce/issues/detail?id=36
+- rename rbrtdr functions to tdr functions, improving generality
+
 0.1.74
 - add argument "src" to as.ctd()
     http://code.google.com/p/r-oce/issues/detail?id=22
@@ -9,7 +35,7 @@
     http://code.google.com/p/r-oce/issues/detail?id=30
 - speed up sw.spice()
     http://code.google.com/p/r-oce/issues/detail?id=29
-- add read.rbrtdr(), summary.rbrtdr(), plot.rbrtdr(), and rbrtdr.trim()
+- add read.tdr(), summary.tdr(), plot.tdr(), and tdr.trim()
 - make plot.TS() isopycnal label size be same on top and right sides
     http://code.google.com/p/r-oce/issues/detail?id=26
 - add lwd argument to plot.profile() 

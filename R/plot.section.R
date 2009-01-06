@@ -5,6 +5,9 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
                           station.indices,
                           coastline=NULL,
                           map.xlim=NULL,
+                          xtype="distance",
+                          ytype="depth",
+                          legend.loc="bottomright",
                           ...)
 {
     plot.subsection <- function(variable="temperature", title="Temperature", indicate.stations=TRUE, contour.levels=NULL, contour.labels=NULL, ...)
@@ -45,48 +48,86 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
                 ylab <- x$metadata$latitude[num.stations]  - dy * sign(x$metadata$latitude[num.stations-1]  - x$metadata$latitude[num.stations])
                 text(xlab, ylab, x$metadata$station.id[num.stations])
             }
-        } else {
-            if (!length(which(names(x$data$station[[1]]$data) == variable))) {
-                stop("this section does not contain a variable named '", variable, "'")
-            }
+        } else {                        # not a map
+            if (!(variable %in% names(x$data$station[[1]]$data))) stop("this section does not contain a variable named '", variable, "'")
 
             ## FIXME: contours don't get to plot edges
             xxrange <- range(xx)
             yyrange <- range(yy)
             ##yyrange[1] <- -1
 
-            ylab <- if ("ylab" %in% names(list(...))) list(...)$ylab else "Pressure [ dbar ]"
+            ## Put x in order, if it's not already
+            ox <- order(xx)
+            if (any(xx[ox] != xx)) {
+                xx <- xx[ox]
+                zz <- zz[ox,]
+                message("NOTE: plot.section() reordered the stations to make x monotonic\n")
+            }
+            par(xaxs="i",yaxs="i")
+            ylab <- if ("ylab" %in% names(list(...))) list(...)$ylab else {
+                if (which.ytype == 1) "Pressure [ dbar ]" else "Depth [ m ]"}
+
+            ##cat("ylab=(", ylab, ")\n",sep="")
+            ##cat("first few y:", yy[1], yy[2], yy[3], "\n")
 
             if (is.null(at)) {
                 plot(xxrange, yyrange,
-                     xaxs="i", yaxs="i", ylim=rev(yyrange), col="white",
-                     xlab="Distance [ km ]", ylab=ylab)
+                     ##xaxs="i", yaxs="i",
+                     ylim=rev(yyrange), col="white",
+                     xlab=if (which.xtype==1) "Distance [ km ]" else "Along-track Distance [km]",
+                     ylab=ylab)
                 axis(4, labels=FALSE)
             } else {
                 plot(xxrange, yyrange,
-                     xaxs="i", yaxs="i", ylim=rev(yyrange), col="white",
+                     ##xaxs="i", yaxs="i",
+                     ylim=rev(yyrange), col="white",
                      xlab="", ylab=ylab, axes=FALSE)
                 axis(1, at=at, labels=labels)
                 axis(2)
                 axis(4, labels=FALSE)
                 box()
             }
+            ## Bottom trace
+            usr <- par("usr")
+            graph.bottom <- usr[3]
             water.depth <- NULL
             for (i in 1:num.stations) {
                 zz[i,] <- rev(x$data$station[[station.indices[i]]]$data[[variable]])
-                if (grid)
-                    points(rep(xx[i], length(yy)), yy, col="gray", pch=20, cex=1/3)
-                else
-                    Axis(side=3, at=xx, labels=FALSE, lwd=0.5) # station locations
-                water.depth <- c(water.depth,
-                                 max(x$data$station[[station.indices[i]]]$data$depth, na.rm=TRUE))
+                if (grid) points(rep(xx[i], length(yy)), yy, col="gray", pch=20, cex=1/3)
+
+                temp <- x$data$station[[station.indices[i]]]$data$temperature
+                len <- length(temp)
+                wd <- NA
+                if (is.na(temp[len])) {
+                    ##cat("bottom temperature is missing\n")
+                    ##print(data.frame(p=x$data$station[[station.indices[[i]]]]$data$pressure, temp=temp))
+                    wdi <- len - which(!is.na(rev(temp)))[1] + 1
+                    ##cat("BOTTOM T:");print(temp[wdi])
+                    ##cat("BOTTOM p:");print(x$data$station[[station.indices[i]]]$data$pressure[wdi])
+                    wd <- x$data$station[[station.indices[i]]]$data$pressure[wdi]
+                }
+                in.land <- which(is.na(x$data$station[[station.indices[i]]]$data$temperature[-3])) # skip first 3 points
+                ##cat("check==\n")
+                ##print(x$data$station[[station.indices[i]]]$data$temperature)
+                ##stop()
+                ##cat("in.land=");print(in.land)
+                if (!is.na(wd)) {
+                    water.depth <- c(water.depth, wd)
+                } else {
+                    water.depth <- c(water.depth, max(x$data$station[[station.indices[i]]]$data$pressure, na.rm=TRUE))
+                }
             }
-                                        # draw the ground below the water
-            graph.bottom <- par("usr")[3]
+            if (!grid) Axis(side=3, at=xx, labels=FALSE, lwd=0.5) # station locations
             bottom.x <- c(xx[1], xx, xx[length(xx)])
             bottom.y <- c(graph.bottom, water.depth, graph.bottom)
-            polygon(bottom.x, bottom.y, col="gray") # bottom trace
-            par(new=TRUE)
+            ##cat("bottom.x: (length", length(bottom.x),")");print(bottom.x)
+            ##cat("bottom.y: (length", length(bottom.y),")");print(bottom.y)
+            if (length(bottom.x) == length(bottom.y)) {
+                ##polygon(bottom.x, bottom.y, col=rgb(1,0,0,alpha=0.2)) # y may be messed up if NA near surface
+                polygon(bottom.x, bottom.y, col="gray") # y may be messed up if NA near surface
+            }
+            ##cat("AA\n")
+            par(new=TRUE,xaxs="i",yaxs="i")
             dots <- list(...) # adjust plot parameter labcex, unless user did
             if (!is.null(contour.levels) && !is.null(contour.labels)) {
                 if (is.null(dots$labcex)) {
@@ -104,9 +145,13 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
                     contour(x=xx, y=yy, z=zz, axes=FALSE, ...)
                 }
             }
-            legend("topright", title, bg="white", x.intersp=0, y.intersp=0.5)
+            ##polygon(bottom.x, usr[4]+(bottom.y[1]-bottom.y), col="lightgray")
+            legend(legend.loc, title, bg="white", x.intersp=0, y.intersp=0.5,cex=1.25)
         }
     }                                   # plot.subsection
+
+    which.xtype <- pmatch(xtype, c("distance", "track"), nomatch=0)
+    which.ytype <- pmatch(ytype, c("pressure", "depth"), nomatch=0)
 
     if (!inherits(x, "section")) stop("method is only for section objects")
     oldpar <- par(no.readonly = TRUE)
@@ -136,20 +181,46 @@ plot.section <- function (x, field=NULL, at=NULL, labels=TRUE,
         lon0 <- x$data$station[[station.indices[1]]]$metadata$longitude
         for (ix in 1:num.stations) {
             j <- station.indices[ix]
-            xx[ix] <- geod.dist(lat0, lon0,
-                                x$data$station[[j]]$metadata$latitude, x$data$station[[j]]$metadata$longitude)
+            if (which.xtype == 1) {
+                xx[ix] <- geod.dist(lat0,
+                                    lon0,
+                                    x$data$station[[j]]$metadata$latitude,
+                                    x$data$station[[j]]$metadata$longitude)
+            } else if (which.xtype == 2) {
+                if (ix == 1)
+                    xx[ix] <- 0
+                else
+                    xx[ix] <- xx[ix-1] +
+                        geod.dist(x$data$station[[station.indices[ix-1]]]$metadata$latitude,
+                                  x$data$station[[station.indices[ix-1]]]$metadata$longitude,
+                                  x$data$station[[j]]$metadata$latitude,
+                                  x$data$station[[j]]$metadata$longitude)
+            } else {
+                stop("unknown xtype")
+            }
         }
     } else {
         xx <- at
     }
-    yy <- x$data$station[[station.indices[1]]]$data$pressure
+
+    if (which.ytype == 1) yy <- x$data$station[[station.indices[1]]]$data$pressure
+    else if (which.ytype == 2) yy <- sw.depth(x$data$station[[station.indices[1]]]$data$pressure)
+    else stop("unknown ytype")
+
     if (is.null(field)) {
         par(mfrow=c(2,2))
         if (!"mgp" %in% names(list(...))) par(mar = c(3.0, 3.0, 1, 1))
         else par(mar=c(4.5,4,1,1))
-        plot.subsection("temperature", "T", ...)
-        plot.subsection("salinity",    "S", ylab="",...)
-        plot.subsection("sigma.theta",  expression(sigma[theta]), ...)
+
+        if (!missing(contour.levels)) {
+            plot.subsection("temperature", "T", nlevels=contour.levels, ...)
+            plot.subsection("salinity",    "S", ylab="", nlevels=contour.levels, ...)
+            plot.subsection("sigma.theta",  expression(sigma[theta]), nlevels=contour.levels, ...)
+        } else {
+            plot.subsection("temperature", "T", ...)
+            plot.subsection("salinity",    "S", ylab="",...)
+            plot.subsection("sigma.theta",  expression(sigma[theta]), ...)
+        }
         plot.subsection("map", indicate.stations=FALSE)
     } else {
         field.name <- field

@@ -6,8 +6,7 @@
 
 \description{Plot a CTD section.}
 
-\usage{
-\method{plot}{section}(x,
+\usage{\method{plot}{section}(x,
  	field=NULL,
 	at=NULL,
 	labels=TRUE,
@@ -17,6 +16,9 @@
 	station.indices,
 	coastline=NULL,
 	map.xlim=NULL,
+        xtype="distance",
+        ytype="depth",
+        legend.loc="bottomright",
 	\dots)
 }
 
@@ -50,6 +52,16 @@
     map}
   \item{map.xlim}{optional xlim for station location, which can be
     helpful in ensuring that a recognizable coastline can be seen}
+  \item{xtype}{type of x axis, for contour plots, either
+    \code{"distance"} for distance (in km) to the first point in the
+    section, or \code{"track"} for distance along the cruise track.
+    Note that if the x values are not in order, they will be put in
+    order (which may make no sense) and a warning will be printed.}
+  \item{ytype}{type of y axis for contour plots, either
+    \code{"pressure"} for pressure (in dbar, with zero at the surface)
+    or \code{"depth"} for depth (in m below the surface, calculated
+    from pressure with \code{\link{sw.depth}}).}
+  \item{legend.loc}{location of legend, as supplied to \code{\link{legend}}.}
   \item{\dots}{optional arguments passed to the contouring function,
     e.g. using \code{labcex=1} will increase the size of contour labels.}
 }
@@ -88,8 +100,8 @@ data(coastline.hal)
 plot(section, coastline=coastline.hal)
 # Gulf Stream
 data(a03)
-Gulf.Stream <- section.subset(a03, 124:102)
-Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0,2000,10))
+Gulf.Stream <- subset(a03, indices=124:102)
+Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0,2000,100))
 data(coastline.world)
 plot(Gulf.Stream.gridded, coastline=coastline.world, map.xlim=c(-80,-60))
 }

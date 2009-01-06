@@ -1,12 +1,12 @@
-read.coastline <- function(file,type=c("R","S","mapgen"),debug=FALSE)
+read.coastline <- function(file,type=c("R","S","mapgen"),debug=FALSE,log.action)
 {
     type <- match.arg(type)
-    log.item <- list(time=c(Sys.time()),
-                     action=c(paste("created by read.coastline(\"",file,"\", type=",type,")",sep="")))
+    if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
+    log.item <- processing.log.item(log.action)
     if (type == "R" || type == "S") {
-                                        #
-                                        # e.g. data from http://rimmer.ngdc.noaa.gov/coast/
-                                        # e.g. "~/data/Coastline/wcl_1_5000000.dat")
+        ##
+        ## e.g. data from http://rimmer.ngdc.noaa.gov/coast/
+        ## e.g. "~/data/Coastline/wcl_1_5000000.dat")
         if (is.character(file)) {
             file <- file(file, "r")
             on.exit(close(file))
@@ -56,5 +56,5 @@ read.coastline <- function(file,type=c("R","S","mapgen"),debug=FALSE)
         stop("unknown method.  Should be \"R\", \"S\", or \"mapgen\"")
     }
     class(res) <- c("coastline", "oce")
-    return(res)
+    res
 }

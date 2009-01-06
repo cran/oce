@@ -1,6 +1,6 @@
-read.sealevel <- function(file, debug=FALSE)
+read.sealevel <- function(file, debug=FALSE, log.action)
 {
-                                        # Read sea-level data in format described at ftp://ilikai.soest.hawaii.edu/rqds/hourly.fmt
+    ## Read sea-level data in format described at ftp://ilikai.soest.hawaii.edu/rqds/hourly.fmt
     filename <- file
     if (is.character(file)) {
         file <- file(file, "r")
@@ -39,7 +39,7 @@ read.sealevel <- function(file, debug=FALSE)
                                         # Obs_date,SLEV
                                         # 01/01/2001 12:00 AM,1.82,
         header.length <- 8
-        header <- scan(file, character(), n=header.length, quiet=TRUE)
+        header <- readLines(file, n = header.length)
         station.name   <- strsplit(header[1], ",")[[1]][2]
         station.number <- as.numeric(strsplit(header[2], ",")[[1]][2])
         latitude       <- as.numeric(strsplit(header[3], ",")[[1]][2])
@@ -130,7 +130,9 @@ read.sealevel <- function(file, debug=FALSE)
                      units=NA,
                      n=length(t),
                      sampling.interval=as.numeric(difftime(t[2], t[1], units="hours")))
-    log.item <- list(time=c(Sys.time()), action=c(paste("created by read.sealevel(\"",filename,"\")",sep="")))
+
+    if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
+    log.item <- processing.log.item(log.action)
     rval <- list(data=data, metadata=metadata, processing.log=log.item)
     class(rval) <- c("sealevel", "oce")
     rval

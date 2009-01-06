@@ -6,9 +6,8 @@
 
 \description{Read a CTD data file, producing an object of type \code{ctd}.}
 
-\usage{
-read.ctd(file, type=NULL, debug=FALSE,
- 	columns=NULL, station=NULL, check.human.headers=FALSE)
+\usage{read.ctd(file, type=NULL, debug=FALSE,
+ 	columns=NULL, station=NULL, check.human.headers=FALSE, log.action)
 }
 
 \arguments{
@@ -28,6 +27,9 @@ read.ctd(file, type=NULL, debug=FALSE,
     number) for the station. (This can be useful if the routine cannot determine
     the name automatically, or if another name is preferred.)}
   \item{check.human.headers}{produces warnings for missing human-written header items.}
+  \item{log.action}{if provided, the action item to be stored in the
+    log.  (Typically only provided for internal calls; the default that
+    it provides is better for normal calls by a user.)}
 }
 
 \details{Oceanographers use CTD (conductivity-temperature-depth)
@@ -75,26 +77,31 @@ read.ctd(file, type=NULL, debug=FALSE,
     \code{data$sigma.theta}. (\eqn{\sigma_\theta}{sigma-theta} is calculated
     using \code{\link{sw.sigma.theta}}.)}
   \item{metadata}{a list containing the following items
-    \item{\code{header}}{the header itself, normally containing several dozen lines of
-      information.}
-    \item{\code{filename}}{name of the file passed to \code{read.ctd}.}
-    \item{\code{filename.orig}}{name of the original file saved by the instrument
-      (normally a hex file).}
-    \item{\code{system.upload.time}}{system upload time.}
-    \item{\code{ship}}{name of vessel from which the CTD was deployed.}
-    \item{\code{scientist}}{name of the scientist leading the work at sea.}
-    \item{\code{institute}}{name of the institute behind the work.}
-    \item{\code{address}}{the address of the institute where the scientist works.}
-    \item{\code{cruise}}{name of cruise.}
-    \item{\code{station}}{station number or name.}
-    \item{\code{date}}{date of lowering of CTD into the water.}
-    \item{\code{start.time}}{time when instrument started recording data.}
-    \item{\code{latitude}}{latitude, in decimal degrees, positive north of equator.}
-    \item{\code{longitude}}{longitude, in decimal degrees, positive if east
-      of Greenwich and west of dateline.}
-    \item{\code{recovery}}{date of recovery of CTD.}
-    \item{\code{water.depth}}{the water depth at the site.}
-    \item{\code{sample.interval}}{time interval between samples, in seconds.}
+    \describe{
+      \item{\code{header}}{the header itself, normally containing
+	several dozen lines of information.}
+      \item{\code{filename}}{name of the file passed to \code{read.ctd}.}
+      \item{\code{filename.orig}}{name of the original file saved by the
+	instrument (normally a hex file).}
+      \item{\code{system.upload.time}}{system upload time.}
+      \item{\code{ship}}{name of vessel from which the CTD was deployed.}
+      \item{\code{scientist}}{name of the scientist leading the work at sea.}
+      \item{\code{institute}}{name of the institute behind the work.}
+      \item{\code{address}}{the address of the institute where the
+	scientist works.}
+      \item{\code{cruise}}{name of cruise.}
+      \item{\code{station}}{station number or name.}
+      \item{\code{date}}{date of lowering of CTD into the water.}
+      \item{\code{start.time}}{time when instrument started recording data.}
+      \item{\code{latitude}}{latitude, in decimal degrees, positive
+	north of equator.}
+      \item{\code{longitude}}{longitude, in decimal degrees, positive if
+	east of Greenwich and west of dateline.}
+      \item{\code{recovery}}{date of recovery of CTD.}
+      \item{\code{water.depth}}{the water depth at the site.}
+      \item{\code{sample.interval}}{time interval between samples, in
+	seconds.}
+    }
   }
   \item{processing.log}{a processing log, in the standard \code{oce} format.}
 }

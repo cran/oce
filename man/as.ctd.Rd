@@ -2,15 +2,10 @@
 \alias{as.ctd}
 \title{Coerce data into ctd dataset}
 \description{Coerces a dataset into a ctd dataset.}
-\usage{
-thectd <- as.ctd(S, t, p,
-ship=NA, scientist=NA, institute=NA, address=NA,
+\usage{as.ctd(S, t, p, ship=NA, scientist=NA, institute=NA, address=NA,
 cruise=NA, station=NA, date=NA, start.time=NA, 
-latitude=NA, longitude=NA,
-recovery=NA,
-water.depth=NA,
-sample.interval=NA,
-src="")
+latitude=NA, longitude=NA, recovery=NA, water.depth=NA, 
+sample.interval=NA, src="")
 }
 \arguments{
   \item{S}{Salinity through the water column.}
@@ -19,6 +14,7 @@ src="")
   \item{ship}{optional string containing the ship from which the observations were made.}
   \item{scientist}{optional string containing the chief scientist on the cruise.}
   \item{institute}{optional string containing the institute behind the work.}
+  \item{address}{optional string containing the address of the institute.}
   \item{cruise}{optional string containing a cruise identifier.}
   \item{station}{optional string containing a station identifier.}
   \item{date}{optional string containing the date at which the profile was started.}

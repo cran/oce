@@ -6,12 +6,15 @@
 
 \description{Read a data file created by a LOBO instrument.}
 
-\usage{read.lobo(file, cols=7)}
+\usage{read.lobo(file, cols=7, log.action)}
 
 \arguments{
-  \item{file}{A connection or a character string giving the name of the
+  \item{file}{a connection or a character string giving the name of the
     file to load.}
-  \item{cols}{Number of columns in dataset.}
+  \item{cols}{number of columns in dataset.}
+  \item{log.action}{if provided, the action item to be stored in the
+    log.  (Typically only provided for internal calls; the default that
+    it provides is better for normal calls by a user.)}
 }
 
 \details{This version of read.lobo is really quite crude, having been
@@ -27,16 +30,20 @@
   equivalent to \code{read.lobo}, because the file format has no
   recognizable header.  }
 
-\value{An object of \code{\link[base]{class}} \code{"lobo"}, which is a \code{\link[base]{list}} containing
+\value{An object of \code{\link[base]{class}} \code{"lobo"}, which is a
+  \code{\link[base]{list}} containing
   \item{data}{a \code{\link{data.frame}} containing the following vectors:
-    \item{\code{time}}{the times of observation}
-    \item{\code{u}}{one horizontal component of velocity (necessarily eastward) [m/s]}
-    \item{\code{v}}{an orthogonal component of horizontal velocity [m/s]}
-    \item{\code{salinity}}{the salinity [PSU]}
-    \item{\code{temperature}}{the in-situ temperature [degC]}
-    \item{\code{p}}{the pressure [dbar]}
-    \item{\code{nitrate}}{the nitrate concentration [unit?]}
-    \item{\code{fluorescence}}{[unit?]}
+    \describe{
+      \item{\code{time}}{the times of observation}
+      \item{\code{u}}{one horizontal component of velocity (necessarily
+	eastward) [m/s]}
+      \item{\code{v}}{an orthogonal component of horizontal velocity [m/s]}
+      \item{\code{salinity}}{the salinity [PSU]}
+      \item{\code{temperature}}{the in-situ temperature [degC]}
+      \item{\code{p}}{the pressure [dbar]}
+      \item{\code{nitrate}}{the nitrate concentration [unit?]}
+      \item{\code{fluorescence}}{[unit?]}
+    }
   }
   \item{metadata}{a list containing \code{header}, the header from the data file.}
   \item{processing.log}{A processing log, in the standard \code{oce} format.}

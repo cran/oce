@@ -2,11 +2,14 @@
 \alias{read.section}
 \title{Read a section containing multiple CTD profiles}
 \description{Read a file that contains a series of \code{ctd} profiles that make up an oceanographic section.}
-\usage{read.section(file, section.id, debug=FALSE)}
+\usage{read.section(file, section.id="", debug=FALSE, log.action)}
 \arguments{
   \item{file}{a file containing a set of CTD observations.  At present, only the \emph{exchange BOT} format is accepted (see Details).}
   \item{section.id}{optional string indicating the name for the section.  If not provided, the section ID is determined by examination of the file header.}
   \item{debug}{logical. If \code{TRUE}, print some information that might be helpful during debugging.}
+  \item{log.action}{if provided, the action item to be stored in the
+    log.  (Typically only provided for internal calls; the default that
+    it provides is better for normal calls by a user.)}
 }
 
 \details{Only \emph{exchange BOT} comma-separated value format is
@@ -36,8 +39,8 @@ and
 \examples{
 library(oce)
 data(a03)
-Gulf.Stream <- section.subset(a03, 124:102)
-Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0, 5000, 10))
+Gulf.Stream <- subset(a03, indices=124:102)
+Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0, 5000, 100))
 data(coastline.world)
 plot(Gulf.Stream.gridded, coastline=coastline.world, map.xlim=c(-80,-60))
 }

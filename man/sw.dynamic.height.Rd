@@ -6,23 +6,19 @@
 
 \description{Compute the dynamic height of a column of seawater.}
 
-\usage{
-dh <- sw.dynamic.height(section, pref=2000)
-h <- sw.dynamic.height(ctd, pref=2000)
-}
+\usage{sw.dynamic.height(x, pref=2000)}
 
 \arguments{
-  \item{section}{a \code{section} object}
-  \item{ctd}{an object of \code{\link[base]{class}} "\code{ctd}".}
+  \item{x}{a \code{section} object, \strong{or} a \code{ctd} object.}
   \item{pref}{reference pressure [dbar]}
 }
 
-\details{The first form calculates dynamic height for each station
-  within a section, and returns a list containing distance along the
-  section along with dynamic height.
+\details{If the first argument is a \code{section}, then dynamic height
+  is calculated for each station within a section, and returns a list
+  containing distance along the section along with dynamic height.
 
-  The second form calculates dynamic height for a single station, and
-  returns just a single value, the dynamic height.
+  If the first argument is a \code{ctd}, then this returns just a single
+  value, the dynamic height.
 
   Stations are analysed in steps. First, a piecewise-linear model of the
   density variation with pressure is developed using
@@ -57,7 +53,7 @@ par(mar=c(4.5,4.5,2,1))
 
 # Left-hand column: whole section
 # (The smoothing lowers Gulf Stream speed greatly)
-a03.west.to.east <- section.subset(a03, 124:1)
+a03.west.to.east <- subset(a03, indices=124:1)
 dh <- sw.dynamic.height(a03.west.to.east)
 plot(dh$distance, dh$height, type='p', xlab="", ylab="Dyn. Height [m]")
 ok <- !is.na(dh$height)
@@ -70,7 +66,7 @@ plot(smu$x[-1], v, type='l', col="blue", xlab="Distance [km]", ylab="Velocity [m
 abline(h=0)
 
 # Right-hand column: Gulf Stream region, unsmoothed
-Gulf.Stream <- section.subset(a03, 124:102)
+Gulf.Stream <- subset(a03, indices=124:102)
 dh.GS <- sw.dynamic.height(Gulf.Stream)
 plot(dh.GS$distance, dh.GS$height, type='b', xlab="", ylab="Dyn. Height [m]")
 grid()

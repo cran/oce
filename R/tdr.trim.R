@@ -1,11 +1,11 @@
-rbrtdr.trim <- function(x, method="water", parameters=NULL, verbose=FALSE)
+tdr.trim <- function(x, method="water", parameters=NULL, verbose=FALSE)
 {
-    if (!inherits(x, "rbrtdr")) stop("method is only for rbrtdr objects")
+    if (!inherits(x, "tdr")) stop("method is only for tdr objects")
     result <- x
     n <- length(x$data$temperature)
-    if (verbose) cat("rbrtdr.trim() working on dataset with", n, "points\n")
+    if (verbose) cat("tdr.trim() working on dataset with", n, "points\n")
     if (n < 2) {
-        warning("too few data to rbrtdr.trim()")
+        warning("too few data to tdr.trim()")
     } else {
         which.method <- pmatch(method, c("water", "time", "index"), nomatch=0)
         if (verbose) cat("using method", which.method,"\n")
@@ -17,7 +17,7 @@ rbrtdr.trim <- function(x, method="water", parameters=NULL, verbose=FALSE)
             i.start <- water.indices[1] + b
             i.stop <- water.indices[-b + length(water.indices)]
             keep[i.start:i.stop] <- TRUE
-            cat("The mean (deleted) air pressure is", mean(x$data$pressure[air]),"dbar\n")
+            #message("The mean (deleted) air pressure is", mean(x$data$pressure[air]),"dbar\n")
         } else if (which.method == 2) { # "time"
             if (verbose)	cat("trimming to time range ",as.character(parameters[1])," to ", as.character(parameters[2]), "\n");
             keep <- rep(TRUE, n)
@@ -36,16 +36,6 @@ rbrtdr.trim <- function(x, method="water", parameters=NULL, verbose=FALSE)
         }
     }
     result$data <- subset(x$data, keep)
-    if (is.null(parameters)) {
-        result <- processing.log.append(result,	paste("modified by rbrtdr.trim(x, method=\"",method,"\")",sep=""))
-    } else {
-        pp <- as.character(parameters)
-        p <- paste("c(\"", pp, sep="")
-        for (i in 2:length(pp)) {
-            p <- paste(p, pp[i], sep="\",\"")
-        }
-        p <- paste(p, "\")",sep="")     # BUG: broken; should do this above, anyway.  Surely there is a general solution
-        result <- processing.log.append(result,	paste("modified by rbrtdr.trim(x, method=\"",method,"\",parameters=",p,")",sep=""))
-    }
-    return(result)
+    result <- processing.log.append(result, paste(deparse(match.call()), sep="", collapse=""))
+    result
 }

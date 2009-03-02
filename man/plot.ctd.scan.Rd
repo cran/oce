@@ -2,9 +2,10 @@
 
 \alias{plot.ctd.scan}
 
-\title{Plot seawater (CTD) data in a low-level fashion, with scan number as the independent variable}
+\title{Plot seawater data in a low-level fashion}
 
-\description{Plot CTD data as time-series against scan number, to aide in trimming.}
+\description{Plot CTD data as time-series against scan number, to help
+  with trimming extraneous data from a CTD cast.}
 
 \usage{plot.ctd.scan(x, name = "scan", 
  S.col = "darkgreen", T.col= "darkred", p.col = "blue", \dots)

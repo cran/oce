@@ -2,31 +2,33 @@
 
 \alias{read.tdr}
 
-\title{Read an RBR temperature-depth recorder data file}
+\title{Read an TDR temperature-depth recorder data file}
 
-\description{Read an RBR temperature-depth recorder file, producing an object of type \code{tdr}.}
+\description{Read an TDR temperature-depth recorder file, producing an object of type \code{tdr}.}
 
-\usage{read.tdr(file, debug=FALSE, log.action)}
+\usage{read.tdr(file, tz=getOption("oce.tz"), log.action, debug=FALSE)}
 
 \arguments{
   \item{file}{a connection or a character string giving the name of the
     file to load.}
-  \item{debug}{a flag that can be set to \code{TRUE} to turn on debugging.}
+  \item{tz}{time zone.  The default value, \code{oce.tz}, is set to \code{UTC} 
+    at setup.}
   \item{log.action}{if provided, the action item to be stored in the
     log.  (Typically only provided for internal calls; the default that
     it provides is better for normal calls by a user.)}
+  \item{debug}{a flag that can be set to \code{TRUE} to turn on debugging.}
 }
 
-\details{Read an RBR TDR (temperature-depth recorder) file.}
+\details{Read an TDR (temperature-depth recorder) file.  At the moment,
+  three styles are understood: (1) a two-column style, containing
+  temperature and pressure (in which case time is inferred from
+  information in the header); (2) a four-column style, in which the date
+  the time of day are given in the first two columns, followed by the
+  temperature, and pressure; and (3) a five-column style, in which depth
+  in the water column is given after the pressure.}
 
 \value{An object of \code{\link[base]{class}} \code{"tdr"}, which is a
-  list with elements detailed below. The most important elements are the
-  station name and position, along with the profile data that are
-  contained in the data frame named \code{data}. (Other elements in the
-  list may be deleted in future versions of the package, if they prove
-  to be of little use in practice, or if they prove to have been
-  idiosyncratic features of the particular files used in early
-  development of \code{oce}.)
+  list with elements detailed below.
   \item{data}{a data table containing the (t, temperature, pressure)
     data.}
   \item{metadata}{a list containing the following items

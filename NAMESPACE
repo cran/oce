@@ -11,6 +11,8 @@ export(
        ctd.trim,
        ctd.update.header,
        ctd.write,
+       decimate,
+       fill.gap,
        gebco.colors,
        geod.dist,
        gravity,
@@ -20,9 +22,12 @@ export(
        latlon.format,
        lon.format,
        magic,
+       make.filter,
        make.section,
        oce.as.POSIXlt,
        oce.edit,
+       oce.write.table,
+       parse.latlon,
        plot.TS,
        plot.coastline,
        plot.ctd,
@@ -79,23 +84,25 @@ export(
        undrift.time
        )
 
-S3method(plot, ctd)
 S3method(plot, coastline)
-S3method(plot, topo)
+S3method(plot, ctd)
 S3method(plot, lobo)
-S3method(plot, tdr)
 S3method(plot, sealevel)
 S3method(plot, section)
+S3method(plot, tdr)
 S3method(plot, tide)
-S3method(predict, tide)
+S3method(plot, topo)
 S3method(plot, windrose)
-S3method(summary, ctd)
+
+S3method(predict, tide)
+
 S3method(summary, coastline)
-S3method(summary, tdr)
-S3method(summary, topo)
+S3method(summary, ctd)
 S3method(summary, lobo)
+S3method(summary, oce)
 S3method(summary, sealevel)
 S3method(summary, section)
+S3method(summary, tdr)
 S3method(summary, tide)
-S3method(summary, oce)
+S3method(summary, topo)
 S3method(summary, windrose)

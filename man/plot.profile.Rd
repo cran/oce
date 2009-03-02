@@ -12,9 +12,11 @@ col.S="darkgreen",
 col.t="red",
 col.rho="blue",
 col.N2="brown",
+col.dpdt="darkgreen",
+col.time="darkgreen",
 grid=FALSE, 
 col.grid="lightgray",
-Slim, Tlim, densitylim, N2lim, plim,
+Slim, Tlim, densitylim, N2lim, plim, dpdtlim, timelim,
 lwd,
 \dots)
 }
@@ -27,6 +29,8 @@ lwd,
       \item{\code{T}}{Profile of \emph{in-situ} temperature.}
       \item{\code{density}}{Profile of density (expressed as
 	\eqn{\sigma_\theta}{sigma_theta}).}
+      \item{\code{index}}{Index of sample (very useful for working with
+	\code{\link{ctd.trim}}).}
       \item{\code{S+T}}{Profile of salinity and temperature within a
 	single axis frame.}
       \item{\code{N2}}{Profile of square of buoyancy frequency
@@ -35,12 +39,23 @@ lwd,
 	smoothing.}
       \item{\code{density+N2}}{Profile of sigma-theta and the square of buoyancy
 	frequency within a single axis frame.}
+      \item{\code{density+dpdt}}{Profile of sigma-theta and dP/dt for
+	the sensor.  The latter is useful in indicating problems with
+	the deployment.  It is calculated by first differencing pressure
+	and then using a smoothing spline on the result (to avoid
+	grid-point wiggles that result because the SBE software only
+	writes 3 decimal places in pressure).  Note that dP/dt may be
+	off by a scale factor; this should not be a problem if there is
+	a \code{x$data$time} column, or a \code{x$metadata$sample.rate}
+	value in the header.}
     }
   }
   \item{col.S}{Color for salinity profile.}
   \item{col.t}{Color for temperature.}
   \item{col.rho}{Color for density.}
   \item{col.N2}{Color for square of buoyancy frequency.}
+  \item{col.dpdt}{Color for dP/dt.}
+  \item{col.time}{Color for delta-time.}
   \item{grid}{Set \code{TRUE} to get a grid.}
   \item{col.grid}{Grid colour.}
   \item{Slim}{Optional limit for S axis}
@@ -48,6 +63,8 @@ lwd,
   \item{densitylim}{Optional limit for density axis}
   \item{N2lim}{Optional limit for N2 axis}
   \item{plim}{Optional limit for p axis}
+  \item{dpdtlim}{Optional limit for dp/dt axis}
+  \item{timelim}{Optional limit for delta-time axis}
   \item{lwd}{lwd value for data line}
   \item{\dots}{Optional arguments passed to other functions.  A common example is to set \code{df}, for 
 use in \link{sw.N2} calculations.} 

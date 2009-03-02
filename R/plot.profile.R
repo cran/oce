@@ -4,17 +4,81 @@ plot.profile <- function (x,
                           col.t = "red",
                           col.rho = "blue",
                           col.N2 = "brown",
+                          col.dpdt = "darkgreen",
+                          col.time = "darkgreen",
                           grid = FALSE,
                           col.grid = "lightgray",
-                          Slim, Tlim, densitylim, N2lim, plim,
+                          Slim, Tlim, densitylim, N2lim, plim, dpdtlim, timelim,
                           lwd=par("lwd"),
                           ...)
 {
     if (!inherits(x, "ctd")) stop("method is only for ctd objects")
     pname <- "Pressure [ dbar ]"
-    if (missing(plim)) plim <- rev(range(x$data$pressure)) else plim <- rev(sort(plim))
+    if (missing(plim)) plim <- rev(range(x$data$pressure, na.rm=TRUE))
+    plim <- sort(plim, decreasing=TRUE)
     axis.name.loc <- par("mgp")[1]
-    if (type == "S") {
+    know.time.unit <- FALSE
+    if ("time" %in% names(x$data)) {
+        know.time.unit <- TRUE
+        time <- x$data$time
+    } else {
+        time <- 0:(length(x$data$pressure) - 1)
+        if (!is.na(x$metadata$sample.interval)) {
+            know.time.unit <- TRUE
+            time <- time * x$metadata$sample.interval
+        }
+    }
+    if (type == "index") {
+        index <- 1:length(x$data$pressure)
+        plot(index, x$data$pressure, ylim=plim, xlab = "index", ylab = pname, type='l')
+    } else if (type == "density+time") {
+        if (missing(densitylim)) densitylim <- range(x$data$sigma.theta, na.rm=TRUE)
+	st <- sw.sigma.theta(x$data$salinity, x$data$temperature, x$data$pressure)
+        plot(st, x$data$pressure,
+             xlim=densitylim, ylim=plim,
+             type = "n", xlab = "", ylab = pname, axes = FALSE)
+        axis(3, col = col.rho, col.axis = col.rho, col.lab = col.rho)
+        mtext(expression(paste(sigma[theta], " [ ", kg/m^3, " ]")), side = 3, line = axis.name.loc, col = col.rho, cex=par("cex"))
+        axis(2)
+        box()
+        lines(st, x$data$pressure, col = col.rho, lwd=lwd)
+        par(new = TRUE)
+        if (missing(timelim)) timelim <- range(time, na.rm=TRUE)
+        plot(time, x$data$pressure, xlim=timelim, ylim=plim, type='n', xlab="", ylab=pname, axes=FALSE, lwd=lwd, col=col.time)
+        axis(1, col=col.dpdt, col.axis=col.dpdt, col.lab=col.time)
+        lines(time, x$data$pressure, lwd=lwd, col=col.time)
+        if (know.time.unit)
+            mtext(expression(paste(Delta*t, " [ s ]")), side = 1, line = axis.name.loc, cex=par("cex"), col=col.time)
+        else
+            mtext(expression(paste(Delta*t, " [ unknown unit ]")), side = 1, line = axis.name.loc, cex=par("cex"), col=col.time)
+        box()
+        if (grid) grid(col=col.grid)
+    } else if (type == "density+dpdt") {
+        if (missing(densitylim)) densitylim <- range(x$data$sigma.theta, na.rm=TRUE)
+	st <- sw.sigma.theta(x$data$salinity, x$data$temperature, x$data$pressure)
+        plot(st, x$data$pressure,
+             xlim=densitylim, ylim=plim,
+             type = "n", xlab = "", ylab = pname, axes = FALSE)
+        axis(3, col = col.rho, col.axis = col.rho, col.lab = col.rho)
+        mtext(expression(paste(sigma[theta], " [ ", kg/m^3, " ]")), side = 3, line = axis.name.loc, col = col.rho, cex=par("cex"))
+        axis(2)
+        box()
+        lines(st, x$data$pressure, col = col.rho, lwd=lwd)
+        par(new = TRUE)
+        dpdt <- diff(x$data$pressure) / diff(time)
+        dpdt <- c(dpdt[1], dpdt)        # fake first point
+        df <- min(max(x$data$pressure, na.rm=TRUE) / 5, length(x$data$pressure) / 10) # FIXME: adjust params
+        dpdt.sm <- smooth.spline(x$data$pressure, dpdt, df=df)
+        plot(dpdt.sm$y, dpdt.sm$x, xlim=dpdtlim, ylim=plim, type='n', xlab="", ylab=pname, axes=FALSE, lwd=lwd, col=col.dpdt)
+        axis(1, col=col.dpdt, col.axis=col.dpdt, col.lab=col.dpdt)
+        lines(dpdt.sm$y, dpdt.sm$x, lwd=lwd, col=col.dpdt)
+        if (know.time.unit)
+            mtext(expression(paste(dp/dt, " [ dbar/s ]")), side = 1, line = axis.name.loc, cex=par("cex"), col=col.dpdt)
+        else
+            mtext(expression(paste(dp/dt, " [ dbar/(time-unit) ]")), side = 1, line = axis.name.loc, cex=par("cex"), col=col.dpdt)
+        box()
+        if (grid) grid(col=col.grid)
+    } else if (type == "S") {
         if (missing(Slim)) Slim <- range(x$data$salinity, na.rm=TRUE)
         plot(x$data$salinity, x$data$pressure,
              xlim=Slim, ylim=plim,
@@ -71,7 +135,7 @@ plot.profile <- function (x,
         box()
         if (grid) grid(col=col.grid)
     } else if (type == "N2") {
-        N2 <- N2(x$data$pressure, x$data$sigma.theta, df = length(x$data$pressure)/4)
+        N2 <- sw.N2(x$data$pressure, x$data$sigma.theta, ...)
         if (missing(N2lim)) N2lim <- range(N2, na.rm=TRUE)
         plot(N2, x$data$pressure,
              xlim=N2lim, ylim=plim,

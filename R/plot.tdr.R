@@ -22,7 +22,7 @@ plot.tdr <- function (x, which=1:4, ...)
     if (show[2]) {
         plot(x$data$t, x$data$pressure,
              xlab="", ylab="Pressure [dbar]", type='l',
-             ylim=rev(range(x$data$pressure)),
+             ylim=rev(range(x$data$pressure, na.rm=TRUE)),
              ...)
     }
     if (show[4]) {
@@ -43,18 +43,18 @@ plot.tdr <- function (x, which=1:4, ...)
         text.item(paste("Serial Number: ", x$metadata$serial.number),cex=1.25)
         text.item(paste("Start:", x$data$t[1]), cex=1)
         text.item(paste("End:", x$data$t[length(x$data$t)]), cex=1)
-        text.item(paste("Interval:", difftime(x$data$t[2], x$data$t[1], units="s"), "s"),cex=1)
+        text.item(paste("Sampling interval:", difftime(x$data$t[2], x$data$t[1], units="s"), "s"),cex=1)
         par(mar=mar)
     }
     if (show[3]) {
         args <- list(x=x$data$temperature, y=x$data$pressure,
-                     ylim=rev(range(x$data$pressure)),
+                     ylim=rev(range(x$data$pressure, na.rm=TRUE)),
                      xlab=expression(paste("Temperature [", degree, "C ]")),
                      ylab="Pressure [dbar]", ...)
         if (!("type" %in% names(list(...)))) args <- c(args, type="p")
         if (!("cex"  %in% names(list(...)))) args <- c(args, cex=0.5)
         do.call(plot, args)
     }
-    par(oldpar)
+    if (lw != 1) par(oldpar)
     invisible()
 }

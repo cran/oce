@@ -33,17 +33,15 @@ of the following is called:
 \code{\link{read.ctd}},
 \code{\link{read.coastline}}
 \code{\link{read.lobo}}, 
-\code{\link{read.tdr}}, 
+\code{\link{read.pt}}, 
 \code{\link{read.sealevel}}, etc.
 }
 
 \examples{
-\dontrun{
 library(oce)
-x <- read.oce("/usr/local/lib/R/library/oce/demo/ctdprofile.cnv")
+x <- read.oce(system.file("data", "ctd.cnv", package="oce"))
 plot(x) # summary with TS and profiles
 plot.TS(x) # just the TS
-}
 }
 
 \author{Dan Kelley}

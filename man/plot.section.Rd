@@ -7,31 +7,34 @@
 \description{Plot a CTD section.}
 
 \usage{\method{plot}{section}(x,
- 	field=NULL,
-	at=NULL,
-	labels=TRUE,
-	grid=FALSE,
-        contour.levels=NULL,
-        contour.labels=NULL,
-	station.indices,
-	coastline=NULL,
-	map.xlim=NULL,
-        xtype="distance",
-        ytype="depth",
-        legend.loc="bottomright",
-	\dots)
+     which=1:4,
+     at=NULL,
+     labels=TRUE,
+     grid=FALSE,
+     contour.levels=NULL,
+     contour.labels=NULL,
+     station.indices,
+     coastline=NULL,
+     map.xlim=NULL,
+     xtype="distance",
+     ytype="depth",
+     legend.loc="bottomright",
+     adorn=NULL,
+     mgp=getOption("oce.mgp"),
+     mar=c(mgp[1]+1, mgp[1]+1, mgp[2], mgp[2]),
+     \dots)
 }
 
 \arguments{
   \item{x}{a \code{section} object, e.g. as created by
     \code{\link{make.section}}.}
-  \item{field}{is the field to plot.  Common options are
-    \code{"temperature"}, \code{"salinity"}, and \code{"density"},
-    although \code{plot.section} will accept any named field that is
-    present in the constituent CTD profiles. If \code{NULL} (the default)
-    is given, then temperature, salinity and density are graphed.  If a
-    field is specified, then it is also possible to specify the
-    \code{contour.levels} and \code{contour.labels} (see below).}
+  \item{which}{list of desired plot types.  There may be up to four panels in
+    total, and the desired plots are placed in these panels, in
+    reading order. Set \code{which} to 1 to contour temperature, to 2
+    to contour salinity, to 3 to contour sigma.theta, or to 4 to plot
+    a map of station locations.  If only one panel is plotted,
+    \code{par} is not adjusted, which makes it easy to add to the plot
+    with subsequent plotting commands.}
   \item{at}{if \code{NULL} (the default), the x axis will indicate the
     distance of the stations from the first in the section.  (This may
     give errors in the contouring routine, if the stations are not present
@@ -62,6 +65,17 @@
     or \code{"depth"} for depth (in m below the surface, calculated
     from pressure with \code{\link{sw.depth}}).}
   \item{legend.loc}{location of legend, as supplied to \code{\link{legend}}.}
+  \item{adorn}{list of expressions to be executed for the panels in
+    turn, e.g. to adorn the plots.  If the number matches the number of
+    panels, then the strings are applied to the appropriate panels, as
+    they are drawn from top-left to bottom-right.   If only a single
+    expression is provided, it is used for all panels.  (See
+    \dQuote{Examples}.)}
+  \item{mgp}{3-element numerical vector to use for \code{par(mgp)}, and
+    also for \code{par(mar)}, computed from this.  The default is
+    tighter than the R default, in order to use more space for the data
+    and less for the axes.}
+  \item{mar}{value to be used with \code{\link{par}("mar")}.}
   \item{\dots}{optional arguments passed to the contouring function,
     e.g. using \code{labcex=1} will increase the size of contour labels.}
 }
@@ -98,12 +112,16 @@ library(oce)
 data(section)
 data(coastline.hal)
 plot(section, coastline=coastline.hal)
+
 # Gulf Stream
 data(a03)
 Gulf.Stream <- subset(a03, indices=124:102)
 Gulf.Stream.gridded <- section.grid(Gulf.Stream, p=seq(0,2000,100))
 data(coastline.world)
 plot(Gulf.Stream.gridded, coastline=coastline.world, map.xlim=c(-80,-60))
+# Illustate adornment
+plot(Gulf.Stream.gridded, coastline=coastline.world, map.xlim=c(-80,-60),
+     adorn=expression({abline(v=200,col='blue')}))
 }
 
 \author{Dan Kelley}

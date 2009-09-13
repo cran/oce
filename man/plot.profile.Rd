@@ -7,23 +7,28 @@
 \description{Plot a CTD profile, in any of several common formats.}
 
 \usage{plot.profile(x,
-type="S", 
+xtype="S", 
+ytype=c("pressure", "z"),
 col.S="darkgreen",
 col.t="red",
 col.rho="blue",
 col.N2="brown",
 col.dpdt="darkgreen",
 col.time="darkgreen",
-grid=FALSE, 
+grid=TRUE,
 col.grid="lightgray",
-Slim, Tlim, densitylim, N2lim, plim, dpdtlim, timelim,
+lty.grid="dotted",
+Slim, Tlim, densitylim, N2lim, dpdtlim, timelim, ylim,
 lwd,
+xaxs="r", yaxs="r",
+mgp=getOption("oce.mgp"),
+mar=c(mgp[1]+1, mgp[1]+1, mgp[1] + 1.5, 0.5),
 \dots)
 }
 
 \arguments{
   \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}.}
-  \item{type}{Type of profile to plot, from the list below.
+  \item{xtype}{Type of profile to plot, from the list below.
     \describe{
       \item{\code{S}}{Profile of salinity.}
       \item{\code{T}}{Profile of \emph{in-situ} temperature.}
@@ -50,24 +55,33 @@ lwd,
 	value in the header.}
     }
   }
+  \item{ytype}{variable to use on y axis.}
   \item{col.S}{Color for salinity profile.}
   \item{col.t}{Color for temperature.}
   \item{col.rho}{Color for density.}
   \item{col.N2}{Color for square of buoyancy frequency.}
   \item{col.dpdt}{Color for dP/dt.}
   \item{col.time}{Color for delta-time.}
-  \item{grid}{Set \code{TRUE} to get a grid.}
-  \item{col.grid}{Grid colour.}
+  \item{grid}{logical, set to \code{TRUE} to get a grid.}
+  \item{col.grid}{colour for grid.}
+  \item{lty.grid}{line type for grid.}
   \item{Slim}{Optional limit for S axis}
   \item{Tlim}{Optional limit for T axis}
   \item{densitylim}{Optional limit for density axis}
   \item{N2lim}{Optional limit for N2 axis}
-  \item{plim}{Optional limit for p axis}
   \item{dpdtlim}{Optional limit for dp/dt axis}
   \item{timelim}{Optional limit for delta-time axis}
+  \item{ylim}{Optional limit for y axis}
   \item{lwd}{lwd value for data line}
-  \item{\dots}{Optional arguments passed to other functions.  A common example is to set \code{df}, for 
-use in \link{sw.N2} calculations.} 
+  \item{xaxs}{value of \code{\link{par}} \code{xaxs} to use}
+  \item{yaxs}{value of \code{\link{par}} \code{yaxs} to use}
+  \item{mgp}{3-element numerical vector to use for \code{par(mgp)}, and
+    also for \code{par(mar)}, computed from this.  The default is
+    tighter than the R default, in order to use more space for the data
+    and less for the axes.}
+  \item{mar}{value to be used with \code{\link{par}("mar")}.}
+  \item{\dots}{Optional arguments passed to other functions.  A common example is
+    to set \code{df}, for use in \link{sw.N2} calculations.} 
 }
 
 \value{None.}
@@ -77,14 +91,9 @@ use in \link{sw.N2} calculations.}
 }
 
 \examples{
-\dontrun{
 library(oce)
 data(ctd)
-# ctd <- read.ctd("ctd.cnv")
-summary(ctd)
-plot(ctd)
-plot.profile(ctd, type="T")
-}
+plot.profile(ctd, xtype="T")
 }
 
 \author{Dan Kelley}

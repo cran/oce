@@ -18,7 +18,7 @@
 
 \titleformat{\section}[block]{\normalfont\large\bfseries}{\thesection}{1em}{}
 \titlespacing{\section}{0em}{2em plus 3em minus 0.5em}{0.15em plus 0.15em minus 0.125em}
-\titleformat{\subsection}[block]{\normalfont\large\itshape}{\thesubsection}{1em}{}
+\titleformat{\subsection}[block]{\normalfont\itshape}{\thesubsection}{1em}{}
 \titlespacing{\subsection}{0em}{1em plus 2em minus 0.5em}{-0.15em plus 0.15em minus 0.125em}
 
 \newcommand{\workedexercise}[2]{
@@ -69,7 +69,7 @@ analysis.
 
 \begin{figure}[ht]
   \begin{center}
-    \includegraphics[width=0.7\hsize]{ctd-object}
+    \includegraphics[width=0.5\hsize]{ctd-object}
   \end{center}
   \caption{\label{f:ctdobject}Sketch of the contents of a \texttt{ctd}
     object. The elements \texttt{data}, \texttt{metadata}, and
@@ -111,16 +111,17 @@ produces different sorts of plots for different sorts of \verb@x@ objects.
 \index{seawater properties, calculations of}
 
 The \verb@oce@ package provides many functions for dealing with seawater
-properties. Probably the most used is \verb@sw.rho(S,T,p)@, which computes
-seawater density $\rho$ as a function of salinity $S$ (PSU), in-situ temperature
-$T$ ($^\circ$C) and pressure $p$ (decibar). (Note that this and similar
-functions starts with the letters \verb@sw.@ to designate that they relate to
-seawater properties.  Future versions of \verb@oce@ may include the properties
-of air, so the prefix is an example of planning, rather than necessity.) The
-result is a number in the order of $1000$\,kg/m$^3$.  For many purposes,
-Oceanographers prefer to use the density anomaly $\sigma=\rho-1000$\,kg/m$^3$,
-provided with \verb@sw.sigma(S,t,p)@, or its adiabatic cousin $\sigma_\theta$,
-provided with \verb@sw.sigma.theta(S,t,p)@.
+properties. Perhaps the most used is \verb@sw.rho(S,T,p)@, which computes
+seawater density $\rho=\rho(S, T, p)$, where $S$ (PSU) is salinity, $T$
+($^\circ$C) is \emph{in-situ} temperature, and $p$ (dbar) is seawater pressure,
+expressed as an increment over standard atmospheric pressure.  (This
+  and similar functions starts with the letters \verb@sw.@ to designate that
+  they relate to seawater properties; a future version of \verb@oce@ may  provide
+  air properties, with functions names starting with \verb@air.@) The result is a
+number in the order of $1000$\,kg/m$^3$.  For many purposes, Oceanographers
+prefer to use the density anomaly $\sigma=\rho-1000$\,kg/m$^3$, provided with
+\verb@sw.sigma(S,t,p)@, or its adiabatic cousin $\sigma_\theta$, provided with
+\verb@sw.sigma.theta(S,t,p)@.
 
 \looseness=1
 \index{dynamic height}
@@ -128,8 +129,8 @@ Most of the functions use the UNESCO formulations of seawater properties, but ne
 may be added as they come into use in the literature.
 A partial list of seawater functions is as follows:
 \verb@sw.dynamic.height@ (dynamic height),
-\verb@sw.N2@ (buoyancy freqency),
-\verb@sw.S.C.T.p@ (salinity $S$ from $C$, $T$ and $p$),
+\verb@sw.N2@ (buoyancy frequency),
+\verb@sw.S.C.T.p@ (salinity $S$ from conductivity $C$, $T$ and $p$),
 \verb@sw.S.T.rho@ ($S$ from $T$ and $\rho$),
 \verb@sw.T.S.rho@ ($T$ from $S$ and $\rho$),
 \verb@sw.T.freeze@ (freezing temperature),
@@ -143,10 +144,10 @@ A partial list of seawater functions is as follows:
 \verb@sw.sigma@ ($\rho-1000$\,kg/m$^3$),
 \verb@sw.sigma.t@ ($\sigma$ with $p$ set to zero and temperature unaltered),
 \verb@sw.sigma.theta@ ($\sigma$ with $p$ set to zero and temperature altered adiabatically),
-\verb@sw.sound.speed@ (speed of sound in m/s),
-\verb@sw.specific.heat@ (specific heat in J/kg/$^\circ$C),
+\verb@sw.sound.speed@ (speed of sound),
+\verb@sw.specific.heat@ (specific heat),
 \verb@sw.spice@ (a quantity used in double-diffusive research),
-\verb@sw.theta@ (potential temperature in $^\circ$C),
+\verb@sw.theta@ (potential temperature $\theta$),
 and
 \verb@sw.viscosity@ (viscosity).
 Details and examples are provided in the documentation of these functions.
@@ -157,7 +158,7 @@ $100$\,dbar, with salinity $34$\,PSU and temperature 10$^\circ$C?
 (b) What temperature would the parcel have if raised adiabatically to the surface?
 (c) What density would it have if raised adiabatically to the surface?
 (d) What density would it have if lowered about 100m, increasing the pressure to $200$dbar?
-(e) Draw a blank TS diagram with $S$ from $30$ to $40$\,PSU and $T$ from $-2$ to 20$^\circ$C.
+(e) Draw a blank $T$-$S$ diagram with $S$ from $30$ to $40$\,PSU and $T$ from $-2$ to 20$^\circ$C.
 (Answers are provided at the end of this document.)
 }
 
@@ -379,7 +380,7 @@ $T$, $S$, and $\sigma_\theta$, along with a chart indicating station
 locations. In addition to such overview diagrams, \verb@plot@ can also create
 individual plots of individual properties.
 
-\workedexercise{3}{Draw a TS diagram for the section data, colour-coded by station}
+\workedexercise{3}{Draw a $T$-$S$ diagram for the section data, colour-coded by station}
 
 \index{reading!ctd section}
 \index{data!section \verb@a03@, North Atlantic along 36$^\circ$N}
@@ -408,16 +409,16 @@ right angles.
 \begin{figure}
 \begin{center}
 \setkeys{Gin}{width=1\textwidth}
-<<label=sectionfiga03,fig=TRUE,width=9, height=11, echo=FALSE>>=
+<<label=sectionfiga03,fig=TRUE,width=9, height=5, echo=FALSE>>=
 <<sectionplota03>>
 @
 \end{center}
 \caption{\label{fig:sectiona03}
-Portion of the CTD section designated A03 (Cruise chief scientist: Tereschenkov, SOI.), showing the region of the Gulf Stream.
+Portion of the CTD section designated A03, showing the Gulf Sream region.
 }
 \end{figure}
 
-\workedexercise{4}{Plot dynamic height across the Gulf Stream, and show the corresponding geostrophic velocity.}
+\workedexercise{4}{Plot dynamic height and geostrophic velocity across the Gulf Stream.}
 
 \section{Coastline and topographic data}
 
@@ -445,13 +446,12 @@ will produce a chart of the waters embraced by the Maritime Provinces of Canada
 (Figure~\ref{fig:topo}).
 \begin{figure}
 \begin{center}
-\setkeys{Gin}{width=\textwidth}
-<<label=topofig,fig=TRUE,width=8, height=8.5, echo=FALSE>>=
+\setkeys{Gin}{width=0.7\textwidth}
+<<label=topofig,fig=TRUE,width=7, height=5, echo=FALSE>>=
 <<topoplot>>
 @
 \end{center}
-\caption{Topography of eastern Canada, centred on Les \^{i}les de la Madeleine,
-north of Prince Edward Island.}
+\caption{Topography of eastern Canada, centred on Les \^{i}les de la Madeleine.}
 \label{fig:topo}
 \end{figure}
 
@@ -480,18 +480,18 @@ narrow-banded constituents quite visible.
 \begin{figure}
 \begin{center}
 \setkeys{Gin}{width=\textwidth}
-<<label=sealevelfig,fig=TRUE,width=8,height=7,echo=FALSE>>=
+<<label=sealevelfig,fig=TRUE,width=7,height=5,echo=FALSE>>=
 <<sealevelplot>>
 @
 \end{center}
 \caption{Sea-level timeseries measured in 2003 in Halifax Harbour.  (The spike
 in September is the storm surge associated with Hurricane Juan, regarded by the
 Canadian Hurricane Centre to be one of the most powerful and damaging hurricanes
-to ever hit Canada.}
+to ever hit Canada.)}
 \label{fig:sealevel}
 \end{figure}
 
-\workedexercise{5}{Illustrate Halifax sealevel variations during Hurricane Juan}
+\workedexercise{5}{Illustrate Halifax sealevel variations during Hurricane Juan.}
 
 \workedexercise{6}{Draw a spectrum of sea-level variation, with the M2 tidal component indicated.}
 
@@ -511,10 +511,10 @@ version.  (The problems involve phase, and the inference of satellite nodes.)
 %%% data(sealevel.hal)
 %%% tide <- tidem(sealevel.hal)
 %%% days <- 15 # focus on these days at end of series
-%%% n <- length(sealevel.hal$data$eta)
+%%% n <- length(sealevel.hal$data$elevation)
 %%% i <- seq(n-24*days, n)
 %%% t   <- sealevel.hal$data$t[i]
-%%% eta <- sealevel.hal$data$eta[i]
+%%% eta <- sealevel.hal$data$elevation[i]
 %%% eta.pred <- predict(tide)[i]
 %%% plot(t, eta, type="l", ylim=c(-0.5,3))
 %%% abline(h=0, col="pink")
@@ -546,42 +546,71 @@ version.  (The problems involve phase, and the inference of satellite nodes.)
 
 \section{Temperature-Depth Recorder data}
 The commands
-<<label=tdrplot,eval=FALSE>>=
+<<label=ptplot,eval=FALSE>>=
 library(oce)
-data(tdr)
-plot(tdr) # NOTE: atmospheric pressure not removed
+data(pt)
+plot(pt)
 @
-produce a plot (Figure~\ref{fig:tdr}) of temperature-depth recorder
-(TDR) measurements made during St Lawrence Estuary Internal Wave
+produce a plot (Figure~\ref{fig:pt}) of pressure-temperature recorder
+(pt) measurements made during St Lawrence Estuary Internal Wave
 Experiment, a CFCAS-funded research program in which the \texttt{oce}
-author was a principal investigator.  Experienced oceanographers will
-see at a glance that this dataset still retains measurements made
-before the instrument was lowered into the water and after it was
-recovered.  (Non-experts can realize this by examining the ends of the
-dataset, when the pressure was roughly 10\,dbar, and the temperature
-variation is of a distinct character.  Evidently, the instrument was
-not turned off until after the truck ride back to Halifax!)
+author was a principal investigator.  The device was mounted on
+a mooring that tilted significantly with the tide, yielding
+strong tidal signals in pressure as well as temperature, thus
+providing a rough indication of the temperature  profile.
 
-The worked exercise illustrates methods for trimming the in-air
-samples, and for subtracting atmospheric pressure.
+This graph is trimmed of the in-air data; access to the raw data is
+part of a worked example.
 
 \begin{figure}
 \begin{center}
 \setkeys{Gin}{width=\textwidth}
-<<label=tdrfig ,fig=TRUE, width=7, height=8, echo=FALSE>>=
-<<tdrplot>>
+<<label=ptfig ,fig=TRUE, width=7, height=5, echo=FALSE>>=
+<<ptplot>>
 @
 \end{center}
-\caption{Measurements made with a temperature-depth recorder in the St Lawrence
-Estuary.  Note that the record contains in-air measurements made during an hour
-prior to lowering into the water, and during several days of transit from the
-field site back to Dalhousie University.  The text suggests a procedure for
-isolating in-water data, and removing the approximately 10 dbar atmospheric
-component of pressure.}
-\label{fig:tdr}
+\caption{Measurements made with a pressure-temperature recorder in the
+  St Lawrence Estuary.  Note that the record contains in-air
+  measurements made during an hour prior to lowering into the water,
+  and during several days of transit from the field site back to
+  Dalhousie University.  The text suggests a procedure for isolating
+  in-water data, and removing the approximately 10 dbar atmospheric
+  component of pressure.}
+\label{fig:pt}
 \end{figure}
 
-\workedexercise{7}{Remove the atmospheric component of this record.}
+\workedexercise{7}{Trim the in-air measurements from this \texttt{pt} record, and
+then remove the atmospheric pressure from the signal.}
+
+
+\section{Acoustic Doppler Current Profiler data}
+\index{ADP}
+The commands
+<<label=adpplot,eval=FALSE>>=
+library(oce)
+data(adp)
+e <- adp.xyz2enu(adp.beam2xyz(adp))
+plot(e, which=1:2,
+     adorn=expression({
+       lines(x$data$ts$time, x$data$ts$pressure, lwd=3, col='green')
+     }))
+@
+produce a plot (Figure~\ref{fig:adp}) of ADP measurements made
+during St Lawrence Estuary Internal Wave Experiment.
+\begin{figure}
+\begin{center}
+\setkeys{Gin}{width=\textwidth}
+<<label=adpfig ,fig=TRUE, width=7, height=7, echo=FALSE>>=
+<<adpplot>>
+@
+\end{center}
+\caption{Measurements made with an ADP in the
+  St Lawrence Estuary.  The data were recorded in beam format, so a two-step
+  process is used to convert to enu coordinates.  The green curve indicates
+  the water surface, inferred from the pressure measured by the ADP.}
+\label{fig:adp}
+\end{figure}
+
 
 
 \section{The future of oce}
@@ -593,10 +622,10 @@ that are likely to prove useful to the Oceanographic community.  (The data types
 need not be restricted to Physical Oceanography, but the author will need some
 help in dealing with other types of data, given his research focus.)
 
-As for algorithms, there are plenty of gaps in \verb@oce@.  Dealing with
-measurements of turbulence is a high priority for the author, for example, and
-it is also clear that there are some methods of ADP processing that should be
-provided by the package.
+As for algorithms, there are plenty of gaps in \verb@oce@.  Dealing
+with measurements of turbulence is a high priority for the author, for
+example, as is improving the functions for processing data from
+pressure-temperature sensors and acoustic Doppler current profilers.
 
 Two principles will guide the addition of data types and functions:
 (a) the need, as perceived by the author or by other contributors and
@@ -615,9 +644,9 @@ bleeding-edge version from the development website, perhaps to see whether the
 author has successfully addressed a deficiency that you reported.  You will need
 to have subversion installed on you machine, and then can do e.g.
 
-\verb@svn checkout http://r-oce.googlecode.com/svn/trunk/ -r 441 r-oce-read-only@
+\verb@svn checkout http://r-oce.googlecode.com/svn/trunk/ -r 835 r-oce-read-only@
 
-\noindent to retrieve the intermediate version number 441. Naturally, you should
+\noindent to retrieve the intermediate version number 835. Naturally, you should
 rename the directory from \verb@r-oce-read-only@ to \verb@oce@ before attempting
 to check, build, or install the package.
 
@@ -704,7 +733,7 @@ plot(dh$distance[-1], v, type='l', col="blue", xlab="Distance [km]", ylab="Veloc
 grid()
 abline(h=0)
 @
-\workedanswer{5}{Halifax sealevel during Hurricane Juan}
+\workedanswer{5}{Halifax sealevel during Hurricane Juan.}
 \index{Hurricane Juan!worked example of sea-level plot}
 \index{sea level!during Hurricane Juan}
 A web search will tell you that Hurricane Juan hit about midnight, 2003-sep-28.
@@ -713,9 +742,10 @@ he moved to a room without windows, in fear of flying glass.
 <<>>=
 library(oce)
 data(sealevel.hal)
-plot(sealevel.hal, focus.time=c("2003-09-23","2003-10-05"))
-abline(v=as.POSIXct("2003-09-28 23:30:00"), col="red", lty="dotted")
-mtext("Hurricane\nJuan", at=as.POSIXct("2003-09-28 23:30:00"), col="red")
+# Focus on 2003-Sep-28 to 29th, the time when Hurricane Juan caused flooding
+plot(sealevel.hal,which=1,xlim=as.POSIXct(c("2003-09-24","2003-10-05"), tz="UTC"))
+abline(v=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
+mtext("Hurricane\nJuan", at=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
 @
 
 \workedanswer{6}{Sealevel spectrum}
@@ -724,17 +754,17 @@ and all of them contain a \verb@data@ element of a similar form to this.
 <<>>=
 library(oce)
 data(sealevel.hal)
-spectrum(sealevel.hal$data$eta, spans=c(3,7))
+spectrum(sealevel.hal$data$elevation, spans=c(3,7))
 abline(v=1/12.42)
 mtext("M2",at=1/12.42,side=3)
 @
 
-\workedanswer{7}{Temperature-depth Recorder plot}
-\index{subset!using with TDR data}
+\workedanswer{7}{Pressure-temperature Recorder plot}
+\index{subset!using with pt data}
 \index{data!TDR}
 
 The accuracy of automatic removal of the atmospheric component done with
-\verb@tdr.trim()@ is often quite good, but data are so valuable that it always
+\verb@pt.trim()@ is often quite good, but data are so valuable that it always
 makes sense to investigate the data by eye, in order to select a time window.
 Manual selection of a time window is also important when a researcher is dealing
 with a set of instruments whose measuremnts are to be combined and so need a
@@ -746,13 +776,13 @@ indicators is drawn on the plot, to determine proper cutoff times.
 Hint: be careful on timezones!
 <<>>=
 library(oce)
-data(tdr)
+data(pt)
 # First, get an idea for the data
-plot(tdr, which=2)
+plot(pt, which=c(1,3))
 
-tdr.trim.auto <- tdr.trim(tdr)
-plot(tdr.trim.auto)
-print(range(tdr.trim.auto$data$t)) # gives a starting point
+pt.trim.auto <- pt.trim(pt)
+plot(pt.trim.auto)
+print(range(pt.trim.auto$data$time)) # gives a starting point
 
 abline(v=as.POSIXct("2008-06-25 00:00:00"),col="red")
 abline(v=as.POSIXct("2008-06-26 00:00:00"),col="red")
@@ -761,11 +791,11 @@ abline(v=as.POSIXct("2008-06-25 15:00:00"),col="red")
 abline(v=as.POSIXct("2008-07-04 00:00:00"),col="blue")
 abline(v=as.POSIXct("2008-07-05 10:00:00"),col="blue")
 abline(v=as.POSIXct("2008-07-04 12:00:00"),col="blue")
-tdr.trim <- subset(tdr, as.POSIXct("2008-06-25 15:00:00") <= t &
-                   t <= as.POSIXct("2008-07-04 12:00:00"))
-print(tdr.patm(tdr)) # take 10.2dbar from this
-tdr.trim <- oce.edit(tdr.trim, action="x$data$pressure <- x$data$pressure - 10.2", reason="remove atm pressure", person="DK")
-plot(tdr.trim)
+pt.trim <- subset(pt, as.POSIXct("2008-06-25 15:00:00") <= time &
+                  time <= as.POSIXct("2008-07-04 12:00:00"))
+print(pt.patm(pt)) # take 10.2dbar from this
+pt.trim <- oce.edit(pt.trim, action="x$data$pressure <- x$data$pressure - 10.2", reason="remove atm pressure", person="DK")
+plot(pt.trim)
 @
 
 \printindex

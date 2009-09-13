@@ -1,3 +1,34 @@
+0.1-77
+- refactor adp code wrt transformation matrices
+- add matrix.smooth()
+- improve labels for oce.axis.POSIXct()
+- set default for 'debug' argument to getOption("oce.debug") in all functions
+- plot.profile(): add argument ytype; change 'type' to 'xtype'
+- add sw.z()
+- add oce.smooth()
+- add read.adv(), etc., supporting Nortek and Sontek devices
+- add read.adp(), etc., supporting Nortek, RDI and Sontek devices
+- add oce.plot.ts()
+- add imagep()
+- add bcd2integer()
+- add matlab2POSIXt()
+- to most plot functions, add 'mgp' and 'mar' arguments
+- plot.pt(): add plim and Tlim arguments
+- gravity(): give default for latitude argument
+- plot.sealevel(): remove argument focus.time and add argument which
+- rename tdr functions as pt, to reflect oral convention
+- add geod.xy()
+- add argument 'mgp' to all plotting functions
+- use abbreviations for axis names if space is tight
+- add argument 'adorn' to all plot() functions
+- add oce.colors.two(), oce.colors.jet(), and oce.colors.palette()
+- rename gebco.colors() as oce.colors.gebco()
+- add byte2binary()
+- add "lty.grid" to all CTD plotting functions
+- add "+.section", a more convenient way to build sections from stations
+- rework summary() for all existing objects
+- as.sealevel(): rename sampling.interval as deltat
+
 0.1-76
 - sw.N2(): make it tolerate NAs; adjust df to make result smoother
 - add make.filter()
@@ -13,6 +44,7 @@
 - oce.edit(): add argument 'action' 
 - add oce.write.table()
 - add fill.gap()
+
 0.1-75
 - add add.column()
 - add undrift.time()
@@ -37,7 +69,7 @@
     http://code.google.com/p/r-oce/issues/detail?id=33
 - fix bug making plot.section() die if x is unordered
     http://code.google.com/p/r-oce/issues/detail?id=36
-- rename rbrtdr functions to tdr functions, improving generality
+- rename rbrpt functions to tdr functions, improving generality
 
 0.1.74
 - add argument "src" to as.ctd()
@@ -80,7 +112,7 @@
 - add oce.edit()
 - add topo.maritimes dataset
 - add read.topo(), plot.topo(), and summary.topo()
-- add gebco.colors()
+- add gebco.colors() ... renamed oce.colors.gebco() in version 0.1.77
 - make plot.section() check that pressures coincide
 
 0.1.70

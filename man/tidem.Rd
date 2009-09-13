@@ -1,7 +1,7 @@
 \name{tidem}
 
 \alias{tidem}
-
+\alias{print.tidem}
 \title{Fit a tidal model to a timeseries}
 
 \description{Fit a tidal model to a timeseries.}
@@ -18,7 +18,7 @@
 	this is taken as the first time of the first sample, which is
 	inferred as 0 for the case where \code{sl} is a simple list, and
 	inferred as the time of the first sample, if \code{sl} is a
-	\code{sealevel} object.  See examples.}
+	\code{sealevel} object.  See \sQuote{Examples}.}
   \item{rc}{the value of the coefficient in the Rayleigh criterion.}
   \item{quiet}{set to FALSE to get extra information on the processing.}
 }
@@ -50,12 +50,13 @@
   then the (optional) rest of the elements of \code{constituents} are
   examined, in order.  Each of these constituents is based on the name
   of a tidal constituent in the Foreman (1977) notation.  (To get the
-  list, do \code{data(tide.constituents);cat(tide.constituents$name)}.)
-  Each named constituent is added to the existing list, if it is not
-  already there.  But, if the constituent is preceeded by a minus sign,
-  then it is removed from the list (if it is already there).  Thus, for
-  example, \code{constituents=c("standard", "-M2", "ST32")} would remove
-  the M2 constituent and add the ST32 constituent.}
+  list, execute \code{data(tide.constituents)} and then
+  execute \code{cat(tide.constituents$name)}.)  Each named constituent is
+  added to the existing list, if it is not already there.  But, if the
+  constituent is preceeded by a minus sign, then it is removed from the
+  list (if it is already there).  Thus, for example,
+  \code{constituents=c("standard", "-M2", "ST32")} would remove the M2
+  constituent and add the ST32 constituent.}
 
   \item{Case 3.}{If the first item is not \code{"standard"}, then the
   list of constituents is processed as in Case 2, but without starting
@@ -65,7 +66,7 @@
   function allows that.)}
 
   In each of the above cases, the list is reordered in frequency prior
-  to the analysis, so that the results of \code{\link{summary.tide}}
+  to the analysis, so that the results of \code{\link{summary.tidem}}
   will be in a familiar form.
 
   Once the constituent list is determined, \code{tidem} prunes the
@@ -144,8 +145,8 @@ amplitude 0.50072m and phase 143.1.
 
 } % section
 
-\seealso{\code{\link{summary.tide}} summarizes a "\code{tide}" object,
-  \code{\link{plot.tide}} plots one, and \code{\link{predict.tide}}
+\seealso{\code{\link{summary.tidem}} summarizes a "\code{tide}" object,
+  \code{\link{plot.tidem}} plots one, and \code{\link{predict.tidem}}
   makes predictions from one.  As for the input, sealevel
   objects may be created with \code{\link{as.sealevel}} or
   \code{\link{read.sealevel}}.  See notes at \code{\link{sealevel.tuk}},

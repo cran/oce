@@ -3,20 +3,25 @@
 \title{Plot temperature-salinity diagram for seawater (CTD) data}
 \description{Plot temperature-salinity diagram for seawater (CTD) data.}
 \usage{plot.TS(x,
-	rho.levels = 6,
-	grid = FALSE,
-	col.grid = "lightgray",
-	rho1000 = FALSE,
-	col = par("col"),
-	col.rho = "darkgray",
-	cex.rho = 0.9*par("cex"),
-	cex = par("cex"),
-	pch = 21,
-	rotate.rho.labels = FALSE,
-	connect.points = FALSE,
-	xlab, ylab,
-	Slim, Tlim,
-	\dots)
+     rho.levels = 6,
+     grid = TRUE,
+     col.grid = "lightgray",
+     lty.grid = "dotted",
+     rho1000 = FALSE,
+     col = par("col"),
+     col.rho = "darkgray",
+     cex.rho = 0.9*par("cex"),
+     cex = par("cex"),
+     pch = 21,
+     rotate.rho.labels = FALSE,
+     connect.points = FALSE,
+     xlab,
+     ylab,
+     Slim,
+     Tlim,
+     mgp=getOption("oce.mgp"),
+     mar=c(mgp[1]+5/4,mgp[1]+1,mgp[1],mgp[1]),
+     \dots)
 }
 \arguments{
   \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}.}
@@ -24,7 +29,8 @@
                     isopycnal lines, or a suggestion for the number of levels.
  					In the latter case, \code{pretty()} is used to select levels.}
   \item{grid}{a flag that can be set to \code{TRUE} to get a grid.}
-  \item{col.grid}{color of grid.}
+  \item{col.grid}{colour for grid.}
+  \item{lty.grid}{line type for grid.}
   \item{rho1000}{if TRUE, label isopycnals as e.g. 1024; if FALSE, label as e.g. 24}
   \item{col}{colour for symbols.}
   \item{col.rho}{colour for isopycnal lines.}
@@ -37,6 +43,11 @@
   \item{ylab}{optional label for the y axis, with default "Temperature [C]".}
   \item{Slim}{optional limits for salinity axis, otherwise inferred from data.}
   \item{Tlim}{optional limits for temperature axis, otherwise inferred from data.}
+  \item{mgp}{3-element numerical vector to use for \code{par(mgp)}, and
+    also for \code{par(mar)}, computed from this.  The default is
+    tighter than the R default, in order to use more space for the data
+    and less for the axes.}
+  \item{mar}{value to be used with \code{\link{par}("mar")}.}
   \item{\dots}{optional arguments passed to plotting functions.}
 }
 

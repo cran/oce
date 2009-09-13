@@ -26,13 +26,14 @@
 
 \examples{
 library(oce)
-data(tdr)
-d <- subset(tdr, as.POSIXct("2008-06-26") <= t & t <= as.POSIXct("2008-06-27"))
-plot(d$data$t, d$data$temperature, type="l", lwd=2, xlab="t", ylab="Temperature [degC]")
-dd <- fill.gap(d, as.POSIXct("2008-06-26 09:00:00"), as.POSIXct("2008-06-26 20:00:00"), "t")
-lines(dd$data$t, dd$data$temperature, col="red")
-abline(v=as.POSIXct("2008-06-26 09:00:00"), col="pink")
-abline(v=as.POSIXct("2008-06-26 20:00:00"), col="pink")
+data(pt)
+# mess up a day
+d <- pt
+d$data$temperature[as.POSIXct("2008-06-27", tz="UTC")<=d$data$time & d$data$time <= as.POSIXct("2008-06-28", tz="UTC")] <- 20
+plot(d, which=1)
+# fix that day by linear interpolation
+dd <- fill.gap(d, as.POSIXct("2008-06-27", tz="UTC"), as.POSIXct("2008-06-28", tz="UTC"), "time")
+lines(dd$data$time, dd$data$temperature, col="red")
 }
 
 \author{Dan Kelley}

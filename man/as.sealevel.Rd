@@ -5,14 +5,14 @@
   Coerces a dataset (minimally, a sequence of times and heights) into
   a sealevel dataset.
 }
-\usage{as.sealevel(eta,  t,  header=NULL,
-  station.number=NA, station.version=NA, station.name=NULL, region=NA,
+\usage{as.sealevel(elevation,  time,  header=NULL,
+  station.number=NA, station.version=NA, station.name=NULL, region=NULL,
   year=NA, latitude=NA, longitude=NA, GMT.offset=NA, decimation.method=NA,
-  reference.offset=NA, reference.code=NA, sampling.interval=NA)
+  reference.offset=NA, reference.code=NA, deltat)
 }
 \arguments{
-  \item{eta}{a list of sea-level heights in metres, in an hourly sequence.}
-  \item{t}{optional list of times, in POSIXct format.  If missing, the
+  \item{elevation}{a list of sea-level heights in metres, in an hourly sequence.}
+  \item{time}{optional list of times, in POSIXct format.  If missing, the
     list will be constructed assuming hourly samples, starting at
     0000-01-01 00:00:00.}
   \item{header}{a character string as read from first line of a standard
@@ -33,8 +33,11 @@
     and 4 meaning some other method.}
   \item{reference.offset}{?}
   \item{reference.code}{?}
-  \item{sampling.interval}{optional interval between samples, in hours;
-    if not provided, 1 hour is assumed.}
+  \item{deltat}{optional interval between samples, in hours (as for the
+    \code{\link{ts}} timeseries function). If this is not provided, and
+    \code{t} can be understood as a time, then the difference between
+    the first two times is used.  If this is not provided, and \code{t}
+    cannot be understood as a time, then 1 hour is assumed.}
 }
 \details{
   The arguments are based on the standard data format, as described
@@ -58,13 +61,13 @@ library(oce)
 # Construct a year of M2 tide, starting at the default time
 # 0000-01-01T00:00:00.
 h <- seq(0, 24*365)
-eta <- 2.0 * sin(2*pi*h/12.4172)
-sl <- as.sealevel(eta)
+elevation <- 2.0 * sin(2*pi*h/12.4172)
+sl <- as.sealevel(elevation)
 summary(sl)
 
 # As above, but start at the Y2K time.
-t <- as.POSIXct("2000-01-01") + h * 3600
-sl <- as.sealevel(eta, t)
+time <- as.POSIXct("2000-01-01") + h * 3600
+sl <- as.sealevel(elevation, time)
 summary(sl)
 }
 \references{\url{ftp://ilikai.soest.hawaii.edu/rqds/hourly.fmt}.}

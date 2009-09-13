@@ -4,7 +4,7 @@
 
 \alias{sealevel.tuk}
 
-\title{Sample sea-level data set, from Tuktoyaktuk (1975)}
+\title{Sea-level data set, from Tuktoyaktuk (1975)}
 
 \description{This sea-level dataset is provided with in Appendix 7.2 of
   Foreman (1977) and also with the \code{T_TIDE} package (Pawlowicz et al.,
@@ -18,18 +18,16 @@
   1600 MST as in Foreman's Appendix 7.2.
 } % description
 
-\section{Example}{
-  \preformatted{
+\examples{
 data(sealevel.tuk)
-plot(sealevel.tuk$data$t, sealevel.tuk$data$eta, type='l',
-  ylab="Height [m]",ylim=c(-2,6))
+plot(sealevel.tuk$data$time, sealevel.tuk$data$elevation, type='l',
+     ylab="Height [m]",ylim=c(-2,6))
 legend("topright", legend=c("Tuktoyaktuk (1975)","Detided"),
-  col=c("black","red"),lwd=1)
+       col=c("black","red"),lwd=1)
 tide <- tidem(sealevel.tuk)
-detided <- sealevel.tuk$data$eta - predict(tide)
-lines(sealevel.tuk$data$t, detided, col="red")
-} % preformatted
-} % example
+detided <- sealevel.tuk$data$elevation - predict(tide)
+lines(sealevel.tuk$data$time, detided, col="red")
+}
 
 \usage{data(sealevel.tuk)}
 
@@ -42,10 +40,10 @@ lines(sealevel.tuk$data$t, detided, col="red")
 \preformatted{
 # Note: the data file is not supplied with the package,
 # and the 7h offset is to convert from Mountain Standard Time.
-tuk <- read.table("tuk_time_elev.dat", header=FALSE, as.is=TRUE)
-t <- as.POSIXlt(strptime(tuk$V1, "\%d-\%b-\%Y \%H:\%M:\%S", tz="GMT")+7*3600, tz="GMT")
+tuk <- read.table("tuk/tuk_time_elev.dat", header=FALSE, as.is=TRUE)
+time <- as.POSIXlt(strptime(tuk$V1, "\%d-\%b-\%Y \%H:\%M:\%S", tz="GMT")+7*3600, tz="GMT")
 eta <- tuk$V2
-sealevel.tuk <- as.sealevel(eta=eta, t=t,
+sealevel.tuk <- as.sealevel(eta=eta, time=time,
                             station.name="Tuktoyaktuk", region="NWT", station.number=6485,
                             longitude=133.0292, latitude=69.43889,
                             year=1975, GMT.offset=0)

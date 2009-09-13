@@ -6,39 +6,50 @@
 
 \description{Plot a summary diagram for sealevel data.}
 
-\usage{\method{plot}{sealevel}(x, focus.time=NULL, \dots)}
+\usage{\method{plot}{sealevel}(x, which=1:4, adorn=NULL,
+     draw.time.range=getOption("oce.draw.time.range"),
+     mgp=getOption("oce.mgp"), 
+     mar=c(mgp[1],mgp[1]+1,1,1+par("cex")),
+     margins.as.image=FALSE,
+     \dots)}
 
 \arguments{
-  \item{x}{A \code{sealevel} object, e.g. as read by \code{\link{read.sealevel}}.}
-  \item{focus.time}{if provided, the the time interval on which to focus, each a string in a format suitable for interpretation by \code{\link{as.POSIXct}}; see the example.}
+  \item{x}{an object of class \code{"sealevel"}, e.g. as read by
+    \code{\link{read.sealevel}}.}
+  \item{which}{numerical vector indicating desired plot types.  
+    The value \code{which}=1 gives a time-series of sealevel for the
+    entire data set, \code{which}=2 gives sealevel for just the first 28
+    days, \code{which}=3 gives a power spectrum of sea level, and
+    \code{which}=4 gives a cumulative time integral of that spectrum.}
+  \item{adorn}{vector of expressions to be executed for the panels in
+    turn, e.g. to adorn the plots.  If the number matches the number of
+    panels, then the strings are applied to the appropriate panels,
+    as they are drawn from top-left to bottom-right.   If only a single
+    expression is provided, it is used for all panels. (See
+    \dQuote{Examples}.)}
+  \item{draw.time.range}{boolean that applies to panels with time as the
+    horizontal axis, indicating whether to draw the time range in 
+    the top-left margin of the plot.}
+  \item{mgp}{3-element numerical vector to use for \code{par(mgp)}, and
+    also for \code{par(mar)}, computed from this.  The default is
+    tighter than the R default, in order to use more space for the data
+    and less for the axes.}
+  \item{mar}{value to be used with \code{\link{par}("mar")}.}
+  \item{margins.as.image}{boolean, \code{TRUE} to put a wide margin to the
+    right of time-series plots, matching the space used up by a palette
+    in an \code{\link{imagep}} plot.}
   \item{\dots}{optional arguments passed to plotting functions.}
 }
 
 \details{
   Creates a plot for a sea-level dataset, in one of two varieties. 
 
-  If a \code{focus.time} is provided, then the plot is a simple time
-  series extending between the two times.
-
-  If a \code{focus.time} is not not provided, then a multi-panel display
-  is drawn. The top panel shows the entire timeseries; since this
-  typically extends over a year, the graph mainly shows low-frequency
-  modulations of the tide, such as spring-neap cycles. The second panel
-  focusses on the first month of data, providing a quick visual signal
-  as to the nature of the tide, e.g. mainly semidiurnal, mainly diurnal,
-  or mixed. In both of these panels, the sealevel is plotted as an
-  anomaly in excess of the mean over the whole timeseries. This mean
-  value is indicated in the right-hand margin. If the sealevel series
-  contains missing values, then only these two panels are
-  drawn. However, if it has no missing values, then two spectral
-  representations are also drawn. The first of these is a power
-  spectrum, with some common tidal constituents being indicates with
-  lines and labels. The units are \eqn{m^2}{m^2} per cycle-per-day. The
-  second, and thus the lower of the four panels, is a cumulative graph
-  of the square root of the power spectrum. The unit for this graph is
-  \eqn{m}{m}, so that the step for each tidal constituent may be
-  interpreted as the amplitude of that constituent, and the largest
-  value on the graph gives the standard deviation of sealevel height.
+  Depending on the length of \code{which}, either a single-panel or
+  multi-panel plot is drawn.  If there is just one panel, then the
+  value of \code{par} used in \code{plot.sealevel} is retained upon
+  exit, making it convenient to add to the plot.  For multi-panel
+  plots, \code{par} is returned to the value it had before the call,
+  and so \code{adorn} must be used to add to individual panels.
 }
 
 \value{None.}
@@ -53,10 +64,11 @@ library(oce)
 data(sealevel.hal)
 # Overall plot
 plot(sealevel.hal)
-# Focus on 2003-Sep-28 to 29th, the time when Hurricane Juan caused flooding
-plot(sealevel.hal, focus.time=c("2003-09-23","2003-10-05"))
-abline(v=as.POSIXct("2003-09-28 23:30:00"), col="red", lty="dotted")
-mtext("Hurricane\nJuan", at=as.POSIXct("2003-09-28 23:30:00"), col="red")
+
+# Illustrate storm surge during Hurricane Juan
+plot(sealevel.hal,which=1,xlim=as.POSIXct(c("2003-09-24","2003-10-05"), tz="UTC"))
+abline(v=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
+mtext("Hurricane\nJuan", at=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
 }
 
 \references{The example refers to Hurricane Juan, which caused a great

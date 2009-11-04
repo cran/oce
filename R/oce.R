@@ -1,5 +1,10 @@
-oce.plot.sticks <- function(x, y, u, v, yscale=1, add=FALSE, length=1/20, ...)
+oce.plot.sticks <- function(x, y, u, v, yscale=1, add=FALSE, length=1/20,
+                            mgp=getOption("oce.mgp"),
+                            mar=c(mgp[1]+1,mgp[1]+1,1,1+par("cex")),
+                            ...)
 {
+    pin <- par("pin")
+    page.ratio <- pin[2]/pin[1]
     if (missing(x)) stop("must supply x")
     if (missing(y)) stop("must supply y")
     if (missing(u)) stop("must supply u")
@@ -8,13 +13,20 @@ oce.plot.sticks <- function(x, y, u, v, yscale=1, add=FALSE, length=1/20, ...)
     if (length(y) != n) stop("lengths of x and y must match, but they are ", n, " and ", length(y))
     if (length(u) != n) stop("lengths of x and u must match, but they are ", n, " and ", length(u))
     if (length(v) != n) stop("lenghts of x and v must match, but they are ", n, " and ", length(v))
+    par(mar=mar, mgp=mgp)
     if (!add)
-        plot(x, y, type='n')
+        plot(range(x), range(y), type='n', ...)
     usr <- par("usr")
     yr.by.xr <- (usr[4] - usr[3]) / (usr[2] - usr[1])
-    arrows(as.numeric(x), y,
-           (as.numeric(x) + u / yscale / yr.by.xr),
-           (y + v / yscale), length=length, ...)
+	warn <- options("warn")$warn # FIXME: fails to quieten arrows()
+	options(warn=0)
+	ok <- !is.na(u) & !is.na(v) & (u^2+v^2) > 0
+    arrows(as.numeric(x[ok]),
+	       y[ok],
+           (as.numeric(x[ok]) + u[ok] / yscale / yr.by.xr * page.ratio),
+           (y[ok] + v[ok] / yscale),
+           length=length, ...)
+	options(warn=warn)
 }
 
 

@@ -10,8 +10,8 @@
 \usage{adp.beam2xyz(x, debug=getOption("oce.debug"))}
 
 \arguments{
-\item{x}{an object of class \code{"adp"}.}
-\item{debug}{a debugging flag, 0 for no debugging, and higher values for more and more debugging.}
+  \item{x}{an object of class \code{"adp"}.}
+  \item{debug}{a debugging flag, 0 for no debugging, and higher values for more and more debugging.}
 }
 
 \details{The action depends on the type of object.
@@ -55,17 +55,16 @@
   To indicate the change, the value of \code{metadata$oce.orientation}
   is changed from \code{beam} to \code{xyz}.}
 
-\examples{
-library(oce)
-data(adp)
-f <- adp.beam2xyz(adp)
-summary(f)
-plot(f, which=1:3)
-}
+\references{
 
-\references{R D Instruments, 1998.
+1. R D Instruments, 1998.
 \emph{ADP Coordinate Transformation, formulas and calculations.}
-P/N 951-6079-00 (July 1998).}
+P/N 951-6079-00 (July 1998).
+
+2. WHOI/USGS-provided Matlab code for beam-enu transformation
+\url{http://woodshole.er.usgs.gov/pubs/of2005-1429/MFILES/AQDPTOOLS/beam2enu.m}
+
+}
 
 \seealso{See \code{\link{read.adp}} for other functions that relate to objects
 of class \code{"adp"}.}

@@ -6,11 +6,26 @@
 
 \description{Read an pT temperature-depth recorder file, producing an object of type \code{pt}.}
 
-\usage{read.pt(file, tz=getOption("oce.tz"), log.action, debug=getOption("oce.debug"))}
+\usage{
+read.pt(file, from=1, to, by=1, tz=getOption("oce.tz"), 
+        log.action, debug=getOption("oce.debug"))}
 
 \arguments{
   \item{file}{a connection or a character string giving the name of the
     file to load.}
+  \item{from}{indication of the first datum to read.  This can a
+    positive integer to indicate sequence number, the POSIX time of the
+    first datum, or a character string that can be converted to a POSIX
+    time.  (For POSIX times, be careful about the \code{tz} argument.)}
+  \item{to}{an indication of the last datum to be read, in the same
+    format as \code{from}.  If \code{to} is missing, data will be read
+    to the end of the file.}
+  \item{by}{an indication of the stride length to use while walking
+    through the file.  If this is an integer, then \code{by-1}
+    profiles are skipped between each pair of profiles that is read.  If
+    this is a string representing a time interval, in colon-separated
+    format (HH:MM:SS or MM:SS), then this interval is divided by the
+    sampling interval, to get the stride length.}
   \item{tz}{time zone.  The default value, \code{oce.tz}, is set to \code{UTC} 
     at setup.}
   \item{log.action}{if provided, the action item to be stored in the
@@ -47,35 +62,34 @@
   \item{processing.log}{a processing log, in the standard \code{oce} format.}
 }
 
+\section{Implementation notes}{The end time for measurement
+  (\code{metadata$measurement.start}) is inferred from the \code{Logger
+  time} field in the header, not from \code{Logging end}.  The datasets
+  available to the author suggest this is the proper scheme when the
+  recorders are turned off manually before the end time that was
+  programmed in.  In other cases, the assumption may or may not be
+  correct.  Still, the end time for subsampling
+  (\code{metdata$subsample.end}) should be correct.}
+
+
 \seealso{The generic function \code{\link{read.oce}} provides an
-  alternative to this.  Objects of type \code{pt} can be plotted
-  with \code{\link{plot.pt}}, and summarized with
-  \code{\link{summary.pt}}, both of which are generic functions.
-  In-air samples (collected before and after deployment) may be removed
-  in a crude way with \code{\link{pt.trim}}, but the best scheme is
-  to use \code{\link{subset.oce}}, based on a temporal window (see
-  Examples).  Removal of the atmospheric component of pressure is left
-  up to the user; in many cases, it makes sense to treat this as a
-  constant (see Examples).}
+  alternative to this.  Objects of type \code{pt} can be plotted with
+  \code{\link{plot.pt}}, and summarized with \code{\link{summary.pt}},
+  both of which are generic functions.  In-air samples (collected before
+  and after deployment) may be removed in a crude way with
+  \code{\link{pt.trim}}, but the best scheme is to use
+  \code{\link{subset.oce}}, based on a temporal window.  Removal of the
+  atmospheric component of pressure is best done by the user, using
+  measured records of atmospheric pressure.  However, if such data are
+  unavailable, and if the p-T data set contains pre- and post-deployment
+  data, \code{\link{pt.patm}} may provide a useful estimate of
+  atmospheric pressure.}
 
 \examples{
-library(oce)
-data(pt)
-# trim automatically
-pt.trim.auto <- pt.trim(pt)
-# trim manually
-plot(pt, which=2)
-# try a few times near start of record (15:00:00 seems good)
-abline(v=as.POSIXct("2008-06-25 00:00:00"),col="red")
-abline(v=as.POSIXct("2008-06-26 00:00:00"),col="red")
-abline(v=as.POSIXct("2008-06-25 15:00:00"),col="red")
-# try a few times near end of record (15:00:00 seems ok)
-abline(v=as.POSIXct("2008-07-04 00:00:00"),col="blue")
-abline(v=as.POSIXct("2008-07-05 10:00:00"),col="blue")
-abline(v=as.POSIXct("2008-07-04 12:00:00"),col="blue")
-pt.trim.manual <- subset(pt, as.POSIXct("2008-06-25 15:00:00") <= time &
-                          time <= as.POSIXct("2008-07-04 12:00:00"))
-plot(pt.trim.manual)
+\dontrun{
+pt <- read.pt("sl08_011855.dat", by=600)
+save(pt, file="oce/data/pt.rda")
+}
 }
 
 \author{Dan Kelley}

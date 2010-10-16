@@ -7,9 +7,8 @@ imagep <- function(x, y, z,
                    draw.contours=TRUE,
                    draw.time.range=getOption("oce.draw.time.range"),
                    mgp=getOption("oce.mgp"),
-                   mar=c(mgp[2]+if(nchar(xlab)>0) 1.5 else 1, mgp[1]+if(nchar(ylab)>0) 1.5 else 1, mgp[2]+1/2, 1/2),
-                   xaxs="i",
-                   yaxs="i",
+                   mar=c(mgp[1]+if(nchar(xlab)>0) 1.5 else 1, mgp[1]+if(nchar(ylab)>0) 1.5 else 1, mgp[2]+1/2, 1/2),
+                   xaxs="i", yaxs="i",
                    cex=par("cex"),
                    adorn,
                    axes=TRUE,
@@ -34,13 +33,15 @@ imagep <- function(x, y, z,
             if (missing(col))
                 breaks <- pretty(zrange)
             else
-                breaks <- seq(zrange[1], zrange[2], length.out=1+length(col))
+                breaks <- seq(zrange[1], zrange[2],
+                              length.out=if(is.function(col))128 else 1+length(col))
             breaks.orig <- breaks
         } else {
             if (missing(col))
                 breaks <- pretty(zlim)
             else
-                breaks <- seq(zlim[1], zlim[2], length.out=1+length(col))
+                breaks <- seq(zlim[1], zlim[2],
+                              length.out=if(is.function(col))128 else 1+length(col))
             breaks.orig <- breaks
             breaks[1] <- zrange[1]
             breaks[length(breaks)] <- zrange[2]
@@ -50,6 +51,8 @@ imagep <- function(x, y, z,
     }
     if (missing(col))
         col <- oce.colors.palette(n=length(breaks)-1)
+    if (is.function(col))
+        col <- col(n=length(breaks)-1)
 
     x.is.time <- inherits(x, "POSIXt") || inherits(x, "POSIXct") || inherits(x, "POSIXlt")
 
@@ -77,7 +80,7 @@ imagep <- function(x, y, z,
         }
         box()
         if (axes) {
-            oce.axis.POSIXct(side=1, x=x, cex.axis=cex, cex.lab=cex)
+            oce.axis.POSIXct(side=1, x=x, cex.axis=cex, cex.lab=cex, draw.time.range=draw.time.range)
             axis(2, cex.axis=cex, cex.lab=cex)
         }
     } else {
@@ -100,11 +103,6 @@ imagep <- function(x, y, z,
             axis(2, cex.axis=cex, cex.lab=cex)
         }
     }
-    if (draw.time.range && x.is.time) {
-        time.range <- par("usr")[1:2]
-        class(time.range) <- c("POSIXt", "POSIXct")
-        attr(time.range, "tzone") <- attr(x, "tzone")
-    }
     if (draw.contours && !missing(breaks))
         contour(x=x, y=y, z=z, levels=breaks, drawlabels=FALSE, add=TRUE, col="black")
     mtext(zlab, side=3, cex=par("cex"), adj=1, line=1/8)
@@ -113,7 +111,7 @@ imagep <- function(x, y, z,
         t <- try(eval.parent(adorn), silent=!TRUE)
         if (class(t) == "try-error") warning("cannot evaluate adorn='", adorn, "'\n")
     }
-    if (debug) cat("axes=",axes,"\n")
+    oce.debug(debug, "axes=", axes, "\n")
 
     ## 2. plot palette
     par(mar=c(mar[1], 1/4, mgp[2]+1/2, mgp[2]+1))

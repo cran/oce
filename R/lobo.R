@@ -188,12 +188,12 @@ summary.lobo <- function(object, ...)
 
 print.summary.lobo <- function(x, digits=max(6, getOption("digits") - 1), ...)
 {
-    cat("\nLobo object:\n")
-    cat("Time range:", as.character(x$time.range[1]), " to ",
-        as.character(x$time.range[2]), "\n")
-    cat("Statistics:\n")
-    print(x$fives, digits)
-    print(x$processing.log)
-    cat("\n")
-    invisible(x)
+    cat("Lobo Summary\n------------\n\n")
+    cat("* time range:", format(x$time.range[1], format="%Y-%m-%d %H:%M:%S %Z"),
+        "to", format(x$time.range[2], format="%Y-%m-%d %H:%M:%S %Z"), "\n")
+    cat("\n",...)
+    cat("* Statistics::\n\n", ...)
+    cat(show.fives(x, indent='     '), ...)
+    cat("\n* Processing log::\n\n", ...)
+    cat(x$processing.log, ...)
 }

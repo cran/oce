@@ -15,6 +15,7 @@
      contour.labels=NULL,
      station.indices,
      coastline=NULL,
+     xlim=NULL,
      ylim=NULL,
      map.xlim=NULL,
      xtype="distance",
@@ -22,7 +23,7 @@
      legend.loc="bottomright",
      adorn=NULL,
      mgp=getOption("oce.mgp"),
-     mar=c(mgp[1]+1, mgp[1]+1, mgp[2], mgp[2]),
+     mar=c(mgp[1]+1, mgp[1]+1, mgp[2], mgp[2] + 0.5),
      \dots)
 }
 
@@ -51,9 +52,10 @@
     specified, this specifies contour labels (see details)}
   \item{station.indices}{optional list of the indices of stations to
     use.  Note that these are indices, not the names of stations, e.g. to
-    focus on the first four stations, use \code{station.numbers=c(1,4)}.}
+    focus on the first 4 stations, use \code{station.numbers=c(1,4)}.}
   \item{coastline}{optional \code{coastline} to be used in a station
     map}
+  \item{xlim}{optional limit for x axis (only in sections, not map)}
   \item{ylim}{optional limit for y axis (only in sections, not map)}
   \item{map.xlim}{optional xlim for station location, which can be
     helpful in ensuring that a recognizable coastline can be seen}

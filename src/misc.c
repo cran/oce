@@ -1,6 +1,7 @@
 #include <R.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
+
 /* 
 ** compile from commandline:
 R CMD SHLIB test.c
@@ -56,3 +57,5 @@ SEXP matrix_smooth(SEXP mat)
   UNPROTECT(1);
   return(res);
 }
+
+#undef SQR

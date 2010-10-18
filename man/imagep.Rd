@@ -11,7 +11,7 @@
       draw.contours=TRUE,
       draw.time.range=getOption("oce.draw.time.range"),
       mgp=getOption("oce.mgp"),
-      mar=c(mgp[2]+if(nchar(xlab)>0) 1.5 else 1, mgp[1]+if(nchar(ylab)>0) 1.5 else 1, mgp[2]+1/2, 1/2),
+      mar=c(mgp[1]+if(nchar(xlab)>0) 1.5 else 1, mgp[1]+if(nchar(ylab)>0) 1.5 else 1, mgp[2]+1/2, 1/2),
       xaxs="i",
       yaxs="i",
       cex=par("cex"),
@@ -32,8 +32,9 @@
     for a downward-looking acoustic-doppler profile).}
   \item{xlab,ylab,zlab}{names for x axis, y axis, and the image values.}
   \item{breaks}{the z values for breaks in the colour scheme.}
-  \item{col}{colours corresponding to the breaks.  The number of colours
-    must equal the number of breaks plus 1.}
+  \item{col}{either a vector of colours corresponding to the breaks, of length
+     1 plus the number of breaks, or a function specifying colours,
+     e.g. \code{\link{oce.colors.jet}} for a rainbow.}
   \item{do.layout}{boolean, \code{TRUE} if \code{imagep} will be using
     the \code{\link{layout}} command to set up space for the image and
     the palette.  If set to \code{FALSE}, the user must set the layout

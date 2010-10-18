@@ -2,7 +2,6 @@ make.section <- function(item, ...)
 {
     if (inherits(item, "ctd")) {
         extra.args <- list(...)
-        ##if (length(extra.args) < 1) stop("cannot make a section from one station")
         num.stations <- 1 + length(extra.args)
         station <- vector("list", num.stations)
         stn <- vector("character", num.stations)
@@ -18,11 +17,9 @@ make.section <- function(item, ...)
                 lat[i] <- extra.args[[i-1]]$metadata$latitude
                 lon[i] <- extra.args[[i-1]]$metadata$longitude
                 station[[i]] <- extra.args[[i-1]]
-                ##summary(extra.args[i-1])
             }
     } else if (inherits(item, "list")) {
         num.stations <- length(item)
-        ##if (num.stations < 2) stop("cannot make a section from one station")
         station <- vector("list", num.stations)
         stn <- vector("character", num.stations)
         lon <- vector("numeric", num.stations)
@@ -60,7 +57,8 @@ make.section <- function(item, ...)
     res$metadata$latitude <- c(res$metadata$latitude, station$metadata$latitude)
     res$metadata$longitude <- c(res$metadata$longitude, station$metadata$longitude)
     res$metadata$station.id <- c(res$metadata$station.id, station$metadata$station)
-    res <- processing.log.append(res, paste(deparse(match.call()), sep="", collapse=""))
+    res$processing.log <- processing.log.add(res$processing.log,
+                                             paste(deparse(match.call()), sep="", collapse=""))
     res
 }
 
@@ -73,18 +71,19 @@ plot.section <- function(x,
                          contour.labels=NULL,
                          station.indices,
                          coastline=NULL,
-                         ylim=NULL,
+                         xlim=NULL, ylim=NULL,
                          map.xlim=NULL,
                          xtype="distance",
                          ytype="depth",
                          legend.loc="bottomright",
                          adorn=NULL,
                          mgp=getOption("oce.mgp"),
-                         mar=c(mgp[1]+1, mgp[1]+1, mgp[2], mgp[2]),
+                         mar=c(mgp[1]+1, mgp[1]+1, mgp[2], mgp[2]+0.5),
                          ...)
 {
     plot.subsection <- function(variable="temperature", title="Temperature",
                                 indicate.stations=TRUE, contour.levels=NULL, contour.labels=NULL,
+                                xlim=NULL,
                                 ylim=NULL,
                                 ...)
     {
@@ -95,6 +94,7 @@ plot.section <- function(x,
                 lat[i] <- x$data$station[[station.indices[i]]]$metadata$latitude
                 lon[i] <- x$data$station[[station.indices[i]]]$metadata$longitude
             }
+            lon[lon<0] <- lon[lon<0] + 360
             asp <- 1 / cos(mean(range(lat,na.rm=TRUE))*pi/180)
             latm <- mean(lat, na.rm=TRUE)
             lonm <- mean(lon, na.rm=TRUE)
@@ -105,15 +105,15 @@ plot.section <- function(x,
             else
                 plot(lonr, latr, asp=asp, type='n', xlab="Longitude", ylab="Latitude")
             if (!is.null(coastline)) {
-                if (mean(lon, na.rm=TRUE) > 0) {
-                    lines(coastline$data$longitude, coastline$data$latitude, col="darkgray")
-                } else {
-                    lines(coastline$data$longitude, coastline$data$latitude, col="darkgray")
-                }
+                lines(coastline$data$longitude, coastline$data$latitude, col="darkgray")
+                lines(coastline$data$longitude + 360, coastline$data$latitude, col="darkgray")
             }
             lines(lon, lat, col="lightgray")
+            ## FIXME: possibly should figure out the offset, instead of just replotting shifted lon
             points(lon, lat, pch=20)
+            points(lon - 360, lat, pch=20)
             points(lon[1], lat[1], pch=22, cex=2*par("cex"))
+            points(lon[1] - 360, lat[1], pch=22, cex=2*par("cex"))
             if (indicate.stations) {
                 dx <- 5 * mean(diff(sort(x$metadata$longitude)),na.rm=TRUE)
                 dy <- 5 * mean(diff(sort(x$metadata$latitude)),na.rm=TRUE)
@@ -149,6 +149,7 @@ plot.section <- function(x,
             if (is.null(at)) {
                 plot(xxrange, yyrange,
                      xaxs="i", yaxs="i",
+                     xlim=xlim,
                      ylim=ylim,
                      col="white",
                      xlab=if (which.xtype==1) "Distance [ km ]" else "Along-track Distance [km]",
@@ -161,7 +162,7 @@ plot.section <- function(x,
                 plot(xxrange, yyrange,
                      xaxs="i", yaxs="i",
 ##                     ylim=rev(yyrange),
-                     ylim=ylim,
+                     xlim=xlim, ylim=ylim,
                      col="white",
                      xlab="", ylab=ylab, axes=FALSE)
                 axis(1, at=at, labels=labels)
@@ -330,13 +331,13 @@ plot.section <- function(x,
 
     for (w in 1:length(which)) {
         if (!missing(contour.levels)) {
-            if (which[w] == 1) plot.subsection("temperature", "T", nlevels=contour.levels, ylim=ylim, ...)
-            if (which[w] == 2) plot.subsection("salinity",    "S", ylab="", nlevels=contour.levels, ylim=ylim, ...)
-            if (which[w] == 3) plot.subsection("sigma.theta",  expression(sigma[theta]), nlevels=contour.levels, ylim=ylim, ...)
+            if (which[w] == 1) plot.subsection("temperature", "T", nlevels=contour.levels, xlim=xlim, ylim=ylim, ...)
+            if (which[w] == 2) plot.subsection("salinity",    "S", ylab="", nlevels=contour.levels, xlim=xlim, ylim=ylim, ...)
+            if (which[w] == 3) plot.subsection("sigma.theta",  expression(sigma[theta]), nlevels=contour.levels, xlim=xlim, ylim=ylim, ...)
         } else {
-            if (which[w] == 1) plot.subsection("temperature", "T", ylim=ylim, ...)
-            if (which[w] == 2) plot.subsection("salinity",    "S", ylab="", ylim=ylim, ...)
-            if (which[w] == 3) plot.subsection("sigma.theta",  expression(sigma[theta]), ylim=ylim, ...)
+            if (which[w] == 1) plot.subsection("temperature", "T", xlim=xlim, ylim=ylim, ...)
+            if (which[w] == 2) plot.subsection("salinity",    "S", ylab="", xlim=xlim, ylim=ylim, ...)
+            if (which[w] == 3) plot.subsection("sigma.theta",  expression(sigma[theta]), xlim=xlim, ylim=ylim, ...)
         }
         if (which[w] == 4) plot.subsection("map", indicate.stations=FALSE)
         if (w <= adorn.length) {
@@ -369,7 +370,7 @@ read.section <- function(file, section.id="", debug=getOption("oce.debug"), log.
     n <- length(lines)
     header <- lines[1]
     for (l in (2:n)) {
-        if (debug) cat(lines[l],"\n")
+        oce.debug(debug, lines[l], "\n")
         if ("#" != substr(lines[l], 1, 1)) {
             header <- c(header, lines[l])
             break
@@ -411,7 +412,7 @@ read.section <- function(file, section.id="", debug=getOption("oce.debug"), log.
     lon <- vector("numeric", num.stations)
     lat <- vector("numeric", num.stations)
     for (i in 1:num.stations) {
-        if (debug) cat("procession station ",i,"\n")
+        oce.debug(debug, "procession station ", i, "\n")
         select <- which(station.id == station.list[i])
         stn[i] <- sub("^ *", "", station.id[select[1]])
         lat[i] <- latitude[select[1]]
@@ -423,12 +424,13 @@ read.section <- function(file, section.id="", debug=getOption("oce.debug"), log.
                                cruise=stn.section.id[select[1]],
                                station=stn[i],
                                water.depth=water.depth[select[1]])
-        if (debug) cat("station at ", lat[i], "N and ", lon[i], "W\n")
+        oce.debug(debug, "station at ", lat[i], "N and ", lon[i], "W\n")
         station[[i]] <- this.station
     }
     data <- list(station=station)
     metadata <- list(header=header,section.id=section.id,station.id=stn,latitude=lat,longitude=lon)
-    if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
+    if (missing(log.action))
+        log.action <- paste(deparse(match.call()), sep="", collapse="")
     log.item <- processing.log.item(log.action)
     res <- list(data=data, metadata=metadata, processing.log=log.item)
     class(res) <- c("section", "oce")
@@ -496,8 +498,8 @@ section.grid <- function(section, p, method=c("approx","boxcar","lm"), ...)
         ##cat("AFTER: ");print(res$data$station[[i]]$data$temperature[1:6])
         ##cat("\n")
     }
-    log.action <- paste(deparse(match.call()), sep="", collapse="")
-    res <- processing.log.append(res, log.action)
+    res$processing.log <- processing.log.add(res$processing.log,
+                                             paste(deparse(match.call()), sep="", collapse=""))
     res
 }
 ## bugs: should ensure that every station has identical pressures
@@ -509,7 +511,7 @@ section.smooth <- function(section, ...)
     nprs <- length(section$data$station[[1]]$data$pressure)
     supplied.df <- "df" %in% names(list(...))
     if (!supplied.df) df <- nstn / 5
-    rval <- section
+    res <- section
     x <- geod.dist(section)
     temperature.mat <- array(dim=c(nprs, nstn))
     salinity.mat <- array(dim=c(nprs, nstn))
@@ -534,13 +536,14 @@ section.smooth <- function(section, ...)
         }
     }
     for (s in 1:nstn) {
-        rval$data$station[[s]]$data$temperature <- temperature.mat[,s]
-        rval$data$station[[s]]$data$salinity <- salinity.mat[,s]
-        rval$data$station[[s]]$data$sigma.theta <- sigma.theta.mat[,s]
+        res$data$station[[s]]$data$temperature <- temperature.mat[,s]
+        res$data$station[[s]]$data$salinity <- salinity.mat[,s]
+        res$data$station[[s]]$data$sigma.theta <- sigma.theta.mat[,s]
     }
-    class(rval) <- c("section", "oce")
-    rval <- processing.log.append(rval, paste(deparse(match.call()), sep="", collapse=""))
-    rval
+    class(res) <- c("section", "oce")
+    res$processing.log <- processing.log.add(res$processing.log,
+                                             paste(deparse(match.call()), sep="", collapse=""))
+    res
 }
 
 summary.section <- function(object, ...)
@@ -556,7 +559,7 @@ summary.section <- function(object, ...)
     for (i in 1:num.stations) {
         stn <- object$data$station[[i]]
         stn.sum[i, 1] <- stn$metadata$longitude
-        stn.sum[i, 2] <- stn$metadata$longitude
+        stn.sum[i, 2] <- stn$metadata$latitude
         stn.sum[i, 3] <- length(stn$data$pressure)
         if (is.finite(stn$metadata$water.depth)) {
             stn.sum[i, 4] <- stn$metadata$water.depth
@@ -585,8 +588,8 @@ print.summary.section <- function(x, digits=max(6, getOption("digits") - 1), ...
     } else {
         cat("contains no stations.\n")
     }
-    print(x$processing.log)
-    cat("\n")
+    cat("Processing Log:\n", ...)
+    cat(x$processing.log, ...)
     invisible(x)
 }
 

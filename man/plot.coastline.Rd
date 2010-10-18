@@ -8,16 +8,20 @@
 
 \usage{\method{plot}{coastline}(x,
      asp,
+     center, span,
      mgp=getOption("oce.mgp"), 
-     mar=c(mgp[1], mgp[1], par("cex"), par("cex")),
+     mar=c(mgp[1]+1,mgp[1]+1,1,1),
      bg,
      axes=TRUE,
+     expand=1.5,
+     debug=getOption("oce.debug"),
      \dots)}
 
 \arguments{
-  \item{x}{A \code{coastline} object, e.g. as read by
+  \item{x}{A \code{coastline} object, as read by
     \code{\link{read.coastline}} or created by
-    \code{\link{as.coastline}}.}
+    \code{\link{as.coastline}}, or a list containing items named
+    \code{latitude} and \code{longitude}.} 
   \item{asp}{Aspect ratio for plot.  The default is for
     \code{plot.coastline} to set the aspect ratio to give natural
     latitude-longitude scaling somewhere near the centre latitude on the
@@ -26,6 +30,11 @@
     Note that the land mass is not symmetric about the equator, so
     to get good world views you should set \code{asp=1} or 
     set \code{ylim} to be symmetric about zero.}
+  \item{center}{optional center of map, a vector containing latitude in
+    degrees north, then longitude in degrees east. (Must be accompanied
+    by \code{span}.)}
+  \item{span}{optional suggested span of plot, in kilometers (must be
+    supplied, if \code{center} is supplied).}
   \item{mgp}{3-element numerical vector to use for \code{par(mgp)}, and
     also for \code{par(mar)}, computed from this.  The default is
     tighter than the R default, in order to use more space for the
@@ -34,9 +43,16 @@
   \item{bg}{optional colour to be used for the background of the map.
     This comes in handy for drawing insets (see \dQuote{details}).}
   \item{axes}{boolean, set to \code{TRUE} to plot axes.}
+  \item{expand}{numerical factor for the expansion of plot limits,
+    showing area outside the plot, e.g. if showing a ship track as a
+    coastline, and then an actual coastline to show the ocean boundary.
+    The value of \code{expand} is ignored if either \code{xlim} or
+    \code{ylim} is given.}
+  \item{debug}{set to \code{TRUE} to get debugging information during
+    processing.}
   \item{\dots}{optional arguments passed to plotting functions.  For
-    example, set \code{yaxp=c(-90,90,4)} for a plot extending from pole to
-    pole.}
+    example, set \code{yaxp=c(-90,90,4)} for a plot extending from pole
+    to pole.}
 }
 
 \details{This function plots a coastline.  An attempt is made to fill

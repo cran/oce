@@ -1,6 +1,6 @@
 plot.tidem <- function(x,
+                       which=1,
                        label.if=NULL,
-                       plot.type=c("staircase", "spikes"),
                        log="",
                        mgp=getOption("oce.mgp"),
                        mar=c(mgp[1]+1,mgp[1]+1,mgp[2]+0.25,mgp[2]+1),
@@ -35,22 +35,24 @@ plot.tidem <- function(x,
     }
     if (!inherits(x, "tidem")) stop("method is only for tidal analysis objects")
     opar <- par(no.readonly = TRUE)
-    on.exit(par(opar))
+    lw <- length(which)
+    if (lw > 1) on.exit(par(opar))
     par(mgp=mgp, mar=mar)
     frequency <- x$freq[-1] # trim z0
     amplitude <- x$amplitude[-1]
     name      <- x$name[-1]
     nc <- length(frequency)
-    plot.type <- match.arg(plot.type)
-    if (plot.type == "spikes") {
-    	plot(frequency, amplitude, col="white", xlab="Frequency [ cph ]", ylab="Amplitude [ m ]", log=log)
-        segments(frequency, 0, frequency, amplitude)
-        draw.constituents()
-    } else if (plot.type == "staircase") {
-        plot(frequency, cumsum(amplitude), xlab="Frequency [ cph ]", ylab="Amplitude [ m ]", log=log, type='s')
-        draw.constituents()
-    } else {
-        stop("unknown plot.type ", plot.type)
+    for (w in 1:lw) {
+        if (which[w] == 2) {
+            plot(frequency, amplitude, col="white", xlab="Frequency [ cph ]", ylab="Amplitude [ m ]", log=log)
+            segments(frequency, 0, frequency, amplitude)
+            draw.constituents()
+        } else if (which[w] == 1) {
+            plot(frequency, cumsum(amplitude), xlab="Frequency [ cph ]", ylab="Amplitude [ m ]", log=log, type='s')
+            draw.constituents()
+        } else {
+            stop("unknown value of which ", which, "; should be 1 or 2")
+        }
     }
     mtext(x$call, side=4, adj=1, cex=2/3)
     mtext(paste("start time:", x$start.time), side=4, adj=0, cex=2/3)
@@ -75,16 +77,14 @@ tidem.vuf <- function(t, j, lat=NULL)
                      tidedata$const$d6)
 
     ##v=rem( const.doodson*astro+const.semi, 1);
-    if (debug > 0) {
-        cat("doodson[1,]=",doodson[1,],"\n")
-        cat("doodson[2,]=",doodson[2,],"\n")
-        cat("doodson[3,]=",doodson[3,],"\n")
-    }
-
+    oce.debug(debug,
+              "doodson[1,]=",doodson[1,],"\n",
+              "doodson[2,]=",doodson[2,],"\n",
+              "doodson[3,]=",doodson[3,],"\n")
     v <- doodson %*% a$astro + tidedata$const$semi
-    if (debug > 0) cat("tidedata$const$semi[",j,"]=",tidedata$const$semi[j],"\n")
+    oce.debug(debug, "tidedata$const$semi[",j,"]=",tidedata$const$semi[j],"\n")
     v <- v - trunc(v)
-    if (debug > 0) cat("v[1:3]=",v[1:3],"\n")
+    oce.debug(debug, "v[1:3]=",v[1:3],"\n")
     if (!is.null(lat) && !is.na(lat)) {
         if (abs(lat) < 5) lat <- sign(lat) * 5
         slat <- sin(pi * lat / 180)
@@ -97,19 +97,18 @@ tidem.vuf <- function(t, j, lat=NULL)
         uu <- tidedata$sat$deldood %*% a$astro[4:6] + tidedata$sat$phcorr
         uu <- uu - trunc(uu)
 
-        if (debug > 1) {cat("uu[1:3]=");print(uu[1:3])}
+        oce.debug(debug, "uu[1:3]=",uu[1:3], "\n")
 
         nsat <- length(tidedata$sat$iconst)
         nfreq <- length(tidedata$const$numsat)
                                         # loop, rather than make a big matrix
-        if (debug > 2) {
-            cat("tidedata$sat$iconst=", tidedata$sat$iconst, "\n")
-            cat("length(sat$iconst)=", length(tidedata$sat$iconst),"\n")
-        }
+        oce.debug(debug,
+                  "tidedata$sat$iconst=", tidedata$sat$iconst, "\n",
+                  "length(sat$iconst)=", length(tidedata$sat$iconst),"\n")
         fsum.vec <- vector("numeric", nsat)
         u.vec <- vector("numeric", nsat)
         for (isat in 1:nsat) {
-            if (debug > 3) cat("isat=",isat,"\n")
+            oce.debug(debug, "isat=",isat,"\n")
             use <- tidedata$sat$iconst == isat
             fsum.vec[isat] <- 1 + sum(rr[use] * exp(1i * 2 * pi * uu[use]))
             u.vec[isat] <- Arg(fsum.vec[isat]) / 2 / pi
@@ -119,15 +118,13 @@ tidem.vuf <- function(t, j, lat=NULL)
                 cat("u.vec[   ",isat,"]=",u.vec[isat],"       (EXPECT -0.01076294959868)\n")
             }
         }
-        if (debug > 0) {
-            cat("uvec[",j,"]=", u.vec[j], "\n")
-            cat("fsum.vec[",j,"]=", fsum.vec[j],"\n")
-        }
-
+        oce.debug(debug,
+                  "uvec[",j,"]=", u.vec[j], "\n",
+                  "fsum.vec[",j,"]=", fsum.vec[j],"\n")
         f <- abs(fsum.vec)
         u <- Arg(fsum.vec)/2/pi
-        if (debug>3) cat("f=",f,"\n") # correct
-        if (debug>3) cat("u=",u,"\n") # correct
+        oce.debug(debug, "f=",f,"\n") # FIXME
+        oce.debug(debug, "u=",u,"\n") # FIXME
 
         for (k in which(!is.na(tidedata$const$ishallow))) {
             ik <- tidedata$const$ishallow[k] + 0:(tidedata$const$nshallow[k] - 1)
@@ -271,12 +268,11 @@ tidem.astron <- function(t)
 {
                                         # Code mimics t_astron in t_tide
     debug <- FALSE
-    d <- as.numeric(difftime(t, ISOdatetime(1899,12,31,12,0,0,tz="GMT"),
-                             units="days"))
+    d <- as.numeric(difftime(t, ISOdatetime(1899,12,31,12,0,0,tz="GMT"), units="days"))
     D <- d / 10000
     a <- matrix(c(1, d, D^2, D^3), 4, 1)
 
-    if (debug) cat("d=",formatC(d,digits=10),"D=",D,"a=", a, "\n")
+    oce.debug(debug, "d=",formatC(d,digits=10),"D=",D,"a=", a, "\n")
 
     sc.hc.pc.np.pp <-
         matrix(c(270.434164, 13.1763965268,-0.0000850, 0.000000039,
@@ -287,11 +283,11 @@ tidem.astron <- function(t)
                nrow=5, ncol=4, byrow=TRUE)
     astro <- ((sc.hc.pc.np.pp %*% a) / 360) %% 1
 
-    if (debug) cat("astro=",astro,"\n")
+    oce.debug(debug, "astro=",astro,"\n")
 
     rem <- difftime(t, trunc.POSIXt(t,units="days"), tz="GMT", units="days")
 
-    if (debug) cat("rem2=",rem,"\n")
+    oce.debug(debug, "rem2=",rem,"\n")
 
     tau <- rem + astro[2,1] - astro[1,1]
     astro <- c(tau, astro)
@@ -309,7 +305,7 @@ tidem <- function(sl, constituents, latitude=NULL, start.time=NULL, rc=1, quiet 
             sl <- as.sealevel(sl)
         else stop("cannot deal with 'sl' of class ", class(sl)[1])
     }
-    if (missing(start.time)) start.time <- sl$data$t[which(!is.na(sl$data$t))][1]
+    if (missing(start.time)) start.time <- as.POSIXct(sl$data$t[which(!is.na(sl$data$t))][1], tz="UTC")
 
     if (!quiet) {
         cat("start.time=")
@@ -333,12 +329,13 @@ tidem <- function(sl, constituents, latitude=NULL, start.time=NULL, rc=1, quiet 
         freq <- tc$freq[standard][-1]
         kmpr <- tc$kmpr[standard][-1]
         indices <- c(indices, seq(1:ntc)[standard])
-        if (!quiet) print(name);
-    }
-    else {
+        if (!quiet)
+            print(name)
+    } else {
         nconst <- length(constituents)
         for (i in 1:nconst) {
-            if (!quiet) cat("[", constituents[i], "]\n",sep="")
+            if (!quiet)
+                cat("[", constituents[i], "]\n",sep="")
             if (constituents[i] == "standard") { # must be first!
                 if (i != 1) stop("\"standard\" must occur first in constituents list")
                 name <- tc$name[standard][-1]
@@ -350,16 +347,20 @@ tidem <- function(sl, constituents, latitude=NULL, start.time=NULL, rc=1, quiet 
                 if (substr(constituents[i], 1, 1) == "-") {
                     cc <- substr(constituents[i], 2, nchar(constituents[i]))
                     delete <- which(tc$name == cc)
-                    if (length(delete) == 1) indices <- indices[indices != delete]
-                    else stop("cannot delete constituent '", cc, "' from the list because it is not there")
+                    if (length(delete) == 1)
+                        indices <- indices[indices != delete]
+                    else
+                        stop("cannot delete constituent '", cc, "' from the list because it is not there")
                 }
                 else {
                     add <- which(tc$name == constituents[i])
                     if (length(add) == 1) {
-                        if (0 == sum(indices == add)) indices <- c(indices, add) # avoid duplicates
+                        if (0 == sum(indices == add)) {
+                            indices <- c(indices, add) # avoid duplicates
+                        } else {
+                            stop("cannot add constituent '", constituents[i], "' because it is not known; see ?tideconst")
+                        }
                     }
-                    else
-                        stop("cannot add constituent '", constituents[i], "' because it is not known; see ?tideconst")
                 }
             }
             if (!quiet) cat("<<", tc$name[indices], ">>\n")
@@ -386,16 +387,15 @@ tidem <- function(sl, constituents, latitude=NULL, start.time=NULL, rc=1, quiet 
     }
     nc <- length(freq)
     ## Check Rayleigh criterion
-    interval <- as.numeric(difftime(max(sl$data$time,na.rm=TRUE),
-                                    min(sl$data$time,na.rm=TRUE),
-                                    units="hours"))
+    interval <- as.numeric(difftime(max(sl$data$time,na.rm=TRUE), min(sl$data$time,na.rm=TRUE), units="hours"))
     drop.term <- NULL
     for (i in 1:nc) {
         cc <- which(tc2$name == kmpr[i])
         if (length(cc)) {
             cannot.fit <- (interval * abs(freq[i]-tc2$freq[cc])) < rc
             ##cat("compare name=", name[i], "with", kmpr[i],":", cannot.fit,"\n")
-            if (cannot.fit)	drop.term <- c(drop.term, i)
+            if (cannot.fit)
+                drop.term <- c(drop.term, i)
         }
     }
     if (length(drop.term) > 0) {
@@ -405,25 +405,18 @@ tidem <- function(sl, constituents, latitude=NULL, start.time=NULL, rc=1, quiet 
         freq <- freq[-drop.term]
         kmpr <- kmpr[-drop.term]
     }
-
     nc <- length(freq)
     nt <- length(sl$data$elevation)
     x <- array(dim=c(nt, 2 * nc))
     x[,1] <- rep(1, nt)
-
     hour <- unclass(as.POSIXct(sl$data$time, tz="GMT")) / 3600 # hour since 0000-01-01 00:00:00
-
     centralindex <- floor(length(sl$data$t) / 2)
-
-##    hour.wrt.centre <- unclass(hour - hour[centralindex])
-##    hour2pi <- 2 * pi * hour.wrt.centre
-
+    ##    hour.wrt.centre <- unclass(hour - hour[centralindex])
+    ##    hour2pi <- 2 * pi * hour.wrt.centre
     hour.offset <- unclass(hour - unclass(as.POSIXct(start.time, tz="GMT"))/3600)
     hour2pi <- 2 * pi * hour.offset
-
-##    cat(sprintf("hour[1] %.3f\n",hour[1]))
-##    cat(sprintf("hour.offset[1] %.3f\n",hour.offset[1]))
-
+    ##    cat(sprintf("hour[1] %.3f\n",hour[1]))
+    ##    cat(sprintf("hour.offset[1] %.3f\n",hour.offset[1]))
     for (i in 1:nc) {
         omega.t <- freq[i] * hour2pi
         x[,2*i-1] <- sin(omega.t)
@@ -434,6 +427,8 @@ tidem <- function(sl, constituents, latitude=NULL, start.time=NULL, rc=1, quiet 
     colnames(x) <- name2
     elevation <- sl$data$elevation
     model <- lm(elevation ~ x, na.action=na.exclude)
+    if (!quiet)
+        print(summary(model))
     coef  <- model$coefficients
     p.all <- summary(model)$coefficients[,4]
     amplitude <- phase <- p <-vector("numeric", length=1+nc)
@@ -537,8 +532,34 @@ print.summary.tidem <- function(x, digits=max(6, getOption("digits") - 1),
     invisible(x)
 }
 
-predict.tidem <- function(object, ...)
+predict.tidem <- function(object, newdata, ...)
 {
-    ## FIXME: should construct a matrix of sine and cosine, then pass to predict
-    predict(object$model, ...)
+    if (!missing(newdata) && !is.null(newdata)) {
+        newdata.class <- class(newdata)
+        if (inherits(newdata, "POSIXt")) {
+            freq <- object$freq[-1]     # drop first (intercept)
+            name <- object$name[-1]     # drop "z0" (intercept)
+            nc <- length(freq)
+            hour <- unclass(as.POSIXct(newdata, tz="UTC")) / 3600 # hour since 0000-01-01 00:00:00 (FIXME: is tz OK??)
+            nt <- length(hour)
+            x <- array(dim=c(nt, 2 * nc))
+            x[,1] <- rep(1, nt)
+            hour.offset <- unclass(hour - unclass(as.POSIXct(object$start.time, tz="UTC"))/3600)
+            hour2pi <- 2 * pi * hour.offset
+            for (i in 1:nc) {
+                omega.t <- freq[i] * hour2pi
+                x[,2*i-1] <- sin(omega.t)
+                x[,2*i  ] <- cos(omega.t)
+            }
+            name2 <- matrix(rbind(paste(name,"_S",sep=""), paste(name,"_C",sep="")), nrow=(length(name)), ncol=2)
+            dim(name2) <- c(2 * length(name), 1)
+            colnames(x) <- name2
+            rval <- predict(object$model, newdata=list(x=x), ...)
+        } else {
+            stop("newdata must be of class POSIXt")
+        }
+    } else {
+        rval <- predict(object$model, ...)
+    }
+    rval
 }

@@ -7,6 +7,7 @@
 \description{Plot contours of topographic data.}
 
 \usage{\method{plot}{topo}(x, 
+     xlab="", ylab="",
      water.z,
      water.col,
      water.lty,
@@ -18,11 +19,14 @@
      legend.loc="topright", 
      asp,
      mgp=getOption("oce.mgp"),
-     mar=c(mgp[1],mgp[1],0.5,0.5),
+     mar=c(mgp[1]+1,mgp[1]+1,1,1),
+     debug=FALSE,
      \dots)}
 
 \arguments{
   \item{x}{an \code{topo} object, e.g. as read by \code{\link{read.topo}}.}
+  \item{xlab}{label for x axis}
+  \item{ylab}{label for y axis}
   \item{water.z}{depths at which to plot water contours.  If not
     provided, these are inferred from the data.}
   \item{water.col}{colors corresponding to \code{water.z} values.  If
@@ -31,7 +35,8 @@
   \item{water.lty}{line type(s) for water contours}
   \item{water.lwd}{line width(s) for water contours}
   \item{land.z}{depths at which to plot land contours.  If not provided,
-    these are inferred from the data.} 
+    these are inferred from the data.  If set to \code{NULL}, no land
+    contours will be plotted.}
   \item{land.col}{colors corresponding to \code{land.z} values.  If
     not provided, these will be \code{"fill"} colors from
     \code{\link{oce.colors.gebco}}.}
@@ -51,6 +56,8 @@
     tighter than the R default, in order to use more space for the data
     and less for the axes.}
   \item{mar}{value to be used with \code{\link{par}("mar")}.}
+  \item{debug}{boolean value, set to \code{TRUE} to get some debugging
+    information.}
   \item{\dots}{additional arguments passed on to plotting functions}
 }
 

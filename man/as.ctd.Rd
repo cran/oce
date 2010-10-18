@@ -2,10 +2,12 @@
 \alias{as.ctd}
 \title{Coerce data into ctd dataset}
 \description{Coerces a dataset into a ctd dataset.}
-\usage{as.ctd(salinity, temperature, pressure, ship=NA, scientist=NA, institute=NA, address=NA,
-cruise=NA, station=NA, date=NA, start.time=NA, 
-latitude=NA, longitude=NA, recovery=NA, water.depth=NA, 
-sample.interval=NA, src="")
+
+\usage{
+as.ctd(salinity, temperature, pressure, ship=NA, scientist=NA, institute=NA,
+       address=NA, cruise=NA, station=NA, date=NA, start.time=NA, 
+       latitude=NA, longitude=NA, recovery=NA, water.depth=NA, 
+       sample.interval=NA, src="")
 }
 \arguments{
   \item{salinity}{Salinity through the water column, or a data frame
@@ -31,10 +33,15 @@ sample.interval=NA, src="")
   \item{src}{optional string indicating data source}
 }
 
-\details{A common use is to assemble (S,t,p) vectors into a \code{ctd}
-  object, e.g. so that \code{\link{plot.ctd}} can be used to make a
-  standard four-panel plot, or so that a section can be constructed with
-  \code{\link{make.section}}.  }
+\details{This function assembles vectors of salinity, temperature, and
+  pressure, to create a \code{ctd} object, e.g. so that
+  \code{\link{plot.ctd}} can be used to make a standard four-panel plot,
+  or so that a section can be constructed with
+  \code{\link{make.section}}.  Normally, the input vectors will be of
+  the same length, but \code{as.ctd} can also handle cases in which one
+  or two of these is of unit length.  For example, if only a temperature
+  profile is available, \code{as.ctd(35, T, p)} could be used to
+  construct a \code{ctd} object with constant salinity.}
 
 \value{An object of \code{\link[base]{class}} \code{"ctd"} (for details,
   see \code{\link{read.ctd}}).}

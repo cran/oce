@@ -1,4 +1,5 @@
 plot.topo <- function(x,
+                      xlab="", ylab="",
                       water.z,
                       water.col,
                       water.lty,
@@ -10,12 +11,13 @@ plot.topo <- function(x,
                       legend.loc="topright",
                       asp,
                       mgp=getOption("oce.mgp"),
-                      mar=c(mgp[1],mgp[1],0.5,0.5),
+                      mar=c(mgp[1]+1,mgp[1]+1,1,1),
+                      debug=FALSE,
                       ...)
 {
     if (!inherits(x, "topo")) stop("method is only for topo objects")
     opar <- par(no.readonly = TRUE)
-    on.exit(par(opar))
+#    on.exit(par(opar))
     par(mgp=mgp, mar=mar)
     dots <- list(...)
     if (missing(asp)) {
@@ -34,8 +36,43 @@ plot.topo <- function(x,
     } else {
         zr <- range(x$data$z, na.rm=TRUE)
     }
-    plot(range(x$data$longitude, na.rm=TRUE), range(x$data$latitude, na.rm=TRUE),
-         asp=asp, xaxs="i", yaxs="i", type="n", xlab="", ylab="", ...)
+
+    ## kludge to prevent whitespace above/below or to the left/right
+    ## of plots, and also to prevent going past the poles
+    lat.range <- range(x$data$latitude, na.rm=TRUE)
+    lon.range <- range(x$data$longitude, na.rm=TRUE)
+    plot(lon.range, lat.range, asp=asp, xaxs="i", yaxs="i", type="n",
+         xlab=xlab, ylab=ylab, axes=FALSE, ...)
+
+    ## Kludge to prevent latitudes beyond poles
+    usr <- par("usr")
+    if (usr[3] < -90) usr[3] <- -90
+    if (usr[4] > 90) usr[4] <- 90
+    if (usr[3] < lat.range[1]) usr[3] <- lat.range[1]
+    if (usr[4] > lat.range[2]) usr[4] <- lat.range[2]
+    if (usr[1] < lon.range[1]) usr[1] <- lon.range[1]
+    if (usr[2] > lon.range[2]) usr[2] <- lon.range[2]
+
+    lines(usr[1:2], rep(usr[3],2))
+    lines(usr[1:2], rep(usr[4],2))
+    lines(rep(usr[1],2), usr[3:4])
+    lines(rep(usr[2],2), usr[3:4])
+
+    xlab <- pretty(usr[1:2])
+    oce.debug(debug, "xlab=", xlab, "\n")
+    oce.debug(debug, "lon.range=", lon.range, "\n")
+    xlab[xlab > lon.range[2]] <- NA
+    xlab[xlab < lon.range[1]] <- NA
+    oce.debug(debug, "xlab=", xlab, "after trimming\n")
+    axis(1, at=xlab, pos=usr[3])
+    axis(3, at=xlab, pos=usr[4], labels=FALSE)
+
+    ylab <- pretty(usr[3:4])
+    ylab[abs(ylab) > 90] <- NA
+    ylab[ylab > lat.range[2]] <- NA
+    ylab[ylab < lat.range[1]] <- NA
+    axis(2, at=ylab, pos=usr[1])
+    axis(4, at=ylab, pos=usr[2], labels=FALSE)
 
     contour(x$data$longitude, x$data$latitude, x$data$z,
             levels=0, drawlabels=FALSE, add=TRUE,
@@ -87,23 +124,25 @@ plot.topo <- function(x,
             }
         }
         nz <- length(land.z)
-        if (missing(land.col))
-            land.col <- oce.colors.gebco(nz, "land", "line")
-        if (missing(land.lty))
-            land.lty <- rep(par("lty"), nz)
-        else if (length(land.lty) == 1)
-            land.lty <- rep(land.lty, nz)
-        if (missing(land.lwd))
-            land.lwd <- rep(par("lwd"), nz)
-        else if (length(land.lwd) == 1)
-            land.lwd <- rep(land.lwd, nz)
-        legend <- c(legend, land.z)
-        lwd    <- c(lwd,    land.lwd)
-        lty    <- c(lty,    land.lty)
-        col    <- c(col,    land.col)
-        contour(x$data$longitude, x$data$latitude, x$data$z,
-                levels=land.z, lwd=land.lwd, lty=land.lty, col=land.col,
-                drawlabels=FALSE, add=TRUE, ...)
+        if (nz > 0) {
+            if (missing(land.col))
+                land.col <- oce.colors.gebco(nz, "land", "line")
+            if (missing(land.lty))
+                land.lty <- rep(par("lty"), nz)
+            else if (length(land.lty) == 1)
+                land.lty <- rep(land.lty, nz)
+            if (missing(land.lwd))
+                land.lwd <- rep(par("lwd"), nz)
+            else if (length(land.lwd) == 1)
+                land.lwd <- rep(land.lwd, nz)
+            legend <- c(legend, land.z)
+            lwd    <- c(lwd,    land.lwd)
+            lty    <- c(lty,    land.lty)
+            col    <- c(col,    land.col)
+            contour(x$data$longitude, x$data$latitude, x$data$z,
+                    levels=land.z, lwd=land.lwd, lty=land.lty, col=land.col,
+                    drawlabels=FALSE, add=TRUE, ...)
+        }
     }
     if (!is.null(legend.loc)) {
         o <- rev(order(legend))
@@ -112,7 +151,7 @@ plot.topo <- function(x,
     }
 }
 
-read.topo <- function(file, log.action)
+read.topo <- function(file, log.action, ...)
 {
     nh <- 6
     header <- readLines(file, n=nh)
@@ -122,16 +161,30 @@ read.topo <- function(file, log.action)
     lat.ll <- as.numeric(strsplit(header[4],"[ ]+",perl=TRUE)[[1]][2])
     cellsize <- as.numeric(strsplit(header[5],"[ ]+",perl=TRUE)[[1]][2])
     zz <- as.matrix(read.table(file, header=FALSE, skip=nh),byrow=TRUE)
-    z <- t(zz[dim(zz)[1]:1,])
     longitude <- lon.ll + cellsize * seq(0, ncols-1)
     latitude <- lat.ll + cellsize * seq(0, nrows-1)
-    data <- list(longitude=longitude, latitude=latitude, z=z)
-    metadata <- list(filename=file, cellsize=cellsize, ncols=ncols, nrows=nrows, lon.ll=lon.ll, lat.ll=lat.ll)
+    z <- t(zz[dim(zz)[1]:1,])
     if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
     log.item <- processing.log.item(log.action)
-    res <- list(data=data, metadata=metadata, processing.log=log.item)
-    class(res) <- c("topo", "oce")
-    res
+    as.topo(longitude, latitude, z, filename=file, log.action=log.item)
+}
+
+as.topo <- function(longitude, latitude, z, filename="", log.action)
+{
+    ncols <- length(longitude)
+    nrows <- length(latitude)
+    lon.ll <- min(longitude, na.rm=TRUE)
+    lat.ll <- min(latitude, na.rm=TRUE)
+    dim <- dim(z)
+    if (dim[1] != ncols) stop("longitude vector has length ", ncols, ", which does not match matrix width ", dim[1])
+    if (dim[2] != nrows) stop("latitude vector has length ", ncols, ", which does not match matrix height ", dim[2])
+    data <- list(longitude=longitude, latitude=latitude, z=z)
+    metadata <- list(filename=file, ncols=ncols, nrows=nrows, lon.ll=lon.ll, lat.ll=lat.ll)
+    if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
+    log.item <- processing.log.item(log.action)
+    rval <- list(data=data, metadata=metadata, processing.log=log.item)
+    class(rval) <- c("topo", "oce")
+    rval
 }
 
 summary.topo <- function(object, ...)
@@ -154,6 +207,7 @@ print.summary.topo <- function(x, digits=max(6, getOption("digits") - 1), ...)
         " to ", format(x$lon.range[2], digits), "\n")
     cat("elevation range:", format(x$z.range[1], digits=digits),
         " to ", format(x$z.range[2], digits), "\n")
-    print(x$processing.log)
+    cat("Processing Log:\n", ...)
+    cat(x$processing.log, ...)
     invisible(x)
 }

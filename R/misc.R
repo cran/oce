@@ -1,24 +1,100 @@
+## vim:textwidth=128:expandtab:shiftwidth=4:softtabstop=4
+retime <- function(x, a, b, t0, debug=getOption("oce.debug"))
+{
+    if (missing(x))
+        stop("must give argument 'x'")
+    if (missing(a))
+        stop("must give argument 'a'")
+    if (missing(b))
+        stop("must give argument 'b'")
+    if (missing(t0))
+        stop("must give argument 't0'")
+    oce.debug(debug, paste("\b\bretime.adv(x, a=", a, ", b=", b, ", t0=\"", format(t0), "\")\n"),sep="")
+    rval <- x
+    if ("ts" %in% names(x$data)) {
+        oce.debug(debug, "retiming x$data$ts$time")
+        rval$data$ts$time <- x$data$ts$time + a + b * (as.numeric(x$data$ts$time) - as.numeric(t0))
+    }
+    if ("ts.slow" %in% names(x$data)) {
+        oce.debug(debug, "retiming x$data$ts.slow$time\n")
+        rval$data$ts.slow$time <- x$data$ts.slow$time + a + b * (as.numeric(x$data$ts.slow$time) - as.numeric(t0))
+    }
+    rval$processing.log <- processing.log.add(rval$processing.log,
+                                              paste(deparse(match.call()), sep="", collapse=""))
+    oce.debug(debug, "\b\b} # retime.adv()\n")
+    rval
+}
+
 normalize <- function(x)
 {
-    (x - mean(x, na.rm=TRUE)) / sqrt(var(x, na.rm=TRUE))
+    var <- var(x, na.rm=TRUE)
+    if (var == 0)
+        rep(0, length(x))
+    else
+        (x - mean(x, na.rm=TRUE)) / sqrt(var)
 }
-despike <- function(x, method=1, n=4, k=7, physical.range)
+
+detrend <- function(x,y)
 {
-    xx <- x
-    small <- if (missing(physical.range)) min(x, na.rm=TRUE) else physical.range[1]
-    large <- if (missing(physical.range)) max(x, na.rm=TRUE) else physical.range[2]
-    na <- is.na(x)
-    unphysical <- xx < small | large < xx
-    xx[unphysical | na] <- median(xx, na.rm=TRUE) # (runmed, smooth) cannot handle NA
-    if (method == 1) {
-        xxs <- runmed(xx, k=k)
-    } else if (method == 2) {
-        xxs <- as.numeric(smooth(xx))
+    if (missing(x))
+        stop("must give x")
+    n <- length(x)
+    if (missing(y)) {
+        y <- x
+        x <- 1:length(y)
     } else {
-        stop("unknown method ", method, "; try method=1 or method=2)")
+        if (length(y) != n)
+            stop("x and y must be of same length, but they are ", n, " and ", length(y))
     }
-    deviant <- n < abs(normalize(xx - xxs))
-    x[deviant | unphysical] <- NA
+    y - (y[1] + (y[n]-y[1]) * (x-x[1])/(x[n]-x[1]))
+}
+
+despike <- function(x, reference=c("median", "smooth", "trim"), n=4, k=7, min, max,
+                    replace=c("reference","NA"))
+{
+    reference <- match.arg(reference)
+    replace <- match.arg(replace)
+    gave.min <- !missing(min)
+    gave.max <- !missing(max)
+    nx <- length(x)
+    ## degap
+    na <- is.na(x)
+    if (sum(na) > 0) {
+        i <- 1:nx
+        x.gapless <- approx(i[!na], x[!na], i)$y
+    } else {
+        x.gapless <- x
+    }
+    if (reference == "median" || reference == "smooth") {
+        if (reference == "median")
+            x.reference <- runmed(x.gapless, k=k)
+        else
+            x.reference <- as.numeric(smooth(x.gapless))
+        distance <- abs(x.reference - x.gapless)
+        stddev <- sqrt(var(distance))
+        bad <- distance > n * stddev
+        nbad <- sum(bad)
+        if (nbad > 0) {
+            if (replace == "reference")
+                x[bad] <- x.reference[bad]
+            else
+                x[bad] <- rep(NA, nbad)
+        }
+    } else if (reference == "trim") {
+        if (!gave.min || !gave.max)
+            stop("must give min and max")
+        bad <- !(min <= x & x <= max)
+        nbad <- length(bad)
+        if (nbad > 0) {
+            i <- 1:nx
+            if (replace == "reference")
+                x[bad] <- approx(i[!bad], x.gapless[!bad], i[bad])$y
+            else
+                x[bad] <- rep(NA, nbad)
+        }
+    } else {
+        stop("unknown reference ", reference)
+    }
     x
 }
 rangelimit <- function(x, min, max)
@@ -44,18 +120,18 @@ logger.toc <- function(dir, from, to, debug=getOption("oce.debug"))
 {
     if (missing(dir))
         stop("need a 'dir', naming a directory containing a file with suffix .TBL, and also data files named in that file")
-    tbl.files <- list.files(path=dir, pattern="*.TBL")
+    tbl.files <- list.files(path=dir, pattern="*.TBL$")
     if (length(tbl.files) < 1)
         stop("could not locate a .TBL file in direcory ", dir)
-    t0 <- as.POSIXct("2010-01-01", tz="UTC") # arbitrary time, to make integers
+    tref <- as.POSIXct("2010-01-01", tz="UTC") # arbitrary time, to make integers
+    file.code <- NULL
+    start.time <- NULL
     for (tbl.file in tbl.files) {
         oce.debug(debug, tbl.file)
         lines <- readLines(paste(dir, tbl.file, sep="/"))
         if (length(lines) < 1)
             stop("found no data in file ", paste(dir, tbl.file, sep="/"))
         ## "File \\day179\\SL08A179.023 started at Fri Jun 27 22:00:00 2008"
-        file.code <- NULL
-        start.time <- NULL
         for (line in lines) {
             s <- strsplit(line, "[ \t]+")[[1]]
             if (length(s) > 2) {
@@ -67,10 +143,9 @@ logger.toc <- function(dir, from, to, debug=getOption("oce.debug"))
                 t <- as.POSIXct(strptime(paste(year, month, day, hms), "%Y %b %d %H:%M:%S", tz="UTC"))
                 len <- nchar(filename)
                 code <- substr(filename, len-6, len)
-                if (debug > 0)
-                    cat(s, "|", code, "|", format(t), "\n")
+                oce.debug(debug, s, "(", code, format(t), ")\n")
                 file.code <- c(file.code, code)
-                start.time <- c(start.time, as.numeric(t) - as.numeric(t0))
+                start.time <- c(start.time, as.numeric(t) - as.numeric(tref))
             }
         }
     }
@@ -78,13 +153,24 @@ logger.toc <- function(dir, from, to, debug=getOption("oce.debug"))
     lprefix <- nchar(prefix)
     prefix <- substr(prefix, 1, lprefix-7)
     filename <- paste(dir, paste(prefix, file.code, sep=""), sep="/")
-    start.time <- as.POSIXct(start.time + t0)
+    start.time <- as.POSIXct(start.time + tref)
+    oce.debug(debug, "from=", format(from), "\n")
+    oce.debug(debug, "to=", format(to), "\n")
     if (!missing(from) && !missing(to)) {
+        oce.debug(debug, "got", length(file.code), "candidate files")
         ok <- from <= start.time & start.time <= to
+        oce.debug(debug, "ok=", ok, "\n")
         filename <- filename[ok]
         start.time <- start.time[ok]
+        oce.debug(debug, "taking into account the times, ended up with", length(file.code), "files\n")
     }
     list(filename=filename, start.time=start.time)
+}
+
+angle.remap <- function(theta)
+{
+    to.rad <- atan2(1, 1) / 45
+    atan2(sin(to.rad * theta), cos(to.rad * theta)) / to.rad
 }
 
 unwrap.angle <- function(angle)
@@ -122,7 +208,7 @@ oce.spectrum <- function(x, ...)
     invisible(rval)
 }
 
-vector.show <- function(v, msg)
+vector.show <- function(v, msg, digits=5)
 {
     n <- length(v)
     if (missing(msg))
@@ -130,10 +216,19 @@ vector.show <- function(v, msg)
     if (n == 0) {
         paste(msg, "(empty vector)\n")
     } else {
-        if (n > 6) {
-            paste(msg, ": ", v[1], ", ", v[2], ", ", v[3], ", ..., ", v[n-2], ", ", v[n-1], ", ", v[n], " (length ", n, ")\n", sep="")
-        } else {
-            paste(msg, ": ", paste(v, collapse=", "), "\n", sep="")
+        if (is.numeric(v)) {
+            if (n > 6) {
+                vv <- format(v[c(1, 2, 3, n-2, n-1, n)], digits=digits)
+                paste(msg, ": ", vv[1], ", ", vv[2], ", ", vv[3], ", ..., ", vv[4], ", ", vv[5], ", ", vv[6], " (length ", n, ")\n", sep="")
+            } else {
+                paste(msg, ": ", paste(format(v, digits=digits), collapse=", "), "\n", sep="")
+            }
+       } else {
+             if (n > 6) {
+                paste(msg, ": ", v[1], ", ", v[2], ", ", v[3], ", ..., ", v[n-2], ", ", v[n-1], ", ", v[n], " (length ", n, ")\n", sep="")
+            } else {
+                paste(msg, ": ", paste(v, collapse=", "), "\n", sep="")
+            }
         }
     }
 }
@@ -147,15 +242,18 @@ full.filename <- function(filename)
 }
 matrix.smooth <- function(m)
 {
-    if (missing(m)) stop("must provide matrix 'm'")
+    if (missing(m))
+        stop("must provide matrix 'm'")
     storage.mode(m) <- "double"
     .Call("matrix_smooth", m)
 }
 
-match.bytes <- function(input, b1, ...)
+matchBytes <- function(input, b1, ...)
 {
-    if (missing(input)) stop("must provide \"input\"")
-    if (missing(b1)) stop("must provide at least one byte to match")
+    if (missing(input))
+        stop("must provide \"input\"")
+    if (missing(b1))
+        stop("must provide at least one byte to match")
     n <- length(input)
     dots <- list(...)
     lb <- 1 + length(dots)
@@ -163,7 +261,8 @@ match.bytes <- function(input, b1, ...)
         .Call("match2bytes", as.raw(input), as.raw(b1), as.raw(dots[[1]]), FALSE)
     else if (lb == 3)
         .Call("match3bytes", as.raw(input), as.raw(b1), as.raw(dots[[1]]), as.raw(dots[[2]]))
-    else stop("must provide 2 or 3 bytes")
+    else
+        stop("must provide 2 or 3 bytes")
 }
 
 resizable.label <- function(item=c("S", "T", "p", "z", "distance", "heading", "pitch", "roll"), axis=c("x", "y"))
@@ -223,13 +322,13 @@ lat.format <- function(lat, digits=max(6, getOption("digits") - 1))
     n <- length(lat)
     if (n < 1) return("")
     rval <- vector("character", n)
-    for (i in 1:n)
+    for (i in 1:n) {
         if (is.na(lat[i]))
             rval[i] <-  ""
         else
             rval[i] <- paste(format(abs(lat[i]), digits=digits),
-                             if (lat[i] > 0) "N" else "S",
-                             sep="")
+                             if (lat[i] > 0) "N" else "S", sep="")
+    }
     rval
 }
 
@@ -240,7 +339,7 @@ lon.format <- function(lon, digits=max(6, getOption("digits") - 1))
     rval <- vector("character", n)
     for (i in 1:n)
         if (is.na(lon[i]))
-            rval[i] <-  ""
+            rval[i] <- ""
         else
             rval[i] <- paste(format(abs(lon[i]), digits=digits),
                              if (lon[i] > 0) "E" else "S",
@@ -257,93 +356,93 @@ GMT.offset.from.tz <- function(tz)
     ## will come up most rarely in use, but perhaps something better should
     ## be devised.  (Maybe this is not a problem.  Maybe only MEDS uses these,
     ## as opposed to GMT offsets, and maybe they only work in 5 zones, anyway...)
-    if (tz == "A"   )  	return( -1  ) # Alpha Time Zone	Military	UTC + 1 hour
-    if (tz == "ACDT") 	return(-10.5) # Australian Central Daylight Time   Australia	UTC + 10:30 hours
-    if (tz == "ACST")	return( -9.5) # Australian Central Standard Time  Australia	UTC + 9:30 hours
-    if (tz == "ADT" )  	return( 3   ) # Atlantic Daylight Time	North America	UTC - 3 hours
-    if (tz == "AEDT")	return(-11  ) # Aus. East. Day. Time or Aus. East Summer Time Aus. UTC + 11 hours
-    if (tz == "AEST")	return(-10  ) # Australian Eastern Standard Time  Australia UTC + 10 hours
-    if (tz == "AKDT")	return(  8  ) # Alaska Daylight Time	North America	UTC - 8 hours
-    if (tz == "AKST")	return(  9  ) # Alaska Standard Time	North America	UTC - 9 hours
-    if (tz == "AST" )	return(  4  ) # Atlantic Standard Time	North America	UTC - 4 hours
-    if (tz == "AWDT") 	return( -9  ) # Australian Western Daylight Time	Australia	UTC + 9 hours
-    if (tz == "AWST") 	return( -8  ) # Australian Western Standard Time	Australia	UTC + 8 hours
-    if (tz == "B"   )	return( -2  ) # Bravo Time Zone	Military	UTC + 2 hours
-    if (tz == "BST" )	return( -1  ) # British Summer Time	Europe	UTC + 1 hour
-    if (tz == "C"   )	return( -3  ) # Charlie Time Zone	Military	UTC + 3 hours
-    ##if (tz == "CDT")  return(-10.5) # Central Daylight Time	Australia	UTC + 10:30 hours
-    if (tz == "CDT" )	return(  5  ) # Central Daylight Time	North America	UTC - 5 hours
-    if (tz == "CEDT")	return( -2  ) # Central European Daylight Time	Europe	UTC + 2 hours
-    if (tz == "CEST")	return( -2  ) # Central European Summer Time	Europe	UTC + 2 hours
-    if (tz == "CET" )	return( -1  ) # Central European Time	Europe	UTC + 1 hour
-    ##if (tz == "CST" ) return(-10.5) # Central Summer Time	Australia	UTC + 10:30 hours
-    ##if (tz == "CST" ) return( -9.5) # Central Standard Time	Australia	UTC + 9:30 hours
-    if (tz == "CST" )	return(  6  ) # Central Standard Time	North America	UTC - 6 hours
-    if (tz == "CXT" )	return( -7  ) # Christmas Island Time	Australia	UTC + 7 hours
-    if (tz == "D"   )	return( -4  ) # Delta Time Zone	Military	UTC + 4 hours
-    if (tz == "E"   )	return( -5  ) # Echo Time Zone	Military	UTC + 5 hours
-    ##if (tz == "EDT" ) return( -11 ) # Eastern Daylight Time	Australia	UTC + 11 hours
-    if (tz == "EDT" )	return(  4  ) # Eastern Daylight Time	North America	UTC - 4 hours
-    if (tz == "EEDT") 	return( -3  ) # Eastern European Daylight Time	Europe	UTC + 3 hours
-    if (tz == "EEST") 	return( -3  ) # Eastern European Summer Time	Europe	UTC + 3 hours
-    if (tz == "EET")	return( -2  ) # Eastern European Time	Europe	UTC + 2 hours
-    ##if (tz == "EST")  return( -11 ) # Eastern Summer Time	Australia	UTC + 11 hours
-    ##if (tz == "EST")  return( -10 ) # Eastern Standard Time	Australia	UTC + 10 hours
-    if (tz == "EST" )	return(  5  ) # Eastern Standard Time	North America	UTC - 5 hours
-    if (tz == "F"   )	return( -6  ) # Foxtrot Time Zone	Military	UTC + 6 hours
-    if (tz == "G"   )	return( -7  ) # Golf Time Zone	Military	UTC + 7 hours
-    if (tz == "GMT" )	return(  0  ) # Greenwich Mean Time	Europe	UTC
-    if (tz == "H"   )	return( -8  ) # Hotel Time Zone	Military	UTC + 8 hours
-    if (tz == "HAA" )	return(  3  ) # Heure Avancée de l'Atlantique	North America	UTC - 3 hours
-    if (tz == "HAC" )	return(  5  ) # Heure Avancée du Centre	North America	UTC - 5 hours
-    if (tz == "HADT")	return(  9  ) # Hawaii-Aleutian Daylight Time	North America	UTC - 9 hours
-    if (tz == "HAE" )	return(  4  ) # Heure Avancée de l'Est	North America	UTC - 4 hours
-    if (tz == "HAP" )	return(  7  ) # Heure Avancée du Pacifique	North America	UTC - 7 hours
-    if (tz == "HAR" )	return(  6  ) # Heure Avancée des Rocheuses	North America	UTC - 6 hours
-    if (tz == "HAST")	return( 10  ) # Hawaii-Aleutian Standard Time	North America	UTC - 10 hours
-    if (tz == "HAT" )	return(  2.5) # Heure Avancée de Terre-Neuve	North America	UTC - 2:30 hours
-    if (tz == "HAY" )	return(  8  ) # Heure Avancée du Yukon	North America	UTC - 8 hours
-    if (tz == "HNA" )	return(  4  ) # Heure Normale de l'Atlantique	North America	UTC - 4 hours
-    if (tz == "HNC" )	return(  6  ) # Heure Normale du Centre	North America	UTC - 6 hours
-    if (tz == "HNE" )	return(  5  ) # Heure Normale de l'Est	North America	UTC - 5 hours
-    if (tz == "HNP" )	return(  8  ) # Heure Normale du Pacifique	North America	UTC - 8 hours
-    if (tz == "HNR" )	return(  7  ) # Heure Normale des Rocheuses	North America	UTC - 7 hours
-    if (tz == "HNT" )	return(  3.5) # Heure Normale de Terre-Neuve	North America	UTC - 3:30 hours
-    if (tz == "HNY" )	return(  9  ) # Heure Normale du Yukon	North America	UTC - 9 hours
-    if (tz == "I"   )	return( -9  ) # India Time Zone	Military	UTC + 9 hours
-    if (tz == "IST" )	return( -1  ) # Irish Summer Time	Europe	UTC + 1 hour
-    if (tz == "K"   )	return(-10  ) # Kilo Time Zone	Military	UTC + 10 hours
-    if (tz == "L"   )	return(-11  ) # Lima Time Zone	Military	UTC + 11 hours
-    if (tz == "M"   )	return(-12  ) # Mike Time Zone	Military	UTC + 12 hours
-    if (tz == "MDT" )	return(  6  ) # Mountain Daylight Time	North America	UTC - 6 hours
-    if (tz == "MESZ") 	return( -2  ) # Mitteleuroäische Sommerzeit	Europe	UTC + 2 hours
-    if (tz == "MEZ" )	return( -1  ) # Mitteleuropäische Zeit	Europe	UTC + 1 hour
-    if (tz == "MST" )	return(  7  ) # Mountain Standard Time	North America	UTC - 7 hours
-    if (tz == "N"   )	return(  1  ) # November Time Zone	Military	UTC - 1 hour
-    if (tz == "NDT" )	return(  2.5) # Newfoundland Daylight Time	North America	UTC - 2:30 hours
-    if (tz == "NFT" )	return(-11.5) # Norfolk (Island) Time	Australia	UTC + 11:30 hours
-    if (tz == "NST" )	return(  3.5) # Newfoundland Standard Time	North America	UTC - 3:30 hours
-    if (tz == "O"   )	return(  1  ) # Oscar Time Zone	Military	UTC - 2 hours
-    if (tz == "P"   )	return(  3  ) # Papa Time Zone	Military	UTC - 3 hours
-    if (tz == "PDT" )	return(  7  ) # Pacific Daylight Time	North America	UTC - 7 hours
-    if (tz == "PST" )	return(  8  ) # Pacific Standard Time	North America	UTC - 8 hours
-    if (tz == "Q"   )	return(  4  ) # Quebec Time Zone	Military	UTC - 4 hours
-    if (tz == "R"   )	return(  4  ) # Romeo Time Zone	Military	UTC - 5 hours
-    if (tz == "S"   )	return(  6  ) # Sierra Time Zone	Military	UTC - 6 hours
-    if (tz == "T"   )	return(  7  ) # Tango Time Zone	Military	UTC - 7 hours
-    if (tz == "U"   )	return(  8  ) # Uniform Time Zone	Military	UTC - 8 hours
-    if (tz == "UTC" )	return(  0  ) # Coordinated Universal Time	Europe	UTC
-    if (tz == "V"   )	return(  9  ) # Victor Time Zone	Military	UTC - 9 hours
-    if (tz == "W"   )	return( 10  ) # Whiskey Time Zone	Military	UTC - 10 hours
-    if (tz == "WDT" )	return( -9  ) # Western Daylight Time	Australia	UTC + 9 hours
-    if (tz == "WEDT") 	return( -1  ) # Western European Daylight Time	Europe	UTC + 1 hour
-    if (tz == "WEST") 	return( -1  ) # Western European Summer Time	Europe	UTC + 1 hour
-    if (tz == "WET")	return(  0  ) # Western European Time	Europe	UTC
-    ##if (tz == "WST")  return( -9  ) # Western Summer Time	Australia	UTC + 9 hours
-    if (tz == "WST")	return( -8  ) # Western Standard Time	Australia	UTC + 8 hours
-    if (tz == "X"  )	return( 11  ) # X-ray Time Zone	Military	UTC - 11 hours
-    if (tz == "Y"  )	return( 12  ) # Yankee Time Zone	Military	UTC - 12 hours
-    if (tz == "Z"  )	return(  0  ) # Zulu Time Zone	Military	UTC
+    if (tz == "A"   )   return( -1  ) # Alpha Time Zone Military        UTC + 1 hour
+    if (tz == "ACDT")   return(-10.5) # Australian Central Daylight Time   Australia    UTC + 10:30 hours
+    if (tz == "ACST")   return( -9.5) # Australian Central Standard Time  Australia     UTC + 9:30 hours
+    if (tz == "ADT" )   return( 3   ) # Atlantic Daylight Time  North America   UTC - 3 hours
+    if (tz == "AEDT")   return(-11  ) # Aus. East. Day. Time or Aus. East Summer Time Aus. UTC + 11 hours
+    if (tz == "AEST")   return(-10  ) # Australian Eastern Standard Time  Australia UTC + 10 hours
+    if (tz == "AKDT")   return(  8  ) # Alaska Daylight Time    North America   UTC - 8 hours
+    if (tz == "AKST")   return(  9  ) # Alaska Standard Time    North America   UTC - 9 hours
+    if (tz == "AST" )   return(  4  ) # Atlantic Standard Time  North America   UTC - 4 hours
+    if (tz == "AWDT")   return( -9  ) # Australian Western Daylight Time        Australia       UTC + 9 hours
+    if (tz == "AWST")   return( -8  ) # Australian Western Standard Time        Australia       UTC + 8 hours
+    if (tz == "B"   )   return( -2  ) # Bravo Time Zone Military        UTC + 2 hours
+    if (tz == "BST" )   return( -1  ) # British Summer Time     Europe  UTC + 1 hour
+    if (tz == "C"   )   return( -3  ) # Charlie Time Zone       Military        UTC + 3 hours
+    ##if (tz == "CDT")  return(-10.5) # Central Daylight Time   Australia       UTC + 10:30 hours
+    if (tz == "CDT" )   return(  5  ) # Central Daylight Time   North America   UTC - 5 hours
+    if (tz == "CEDT")   return( -2  ) # Central European Daylight Time  Europe  UTC + 2 hours
+    if (tz == "CEST")   return( -2  ) # Central European Summer Time    Europe  UTC + 2 hours
+    if (tz == "CET" )   return( -1  ) # Central European Time   Europe  UTC + 1 hour
+    ##if (tz == "CST" ) return(-10.5) # Central Summer Time     Australia       UTC + 10:30 hours
+    ##if (tz == "CST" ) return( -9.5) # Central Standard Time   Australia       UTC + 9:30 hours
+    if (tz == "CST" )   return(  6  ) # Central Standard Time   North America   UTC - 6 hours
+    if (tz == "CXT" )   return( -7  ) # Christmas Island Time   Australia       UTC + 7 hours
+    if (tz == "D"   )   return( -4  ) # Delta Time Zone Military        UTC + 4 hours
+    if (tz == "E"   )   return( -5  ) # Echo Time Zone  Military        UTC + 5 hours
+    ##if (tz == "EDT" ) return( -11 ) # Eastern Daylight Time   Australia       UTC + 11 hours
+    if (tz == "EDT" )   return(  4  ) # Eastern Daylight Time   North America   UTC - 4 hours
+    if (tz == "EEDT")   return( -3  ) # Eastern European Daylight Time  Europe  UTC + 3 hours
+    if (tz == "EEST")   return( -3  ) # Eastern European Summer Time    Europe  UTC + 3 hours
+    if (tz == "EET")    return( -2  ) # Eastern European Time   Europe  UTC + 2 hours
+    ##if (tz == "EST")  return( -11 ) # Eastern Summer Time     Australia       UTC + 11 hours
+    ##if (tz == "EST")  return( -10 ) # Eastern Standard Time   Australia       UTC + 10 hours
+    if (tz == "EST" )   return(  5  ) # Eastern Standard Time   North America   UTC - 5 hours
+    if (tz == "F"   )   return( -6  ) # Foxtrot Time Zone       Military        UTC + 6 hours
+    if (tz == "G"   )   return( -7  ) # Golf Time Zone  Military        UTC + 7 hours
+    if (tz == "GMT" )   return(  0  ) # Greenwich Mean Time     Europe  UTC
+    if (tz == "H"   )   return( -8  ) # Hotel Time Zone Military        UTC + 8 hours
+    if (tz == "HAA" )   return(  3  ) # Heure Avancée de l'Atlantique   North America   UTC - 3 hours
+    if (tz == "HAC" )   return(  5  ) # Heure Avancée du Centre North America   UTC - 5 hours
+    if (tz == "HADT")   return(  9  ) # Hawaii-Aleutian Daylight Time   North America   UTC - 9 hours
+    if (tz == "HAE" )   return(  4  ) # Heure Avancée de l'Est  North America   UTC - 4 hours
+    if (tz == "HAP" )   return(  7  ) # Heure Avancée du Pacifique      North America   UTC - 7 hours
+    if (tz == "HAR" )   return(  6  ) # Heure Avancée des Rocheuses     North America   UTC - 6 hours
+    if (tz == "HAST")   return( 10  ) # Hawaii-Aleutian Standard Time   North America   UTC - 10 hours
+    if (tz == "HAT" )   return(  2.5) # Heure Avancée de Terre-Neuve    North America   UTC - 2:30 hours
+    if (tz == "HAY" )   return(  8  ) # Heure Avancée du Yukon  North America   UTC - 8 hours
+    if (tz == "HNA" )   return(  4  ) # Heure Normale de l'Atlantique   North America   UTC - 4 hours
+    if (tz == "HNC" )   return(  6  ) # Heure Normale du Centre North America   UTC - 6 hours
+    if (tz == "HNE" )   return(  5  ) # Heure Normale de l'Est  North America   UTC - 5 hours
+    if (tz == "HNP" )   return(  8  ) # Heure Normale du Pacifique      North America   UTC - 8 hours
+    if (tz == "HNR" )   return(  7  ) # Heure Normale des Rocheuses     North America   UTC - 7 hours
+    if (tz == "HNT" )   return(  3.5) # Heure Normale de Terre-Neuve    North America   UTC - 3:30 hours
+    if (tz == "HNY" )   return(  9  ) # Heure Normale du Yukon  North America   UTC - 9 hours
+    if (tz == "I"   )   return( -9  ) # India Time Zone Military        UTC + 9 hours
+    if (tz == "IST" )   return( -1  ) # Irish Summer Time       Europe  UTC + 1 hour
+    if (tz == "K"   )   return(-10  ) # Kilo Time Zone  Military        UTC + 10 hours
+    if (tz == "L"   )   return(-11  ) # Lima Time Zone  Military        UTC + 11 hours
+    if (tz == "M"   )   return(-12  ) # Mike Time Zone  Military        UTC + 12 hours
+    if (tz == "MDT" )   return(  6  ) # Mountain Daylight Time  North America   UTC - 6 hours
+    if (tz == "MESZ")   return( -2  ) # Mitteleuroäische Sommerzeit     Europe  UTC + 2 hours
+    if (tz == "MEZ" )   return( -1  ) # Mitteleuropäische Zeit  Europe  UTC + 1 hour
+    if (tz == "MST" )   return(  7  ) # Mountain Standard Time  North America   UTC - 7 hours
+    if (tz == "N"   )   return(  1  ) # November Time Zone      Military        UTC - 1 hour
+    if (tz == "NDT" )   return(  2.5) # Newfoundland Daylight Time      North America   UTC - 2:30 hours
+    if (tz == "NFT" )   return(-11.5) # Norfolk (Island) Time   Australia       UTC + 11:30 hours
+    if (tz == "NST" )   return(  3.5) # Newfoundland Standard Time      North America   UTC - 3:30 hours
+    if (tz == "O"   )   return(  1  ) # Oscar Time Zone Military        UTC - 2 hours
+    if (tz == "P"   )   return(  3  ) # Papa Time Zone  Military        UTC - 3 hours
+    if (tz == "PDT" )   return(  7  ) # Pacific Daylight Time   North America   UTC - 7 hours
+    if (tz == "PST" )   return(  8  ) # Pacific Standard Time   North America   UTC - 8 hours
+    if (tz == "Q"   )   return(  4  ) # Quebec Time Zone        Military        UTC - 4 hours
+    if (tz == "R"   )   return(  4  ) # Romeo Time Zone Military        UTC - 5 hours
+    if (tz == "S"   )   return(  6  ) # Sierra Time Zone        Military        UTC - 6 hours
+    if (tz == "T"   )   return(  7  ) # Tango Time Zone Military        UTC - 7 hours
+    if (tz == "U"   )   return(  8  ) # Uniform Time Zone       Military        UTC - 8 hours
+    if (tz == "UTC" )   return(  0  ) # Coordinated Universal Time      Europe  UTC
+    if (tz == "V"   )   return(  9  ) # Victor Time Zone        Military        UTC - 9 hours
+    if (tz == "W"   )   return( 10  ) # Whiskey Time Zone       Military        UTC - 10 hours
+    if (tz == "WDT" )   return( -9  ) # Western Daylight Time   Australia       UTC + 9 hours
+    if (tz == "WEDT")   return( -1  ) # Western European Daylight Time  Europe  UTC + 1 hour
+    if (tz == "WEST")   return( -1  ) # Western European Summer Time    Europe  UTC + 1 hour
+    if (tz == "WET")    return(  0  ) # Western European Time   Europe  UTC
+    ##if (tz == "WST")  return( -9  ) # Western Summer Time     Australia       UTC + 9 hours
+    if (tz == "WST")    return( -8  ) # Western Standard Time   Australia       UTC + 8 hours
+    if (tz == "X"  )    return( 11  ) # X-ray Time Zone Military        UTC - 11 hours
+    if (tz == "Y"  )    return( 12  ) # Yankee Time Zone        Military        UTC - 12 hours
+    if (tz == "Z"  )    return(  0  ) # Zulu Time Zone  Military        UTC
 }
 
 gravity <- function(latitude=45, degrees=TRUE)
@@ -355,7 +454,8 @@ gravity <- function(latitude=45, degrees=TRUE)
 make.filter <- function(type=c("blackman-harris", "rectangular", "hamming", "hann"), m, asKernel=FALSE)
 {
     type <- match.arg(type)
-    if (missing(m)) stop("must supply 'm'")
+    if (missing(m))
+        stop("must supply 'm'")
     i <- seq(0, m - 1)
     if (type == "blackman-harris") {    # See Harris (1978) table on p65
         if (m == 2 * floor(m/2)) {
@@ -385,8 +485,10 @@ make.filter <- function(type=c("blackman-harris", "rectangular", "hamming", "han
 
 oce.filter <- function(x, a=1, b, zero.phase=FALSE)
 {
-    if (missing(x)) stop("must supply x")
-    if (missing(b)) stop("must supply b")
+    if (missing(x))
+        stop("must supply x")
+    if (missing(b))
+        stop("must supply b")
     if (!zero.phase) {
         return(.Call("oce_filter", x, a, b))
     } else {
@@ -408,14 +510,21 @@ geod.xy <- function(lat, lon, lat.ref, lon.ref, rotate=0)
 {
     a <- 6378137.00          # WGS84 major axis
     f <- 1/298.257223563     # WGS84 flattening parameter
-    if (missing(lat)) stop("must provide lat")
-    if (missing(lon)) stop("must provide lat")
-    if (missing(lat.ref)) stop("must provide lat.ref")
-    if (missing(lon.ref)) stop("must provide lon.ref")
-    if (!is.finite(lat.ref)) stop("lat.ref must be finite")
-    if (!is.finite(lon.ref)) stop("lat.ref must be finite")
+    if (missing(lat))
+        stop("must provide lat")
+    if (missing(lon))
+        stop("must provide lat")
+    if (missing(lat.ref))
+        stop("must provide lat.ref")
+    if (missing(lon.ref))
+        stop("must provide lon.ref")
+    if (!is.finite(lat.ref))
+        stop("lat.ref must be finite")
+    if (!is.finite(lon.ref))
+        stop("lat.ref must be finite")
     n <- length(lat)
-    if (length(lon) != n) stop("lat and lon must be vectors of the same length")
+    if (length(lon) != n)
+        stop("lat and lon must be vectors of the same length")
     x <- y <- vector("numeric", n)
     xy  <- .C("geod_xy",
               as.integer(n),
@@ -476,9 +585,11 @@ geod.dist <- function (lat1, lon1=NULL, lat2=NULL, lon2=NULL)
         }
     } else {
         n1 <- length(lat1)
-        if (length(lon1) != n1)	stop("lat1 and lon1 must be vectors of the same length")
+        if (length(lon1) != n1)
+            stop("lat1 and lon1 must be vectors of the same length")
         n2 <- length(lat2)
-        if (length(lon2) != n2)	stop("lat2 and lon2 must be vectors of the same length")
+        if (length(lon2) != n2)
+            stop("lat2 and lon2 must be vectors of the same length")
         if (n2 < n1) { # take only first one
             if (n2 != 1) warning("Using just the first element of lat2 and lon2, even though it contains more elements")
             llat2 <- rep(lat2[1], n1)
@@ -516,8 +627,10 @@ interp.barnes <- function(x, y, z, w=NULL, xg=NULL, yg=NULL,
                           xr=NULL, yr=NULL, gamma=0.5, iterations=2)
 {
     n <- length(x)
-    if (length(y) != n) stop("lengths of x and y disagree; they are ", n, " and ", length(y))
-    if (length(z) != n) stop("lengths of x and z disagree; they are ", n, " and ", length(z))
+    if (length(y) != n)
+        stop("lengths of x and y disagree; they are ", n, " and ", length(y))
+    if (length(z) != n)
+        stop("lengths of x and z disagree; they are ", n, " and ", length(z))
     if (is.null(w)) {
         w <- rep(1.0, length(x))
         cat("interp.barnes assuming equal weights on all data\n")
@@ -561,15 +674,18 @@ interp.barnes <- function(x, y, z, w=NULL, xg=NULL, yg=NULL,
 
 coriolis <- function(lat, degrees=TRUE)
 {
+    ## Siderial day 86164.1 s.
     if (degrees) lat <- lat * 0.0174532925199433
-    1.4544410433286078e-4 * sin(lat)
+    1.458423010785138e-4 * sin(lat)
 }
 
 undrift.time <- function(x, slow.end = 0, tname="time")
 {
-    if (!inherits(x, "oce")) stop("method is only for oce objects")
+    if (!inherits(x, "oce"))
+        stop("method is only for oce objects")
     names <- names(x$data)
-    if (!(tname %in% names)) stop("no column named '", tname, "'; only found: ", paste(names, collapse=" "))
+    if (!(tname %in% names))
+        stop("no column named '", tname, "'; only found: ", paste(names, collapse=" "))
     rval <- x
     time <- rval$data[[tname]]
     nt <- length(time)
@@ -652,18 +768,23 @@ oce.colors.gebco <- function(n=9, region=c("water", "land", "both"), type=c("fil
 
 header <- function(x)
 {
-    if (!inherits(x, "oce")) stop("method is only for oce objects")
+    if (!inherits(x, "oce"))
+        stop("method is only for oce objects")
     return(x$metadata$header)
 }
 
 add.column <- function (x, data, name)
 {
-    if (!inherits(x, "oce")) stop("method is only for oce objects")
-    if (missing(data)) stop("must supply data")
-    if (missing(name)) stop("must supply name")
+    if (!inherits(x, "oce"))
+        stop("method is only for oce objects")
+    if (missing(data))
+        stop("must supply data")
+    if (missing(name))
+        stop("must supply name")
     n <- dim(x$data)[1]
     nd <- length(data)
-    if (nd != n) stop("data length is ", nd, " but it must be ", n, " to match existing data")
+    if (nd != n)
+        stop("data length is ", nd, " but it must be ", n, " to match existing data")
     rval <- x
     rval$data <- data.frame(x$data, data)
     names(rval$data) <- c(names(x$data), name)
@@ -674,8 +795,9 @@ add.column <- function (x, data, name)
 
 decimate <- function(x, by=10, to, filter, debug=getOption("oce.debug"))
 {
+    if (!inherits(x, "oce"))
+        stop("method is only for oce objects")
     oce.debug(debug, "in decimate(x,by=", by, ",to=", if (missing(to)) "unspecified" else to, "...)\n")
-    if (!inherits(x, "oce")) stop("method is only for oce objects")
     res <- x
     do.filter <- !missing(filter)
     if (missing(to))
@@ -750,11 +872,13 @@ decimate <- function(x, by=10, to, filter, debug=getOption("oce.debug"))
             }
         }
     } else if (inherits(x, "ctd")) {
-        if (do.filter) stop("cannot (yet) filter ctd data during decimation") # FIXME
+        if (do.filter)
+            stop("cannot (yet) filter ctd data during decimation") # FIXME
         select <- seq(1, dim(x$data)[1], by=by)
         res$data <- x$data[select,]
     } else if (inherits(x, "pt")) {
-        if (do.filter) stop("cannot (yet) filter pt data during decimation") # FIXME
+        if (do.filter)
+            stop("cannot (yet) filter pt data during decimation") # FIXME
         for (name in names(res$data$ts))
             res$data[[name]] <- x$data[[name]][select]
     } else {
@@ -769,7 +893,8 @@ decimate <- function(x, by=10, to, filter, debug=getOption("oce.debug"))
 
 oce.smooth <- function(x, ...)
 {
-    if (!inherits(x, "oce")) stop("method is only for oce objects")
+    if (!inherits(x, "oce"))
+        stop("method is only for oce objects")
     res <- x
     if (inherits(x, "adp")) {
         stop("cannot handle ADP objects (request this from the author)")
@@ -873,18 +998,13 @@ byte2binary <- function(x, endian=c("little", "big"))
     rval
 }
 
-matlab2POSIXt <- function(t, tz="UTC")
-{
-    ## R won't take a day "0", so subtract one
-    ISOdatetime(0000,01,01,0,0,0,tz=tz) + 86400 * (t - 1)
-}
-
 formatci <- function(ci, style=c("+/-", "parentheses"), model, digits=NULL)
 {
     formatci.one <- function(ci, style, digits=NULL)
     {
         debug <- FALSE
-        if (missing(ci)) stop("must supply ci")
+        if (missing(ci))
+            stop("must supply ci")
         ci <- as.numeric(ci)
         if (length(ci) == 3) {
             x <- ci[2]
@@ -941,7 +1061,8 @@ formatci <- function(ci, style=c("+/-", "parentheses"), model, digits=NULL)
         }
         rval
     } else {
-        if (missing(ci)) stop("must give either ci or model")
+        if (missing(ci))
+            stop("must give either ci or model")
         formatci.one(ci=ci, style=style, digits=digits)
     }
 }
@@ -1005,14 +1126,17 @@ apply.magnetic.declination <- function(x, declination=0, debug=getOption("oce.de
 
 magnetic.declination <- function(lat, lon, date)
 {
-    if (missing(lat) || missing(lon) || missing(date)) stop("must provide lat, lon, and date")
+    if (missing(lat) || missing(lon) || missing(date))
+        stop("must provide lat, lon, and date")
     dim <- dim(lat)
-    if (!all(dim == dim(lon))) stop("dimensions of lat and lon must agree")
+    if (!all(dim == dim(lon)))
+        stop("dimensions of lat and lon must agree")
     n <- length(lat)
     if (length(date) == 1) {
         date <- rep(date, n)
     } else {
-        if (!all(dim == dim(date))) stop("dimensions of lat and date must agree")
+        if (!all(dim == dim(date)))
+            stop("dimensions of lat and date must agree")
     }
     if (!is.null(dim)) {
         dim(lat) <- n
@@ -1065,7 +1189,8 @@ ctime.to.seconds <- function(ctime)
 
 show.fives <- function(x, indent="    ")
 {
-    if (!("fives" %in% names(x))) stop("'x' has no item named 'fives'")
+    if (!("fives" %in% names(x)))
+        stop("'x' has no item named 'fives'")
     rownames <- rownames(x$fives)
     colnames <- colnames(x$fives)
     data.width <- max(nchar(colnames)) + 5
@@ -1089,8 +1214,115 @@ show.fives <- function(x, indent="    ")
 
 oce.debug <- function(debug=0, ...)
 {
-    debug <- if (debug > 4) 4 else floor(debug + 0.5)
+    debug <- if (debug > 4) 4 else max(0, floor(debug + 0.5))
     if (debug > 0) {
-        cat(paste(rep("  ", 5 - debug), collapse=""), ...)
+        ##cat(paste(rep("  ", 5 - debug), collapse=""), ...)
+        cat(paste(rep("  ", debug), collapse=""), ...)
     }
+    flush.console()
 }
+
+drawpalette <- function(zlim,
+                        zlab="",
+                        breaks, col,
+                        draw.contours=TRUE,
+                        debug=getOption("oce.debug"),
+                        ...)
+{
+    debug <- min(5, max(debug, 0))
+    gave.zlim <- !missing(zlim)
+    gave.breaks <- !missing(breaks)
+    if (gave.zlim)
+        oce.debug(debug, "\b\bpalette(zlim=c(", zlim[1], ",", zlim[2], "), zlab=", "\"", zlab, "\", ...) {\n", sep="")
+    else
+        oce.debug(debug, "palette() with no arguments: set space to right of a graph\n")
+    oce.debug(debug, if (gave.breaks) "gave breaks\n" else "did not give breaks\n")
+    omai <- par("mai")
+    omar <- par("mar")
+    device.width <- par("din")[1]
+    oce.debug(debug, "device.width = ", device.width, " inches\n")
+    line.height <- 1.5*par("cin")[2]        # inches (not sure on this ... this is character height)
+    tic.length <- abs(par("tcl")) * line.height # inches (not sure on this)
+
+    ## widths of items [in inches]
+    widths <- list(mar.lhs=omai[2],    # width of LHS margin
+                   main=NA,            # main image width
+                   palette.separation=1/8, # between main & palette
+                   palette.width=1/4,  # palette width
+                   mar.rhs=tic.length + line.height * if(nchar(zlab)==0) 1.0 else 1.5) # width of RHS margin
+    ## next line ensures that things add up... but see FIXME below
+    widths$main <- device.width - widths$mar.lhs - widths$palette.separation - widths$palette.width - widths$mar.rhs
+    if (debug > 0) {
+        for (n in names(widths)) {
+            oce.debug(debug, " width$", n, " = ", widths[[n]], "\n", sep="")
+        }
+    }
+    contours <- NULL
+    if (gave.zlim) {
+        if (gave.breaks) {
+            breaks.orig <- breaks
+        } else {
+            zrange <- zlim
+            if (missing(col)) {
+                breaks <- pretty(zlim)
+                contours <- breaks
+            } else {
+                if (is.function(col)) {
+                    breaks <- seq(zlim[1], zlim[2], length.out=256) # smooth image colorscale
+                    contours <- pretty(zlim)
+                } else {
+                    breaks <- seq(zlim[1], zlim[2], length.out=1+length(col))
+                    contours <- seq(zlim[1], zlim[2], length.out=1+length(col))
+                }
+            }
+            breaks.orig <- breaks
+            breaks[1] <- zrange[1]
+            breaks[length(breaks)] <- zrange[2]
+        }
+        if (missing(col))
+            col <- oce.colors.palette(n=length(breaks)-1)
+        if (is.function(col))
+            col <- col(n=length(breaks)-1)
+    }
+    the.mai <- c(omai[1],
+                 widths$main + widths$mar.lhs + widths$palette.separation,
+                 omai[3],
+                 widths$mar.rhs)
+    oce.debug(debug, "setting  par(mai)=", format(the.mai, digits=2), " (before clipping)\n")
+    the.mai <- ifelse(the.mai < 0.1, 0.1, the.mai)
+    oce.debug(debug, "setting  par(mai)=", format(the.mai, digits=2), " (after clipping)\n")
+    if (gave.zlim) {
+        par(mai=the.mai)
+        if (!gave.breaks) {
+            palette <- seq(zlim[1], zlim[2], length.out=300)
+            image(x=1, y=palette, z=matrix(palette, nrow=1), axes=FALSE, xlab="", ylab="", col=col,
+                  zlim=zlim)
+        } else {
+            palette <- seq(zlim[1], zlim[2], length.out=300)
+            image(x=1, y=palette, z=matrix(palette, nrow=1), axes=FALSE, xlab="", ylab="",
+                  breaks=breaks.orig,
+                  col=col,
+                  zlim=zlim)
+        }
+        if (draw.contours)
+            abline(h=contours)
+        box()
+        if (debug > 0)
+            print(palette)
+        axis(side=4, at=if (is.null(contours)) contours else pretty(palette))
+        if (nchar(zlab) > 0)
+            mtext(zlab, side=4, line=2.0, cex=par('cex'))
+    }
+    the.mai <- c(omai[1],
+                 widths$mar.lhs,
+                 omai[3],
+                 widths$palette.separation + widths$palette.width + widths$mar.rhs)
+    the.mai <- ifelse(the.mai < 0.1, 0.1, the.mai)
+    oce.debug(debug, "original par(mai)=", format(omai, digits=2), "\n")
+    oce.debug(debug, "setting  par(mai)=", format(the.mai, digits=2), "\n")
+    oce.debug(debug, "\b\b} # palette()\n")
+    if (gave.zlim)
+        par(new=TRUE, mai=the.mai)
+    invisible()
+}
+

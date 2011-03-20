@@ -13,10 +13,10 @@ read.adv <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
                         latitude=latitude, longitude=longitude,
                         debug=debug, monitor=monitor, log.action=log.action)
     else if (type == "sontek") # guess
-        read.adv.sontek.realtime(file=file, from=from, to=to, by=by, tz=tz,
-                                 latitude=latitude, longitude=longitude,
-                                 start=start, deltat=deltat,
-                                 debug=debug, monitor=monitor, log.action=log.action)
+        read.adv.sontek.serial(file=file, from=from, to=to, by=by, tz=tz,
+                               latitude=latitude, longitude=longitude,
+                               start=start, deltat=deltat,
+                               debug=debug, monitor=monitor, log.action=log.action)
     else if (type == "sontek.adr")
         read.adv.sontek.adr(file=file, from=from, to=to, by=by, tz=tz,
                             latitude=latitude, longitude=longitude,
@@ -44,9 +44,12 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
     oce.debug(debug, "\b\bread.adv.nortek(file=\"", file, "\", type=\"", type, "\", from=", format(from), ", to=", format(to), ", by=", by, ", tz=\"", tz, "\", type=\"", type, "\", header=", header, ", debug=", debug, ", monitor=", monitor, ", log.action=(not shown)) {\n", sep="")
     if (is.numeric(by) && by < 1)
         stop("cannot handle negative 'by' values")
-    if (is.numeric(by)   && by   < 1) stop("argument \"by\" must be 1 or larger")
-    if (is.numeric(from) && from < 1) stop("argument \"from\" must be 1 or larger")
-    if (!missing(to) && is.numeric(to)   && to   < 1) stop("argument \"to\" must be 1 or larger")
+    if (is.numeric(by)   && by   < 1)
+        stop("argument \"by\" must be 1 or larger")
+    if (is.numeric(from) && from < 1)
+        stop("argument \"from\" must be 1 or larger")
+    if (!missing(to) && is.numeric(to)   && to   < 1)
+        stop("argument \"to\" must be 1 or larger")
 
     if (is.character(file)) {
         filename <- full.filename(file)
@@ -61,10 +64,11 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
         on.exit(close(file))
     }
     type <- match.arg(type)
-    if (!header) stop("header must be TRUE")
+    if (!header)
+        stop("header must be TRUE")
     oce.debug(debug, "  read.adv.nortek() about to read header\n")
     oce.debug(debug, "  read.adv.nortek() finished reading header\n")
-    # find file length
+                                        # find file length
     seek(file, 0, "end")
     file.size <- seek(file, 0, "start")
     oce.debug(debug, "  file.size=", file.size, "\n")
@@ -200,7 +204,8 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
 
     ## Window data buffer, using bisection in case of a variable number of vd between sd pairs.
     if (inherits(from, "POSIXt")) {
-        if (!inherits(to, "POSIXt")) stop("if 'from' is POSIXt, then 'to' must be, also")
+        if (!inherits(to, "POSIXt"))
+            stop("if 'from' is POSIXt, then 'to' must be, also")
         from.pair <- bisect.nortek.vector.sd(from, -1, debug-1)
         from <- from.index <- from.pair$index
         to.pair <- bisect.nortek.vector.sd(to, 1, debug-1)
@@ -236,7 +241,8 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
     } else {
         ## Window data buffer, using bisection in case of a variable number of vd between sd pairs.
         if (inherits(from, "POSIXt")) {
-            if (!inherits(to, "POSIXt")) stop("if 'from' is POSIXt, then 'to' must be, also")
+            if (!inherits(to, "POSIXt"))
+                stop("if 'from' is POSIXt, then 'to' must be, also")
             from.pair <- bisect.nortek.vector.sd(from, -1, debug-1)
             from <- from.index <- from.pair$index
             to.pair <- bisect.nortek.vector.sd(to, 1, debug-1)
@@ -275,7 +281,8 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
             oce.debug(debug, 'numeric values for args from=',from,'to=',to,'by=', by, '\n')
             from.index <- from
             to.index <- to
-            if (to.index < 1 + from.index) stop("need more separation between from and to")
+            if (to.index < 1 + from.index)
+                stop("need more separation between from and to")
             oce.debug(debug, "from.index=", from.index, "to.index=", to.index, "\n")
             oce.debug(debug, vector.show(vvd.start, "before subset, vvd.start is"))
             vvd.start <- vvd.start[from.index:to.index]
@@ -342,7 +349,7 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
     ## byte 22 is an error code
     ## byte 23 is status, with bit 0 being orientation (p36 of Nortek's System Integrator Guide)
     status <- buf[vsd.start[floor(0.5*length(vsd.start))] + 23]
-    metadata$orientation <- if ("0" == substr(byte2binary(status, endian="big"), 1, 1)) "upwards" else "downwards"
+    metadata$orientation <- if ("0" == substr(byte2binary(status, endian="big"), 1, 1)) "upward" else "downward"
     ##
     metadata$burst.length <- round(length(vvd.start) / length(vsd.start), 0) # FIXME: surely this is in the header (?!?)
     oce.debug(debug, vector.show(metadata$burst.length, "burst.length"))
@@ -416,8 +423,8 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
     ##print(attributes(time)) # is time out somehow?
     ##print(time[1])
     data <- list(ts=list(time=time,
-                 ##heading=heading, pitch=pitch, roll=roll, temperature=temperature,
-                 pressure=pressure),
+                         ##heading=heading, pitch=pitch, roll=roll, temperature=temperature,
+                         pressure=pressure),
                  ts.slow=list(time=vsd.t, heading=heading, pitch=pitch, roll=roll, temperature=temperature),
                  ##ss=list(distance=0),   # FIXME: why even have this?
                  ma=list(v=v, a=a, c=c))
@@ -427,14 +434,22 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
     res
 }
 
-read.adv.sontek.realtime <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
-                                     type="default",
-                                     latitude=NA, longitude=NA,
-                                     start, deltat,
-                                     debug=getOption("oce.debug"), monitor=TRUE, log.action)
+read.adv.sontek.serial <- function(file, from=1, to, by=1, tz=getOption("oce.tz"),
+                                   type="default",
+                                   latitude=NA, longitude=NA,
+                                   start, deltat,
+                                   debug=getOption("oce.debug"), monitor=TRUE, log.action)
 {
-    oce.debug(debug, paste("\b\bread.adv.sontek(file[1]=\"", file[1], "\", from=", from, if (!missing(to)) sprintf(", to=%s, ", format(to)), ", by=", by, ", type=\"", type, "\", header=", header, if (!missing(start)) sprintf(", start[1]=%s, ", start[1]), if (!missing(deltat)) sprintf(", deltat=%f, ", deltat), "debug=", debug, ", monitor=", monitor, ", log.action=(not shown)) {\n", sep=""))
-
+    oce.debug(debug, paste("\b\bread.adv.sontek.serial(file[1]=\"", file[1],
+                           "\", from=", format(from),
+                           if (!missing(to)) sprintf(", to=%s, ", format(to)),
+                           ", by=", by,
+                           ", type=\"", type,
+                           if (!missing(start)) sprintf(", start[1]=%s, ", format(start[1])),
+                           if (!missing(deltat)) sprintf(", deltat=%f, ", deltat),
+                           "debug=", debug,
+                           ", monitor=", monitor,
+                           ", log.action=(not shown)) {\n", sep=""))
     if (missing(start))
         stop("must supply start, a POSIXct time (or suitable string for the time, in UTC) at which the first observation was made")
     if (is.numeric(start))
@@ -493,47 +508,64 @@ read.adv.sontek.realtime <- function(file, from=1, to, by=1, tz=getOption("oce.t
     serial.number <- readBin(buf[pp+2], "integer", size=2, n=len, signed=FALSE, endian="little")
     serial.number <- .Call("unwrap_sequence_numbers", serial.number, 2)
     velocity.scale <- 0.1e-3
-    u1 <- readBin(buf[pp+4], "integer", size=2, n=len, signed=TRUE, endian="little")
-    u2 <- readBin(buf[pp+6], "integer", size=2, n=len, signed=TRUE, endian="little")
-    u3 <- readBin(buf[pp+8], "integer", size=2, n=len, signed=TRUE, endian="little")
-    v <- cbind(u1, u2, u3) * velocity.scale
-    rm(u1, u2, u3)
-    a1 <- readBin(buf[p+10], "integer", size=1, n=len, signed=FALSE, endian="little")
-    a2 <- readBin(buf[p+11], "integer", size=1, n=len, signed=FALSE, endian="little")
-    a3 <- readBin(buf[p+12], "integer", size=1, n=len, signed=FALSE, endian="little")
-    a <- cbind(a1, a2, a3)
-    rm(a1, a2, a3)
-    c1 <- readBin(buf[p+13], "integer", size=1, n=len, signed=FALSE, endian="little")
-    c2 <- readBin(buf[p+14], "integer", size=1, n=len, signed=FALSE, endian="little")
-    c3 <- readBin(buf[p+15], "integer", size=1, n=len, signed=FALSE, endian="little")
-    c <- cbind(c1, c2, c3)
-    rm(c1, c2, c3)
+    v <- array(numeric(), dim=c(len, 3))
+    v[,1] <- readBin(buf[pp+4], "integer", size=2, n=len, signed=TRUE, endian="little") * velocity.scale
+    v[,2] <- readBin(buf[pp+6], "integer", size=2, n=len, signed=TRUE, endian="little") * velocity.scale
+    v[,3] <- readBin(buf[pp+8], "integer", size=2, n=len, signed=TRUE, endian="little") * velocity.scale
+    a <- array(raw(), dim=c(len, 3))
+    a[,1] <- as.raw(readBin(buf[p+10], "integer", size=1, n=len, signed=FALSE, endian="little"))
+    a[,2] <- as.raw(readBin(buf[p+11], "integer", size=1, n=len, signed=FALSE, endian="little"))
+    a[,3] <- as.raw(readBin(buf[p+12], "integer", size=1, n=len, signed=FALSE, endian="little"))
+    c <- array(raw(), dim=c(len, 3))
+    c[,1] <- as.raw(readBin(buf[p+13], "integer", size=1, n=len, signed=FALSE, endian="little"))
+    c[,2] <- as.raw(readBin(buf[p+14], "integer", size=1, n=len, signed=FALSE, endian="little"))
+    c[,3] <- as.raw(readBin(buf[p+15], "integer", size=1, n=len, signed=FALSE, endian="little"))
     temperature <- 0.01 * readBin(buf[pp+16], "integer", size=2, n=len, signed=TRUE, endian="little")
     pressure <- readBin(buf[pp+18], "integer", size=2, n=len, signed=FALSE, endian="little") # may be 0 for all
 
-    ## set up a dummy transformation matrix (which is correct for one particular sontek unit)
-    transformation.matrix <- rbind(c(11033,-8503,-5238),
-                                   c(347,-32767,9338),
-                                   c(-1418, -1476, -1333)) / 4096
+    ## FIXME: Sontek ADV transformation matrix equal for all units?  (Nortek Vector is not.)
+    ## below for sontek serial number B373H
+    ## Transformation Matrix ----->    2.710   -1.409   -1.299
+    ##                       ----->    0.071    2.372   -2.442
+    ##                       ----->    0.344    0.344    0.344
+    ## > rbind(c(2.710,-1.409,-1.299),c(0.071,2.372,-2.442),c(0.344,0.344,0.344)) * 4096
+    ##          [,1]      [,2]       [,3]
+    ## [1,] 11100.160 -5771.264  -5320.704
+    ## [2,]   290.816  9715.712 -10002.432
+    ## [3,]  1409.024  1409.024   1409.024
+    ##transformation.matrix <- rbind(c(11100, -5771,  -5321),
+    ##                               c(  291,  9716, -10002),
+    ##                               c( 1409,  1409,   1409)) / 4096
+    transformation.matrix <- NULL
+    time <- start[1] + (serial.number - serial.number[1]) * deltat
+    deltat <- mean(diff(as.numeric(time)))
     metadata <- list(manufacturer="sontek",
                      instrument.type="adv",
                      serial.number="?",
                      filename=filename,
-                     latitude=latitude, longitude=longitude,
+                     latitude=latitude,
+                     longitude=longitude,
                      transformation.matrix=transformation.matrix,
-                     measurement.start=0, measurement.end=len, measurement.deltat=1,
-                     subsample.start=0, subsample.end=len, subsample.deltat=1,
+                     measurement.start=time[1],
+                     measurement.end=time[length(time)],
+                     measurement.deltat=deltat,
+                     subsample.start=time[1],
+                     subsample.end=mean(diff(as.numeric(time))),
+                     subsample.deltat=deltat,
                      coordinate.system="xyz", # guess
                      oce.coordinate="xyz",    # guess
-                     orientation="up")        # guess
-    time <- start[1] + (serial.number - serial.number[1]) * deltat
+                     orientation="upward") # guess
 
+    nt <- length(time)
     data <- list(ts=list(time=time,
-                 heading=0, pitch=0, roll=0, # this will have to be filled in later by the user
-                 temperature=temperature,
-                 pressure=pressure),
+                         heading=rep(0, nt), # user will need to fill this in
+                         pitch=rep(0, nt), #  user will need to fill this in
+                         roll=rep(0, nt),  # user will need to fill this in
+                         temperature=temperature,
+                         pressure=pressure),
                  ##ss=list(distance=0),
                  ma=list(v=v,a=a,c=c))
+    warning("sontek adv in serial format lacks heading, pitch and roll: user must fill in")
     if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
     log.item <- processing.log.item(log.action)
     res <- list(data=data, metadata=metadata, processing.log=log.item)
@@ -782,7 +814,7 @@ read.adv.sontek.adr <- function(file, from=1, to, by=1, tz=getOption("oce.tz"), 
 
     ## Use 3-byte flag to find bursts in buf.  Then find their times, and # samples in each.
     ## Note: checking not just on the 2 "official" bytes, but also on third (3c=60=number of bytes in header)
-    burst.bufindex <- match.bytes(buf, 0xA5, 0x11, 0x3c)
+    burst.bufindex <- matchBytes(buf, 0xA5, 0x11, 0x3c)
 
     oce.debug(debug, "burst.bufindex[1:10]=", paste(burst.bufindex[1:10], collapse=" "), "\n")
 
@@ -977,11 +1009,11 @@ read.adv.sontek.adr <- function(file, from=1, to, by=1, tz=getOption("oce.tz"), 
     heading <- heading[iii]
     roll <- roll[iii]
     data <- list(ts=list(time=time,
-                 heading=heading,
-                 pitch=pitch,
-                 roll=roll,
-                 temperature=temperature,
-                 pressure=pressure),
+                         heading=heading,
+                         pitch=pitch,
+                         roll=roll,
+                         temperature=temperature,
+                         pressure=pressure),
                  ##ss=list(distance=0),
                  ma=list(v=v, a=a, c=c))
     if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
@@ -999,10 +1031,12 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
     ## FIXME: It would be better to deal with the binary file, but the format is unclear to me;
     ## FIXME: two files are available to me, and they differ considerably, neither matching the
     ## FIXME: SonTek documentation.
-    if (by != 1) stop("must have \"by\"=1, in this version of the package")
+    if (by != 1)
+        stop("must have \"by\"=1, in this version of the package")
     suffices <- c("hd1", "ts1")
     items.per.sample <- 16
-    if (missing(basefile)) stop("need to supply a basefile, e.g. \"A\" to read \"A.hd1\" and \"A.ts1\"")
+    if (missing(basefile))
+        stop("need to supply a basefile, e.g. \"A\" to read \"A.hd1\" and \"A.ts1\"")
 
     hd <- paste(basefile, suffices[1], sep=".")
     ts <- paste(basefile, suffices[2], sep=".")
@@ -1014,7 +1048,8 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
     t <- ISOdatetime(year=hdt[,2], month=hdt[,3], day=hdt[,4], hour=hdt[,5], min=hdt[,6], sec=hdt[,7], tz=tz)
     if (inherits(from, "POSIXt")) {
         ignore <- t < from
-        if (sum(ignore) == 0) stop("no data in this time interval, starting at time ", from, "\n")
+        if (sum(ignore) == 0)
+            stop("no data in this time interval, starting at time ", from, "\n")
         from.burst <- which(ignore == FALSE)[1]
         oce.debug(debug, "\"from\" is burst number", from.burst, "at", format(t[from.burst]), "\n")
     } else {
@@ -1025,7 +1060,8 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
     } else {
         if (inherits(from, "POSIXt")) {
             ignore <- t < to
-            if (sum(ignore) == 0) stop("no data in this time interval, starting at time ", to, "\n")
+            if (sum(ignore) == 0)
+                stop("no data in this time interval, starting at time ", to, "\n")
             to.burst <- which(ignore == FALSE)[1] + 1 # add 1 since we'll chop later
             to.burst <- min(to.burst, length(t))
             oce.debug(debug, "\"to\" is burst number", to.burst, "at", format(t[to.burst]), "\n")
@@ -1052,7 +1088,8 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
     look <- min(5000, bytes.in.file)
     b <- readBin(ts.file, "raw", n=look)
     newlines <- which(b == 0x0a)
-    if (0 != diff(range(fivenum(diff(newlines))))) stop("need equal line lengths in ", ts)
+    if (0 != diff(range(fivenum(diff(newlines)))))
+        stop("need equal line lengths in ", ts)
     ## Line length
     bytes.in.sample <- diff(newlines)[1]
     oce.debug(debug, "line length in \".", suffices[2], "\" file: ", bytes.in.sample, " bytes\n")
@@ -1061,7 +1098,8 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
     d <- scan(ts.file, what="character", nlines=1, quiet=TRUE)
     oce.debug(debug, "first line in \".", suffices[2], "\" file: ", paste(d, collapse=" "), "\n")
     items.per.line <- length(d)
-    if (items.per.sample != length(d)) stop("file \".", suffices[2], "\" should have ", items.per.sample, " elemetns per line, but it has ", length(d))
+    if (items.per.sample != length(d))
+        stop("file \".", suffices[2], "\" should have ", items.per.sample, " elemetns per line, but it has ", length(d))
     oce.debug(debug, "elements per line in \".", suffices[2], "\" file: ", length(d), "\n")
     lines.in.file <- bytes.in.file / bytes.in.sample
     oce.debug(debug, "lines in \".", suffices[2], "\" file: ", lines.in.file, "\n")
@@ -1074,7 +1112,7 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
     oce.debug(debug, "seek from:", from.byte, "\n", "seek to:", to.byte, "\n")
     seek(ts.file, where=from.byte, origin="start")
     ts <- matrix(scan(ts.file, n=items.per.sample*(to.burst - from.burst + 1)*samples.per.burst, quiet=TRUE),
-                      ncol=items.per.sample, byrow=TRUE)
+                 ncol=items.per.sample, byrow=TRUE)
     len <- dim(ts)[1]
     v <- array(numeric(), dim=c(len, 3))
     v[,1] <- ts[,3] / 100
@@ -1095,11 +1133,11 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
     ## trim to the requested interval
     ok <- (from - 1/2) <= tt & tt <= (to + 1/2) # give 1/2 second extra
     data <- list(ts=list(time=tt[ok],
-                 heading=approx(t, heading, xout=tt, rule=2)$y[ok],
-                 pitch=approx(t, pitch, xout=tt, rule=2)$y[ok],
-                 roll=approx(t, roll, xout=tt, rule=2)$y[ok],
-                 temperature=temperature,
-                 pressure=pressure),
+                         heading=approx(t, heading, xout=tt, rule=2)$y[ok],
+                         pitch=approx(t, pitch, xout=tt, rule=2)$y[ok],
+                         roll=approx(t, roll, xout=tt, rule=2)$y[ok],
+                         temperature=temperature,
+                         pressure=pressure),
                  ##ss=list(distance=0),
                  ma=list(v=v[ok,],a=a[ok,],c=c[ok,]))
     metadata <- list(manufacturer="sontek",
@@ -1126,7 +1164,8 @@ read.adv.sontek.text <- function(basefile, from=1, to, by=1, tz=getOption("oce.t
 
 summary.adv <- function(object, ...)
 {
-    if (!inherits(object, "adv")) stop("method is only for adv objects")
+    if (!inherits(object, "adv"))
+        stop("method is only for adv objects")
     ts.names <- names(object$data$ts)
     nrow <- length(ts.names) - 1          # the -1 is for 'time'
     have.ts.slow <- "ts.slow" %in% names(object$data)
@@ -1254,38 +1293,66 @@ print.summary.adv <- function(x, digits=max(5, getOption("digits") - 1), ...)
     invisible(x)
 }
 
-plot.adv <- function(x,
-                     which=c(1:3,14,15),
+plot.adv <- function(x, which=c(1:3,14,15),
+                     col,
                      titles,
                      type="l",
+                     lwd=par('lwd'),
                      adorn=NULL,
                      draw.time.range=getOption("oce.draw.time.range"),
                      draw.zero.line=FALSE,
+                     use.smoothScatter,
                      mgp=getOption("oce.mgp"),
                      mar=c(mgp[1]+1.5,mgp[1]+1.5,1.5,1.5),
                      margins.as.image=FALSE,
                      cex=par("cex"), cex.axis=par("cex.axis"), cex.main=par("cex.main"),
                      xlim, ylim,
                      brush.correlation, col.brush="red",
+                     main="",
                      debug=getOption("oce.debug"),
                      ...)
 {
-    debug <- round(debug)
-    if (debug < 0) debug <- 0
-    if (debug > 4) debug <- 4
+    debug <- min(4, max(0, round(debug)))
     oce.debug(debug, "\bplot.adv(x, which=c(", paste(which,collapse=","),"), type=\"", type, "\", ...) {\n", sep="")
     have.brush.correlation <- !missing(brush.correlation)
     oce.debug(debug, "brush.correlation", if (have.brush.correlation) brush.correlation else "not given", "\n")
     oce.debug(debug, "cex=",cex," cex.axis=", cex.axis, " cex.main=", cex.main, "\n")
     oce.debug(debug, "mar=c(",paste(mar, collapse=","), ")\n")
-    if (!inherits(x, "adv")) stop("method is only for adv objects")
-    dots <- names(list(...))
-    #if (!all(which %in% c(1:3,5:7,9:11,14:21,23))) stop("\"which\" must be in the range c(1:3,5:7,9:11,14:21,23) but it is ", which)
+    if (!inherits(x, "adv"))
+        stop("method is only for adv objects")
     opar <- par(no.readonly = TRUE)
-    lw <- length(which)
-
-    if (!missing(titles) && length(titles) != lw) stop("length of 'titles' must equal length of 'which'")
-    if (lw > 1)
+    dots <- names(list(...))
+    ##if (!all(which %in% c(1:3,5:7,9:11,14:21,23)))
+    ##   stop("\"which\" must be in the range c(1:3,5:7,9:11,14:21,23) but it is ", which)
+    nw <- length(which)
+    if (nw == 1) {
+        pm <- pmatch(which, c("velocity","amplitude","quality","hydrography", "angles"))
+        if (!is.na(pm)) {
+            nbeams <- 3
+            if (pm == 1)
+                which <- 0 + seq(1, nbeams)
+            else if (pm == 2)
+                which <- 4 + seq(1, nbeams)
+            else if (pm == 3)
+                which <- 8 + seq(1, nbeams)
+            else if (pm == 4)
+                which <- 14:15
+            else if (pm == 5)
+                which <- 16:18
+            nw <- length(which)
+        }
+    }
+    col.per.point <- FALSE
+    if (missing(col)) {
+        col <- rep("black", length.out=nw)
+    } else {
+        col.per.point <- length(col) == length(x$data$ts.slow$time)
+        if (!col.per.point)
+            col <- rep(col, length.out=nw)
+    }
+    if (!missing(titles) && length(titles) != nw)
+        stop("length of 'titles' must equal length of 'which'")
+    if (nw > 1)
         on.exit(par(opar))
     par(mgp=mgp, mar=mar)
     dots <- list(...)
@@ -1294,11 +1361,11 @@ plot.adv <- function(x,
     gave.ylim <- !missing(ylim)
     if (gave.ylim) {
         if (is.matrix(ylim)) {
-            if (dim(ylim)[2] != lw) {
-                ylim2 <- matrix(ylim, ncol=2, nrow=lw) # FIXME: is this what I want?
+            if (dim(ylim)[2] != nw) {
+                ylim2 <- matrix(ylim, ncol=2, nrow=nw) # FIXME: is this what I want?
             }
         } else {
-            ylim2 <- matrix(ylim, ncol=2, nrow=lw) # FIXME: is this what I want?
+            ylim2 <- matrix(ylim, ncol=2, nrow=nw) # FIXME: is this what I want?
         }
         class(ylim2) <- class(ylim)
         ylim <- ylim2
@@ -1306,35 +1373,47 @@ plot.adv <- function(x,
     gave.xlim <- !missing(xlim)
     if (gave.xlim) {
         if (is.matrix(xlim)) {
-            if (dim(xlim)[2] != lw) {
-                xlim2 <- matrix(xlim, ncol=2, nrow=lw) # FIXME: is this what I want?
+            if (dim(xlim)[2] != nw) {
+                xlim2 <- matrix(xlim, ncol=2, nrow=nw) # FIXME: is this what I want?
             }
         } else {
             if (length(xlim) != 2)
                 stop("xlim must be a vector of length 2, or a 2-column matrix")
-            xlim2 <- matrix(xlim[1:2], ncol=2, nrow=lw, byrow=TRUE)
+            xlim2 <- matrix(xlim[1:2], ncol=2, nrow=nw, byrow=TRUE)
         }
         xlim <- xlim2
     }
     adorn.length <- length(adorn)
     if (adorn.length == 1) {
-        adorn <- rep(adorn, lw)
-        adorn.length <- lw
+        adorn <- rep(adorn, nw)
+        adorn.length <- nw
     }
     oce.debug(debug, "before layout, cex=", par('cex'), "\n")
-    if (lw > 1) {
+    if (nw > 1) {
         if (margins.as.image) {
             w <- 1.5
-            lay <- layout(matrix(1:(2*lw), nrow=lw, byrow=TRUE), widths=rep(c(1, lcm(w)), lw))
+            lay <- layout(matrix(1:(2*nw), nrow=nw, byrow=TRUE), widths=rep(c(1, lcm(w)), nw))
         } else {
-            lay <- layout(cbind(1:lw))
+            lay <- layout(cbind(1:nw))
         }
     }
     ## Translate word-style (FIXME: ugly coding)
-    lw <- length(which)
     oce.debug(debug, "before nickname-substitution, which=c(", paste(which, collapse=","), ")\n")
-    which2 <- vector("numeric", lw)
-    for (w in 1:lw) {
+    which2 <- vector("numeric", nw)
+    if (nw == 1) {
+        if (which == "velocity")
+            which <- 1:3
+        else if (which == "amplitude")
+            which <- 5:7
+        else if (which == "backscatter")
+            which <- 9:11
+        else if (which == "hydrography")
+            which <- 14:15
+        else if (which == "angles")
+            which <- 16:18
+        nw <- length(which)
+    }
+    for (w in 1:nw) {
         ww <- which[w]
         if (is.numeric(ww)) {
             which2[w] <- ww
@@ -1376,7 +1455,9 @@ plot.adv <- function(x,
     tlim <- range(x$data$ts$time, na.rm=TRUE)
     if (have.ts.slow)
         tslim <- range(x$data$ts.slow$time, na.rm=TRUE)
-    for (w in 1:lw) {
+    for (w in 1:nw) {
+        if (w > 1)
+            main <- ""
         oce.debug(debug, "plotting which[", w, "]=", which[w], "\n")
         par(mgp=mgp, mar=mar)
         if (which[w] %in% 1:3) {        # u1, u2, u3
@@ -1392,6 +1473,8 @@ plot.adv <- function(x,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
                             mgp=mgp,
                             mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
                 points(x$data$ts$time[!good], x$data$ma$v[!good,which[w]], col=col.brush)
@@ -1405,6 +1488,8 @@ plot.adv <- function(x,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
                             mgp=mgp,
                             mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             }
@@ -1415,31 +1500,35 @@ plot.adv <- function(x,
             ## FIXME/DRY: alter a1,a2,a3 if alter q1,q2,q3, since both almost the same
             oce.debug(debug, "plotting a1, a2, or a3 since which[w] == ", which[w], "\n")
             y <- as.numeric(x$data$ma$a[,which[w]-4])
-            oce.debug("range(y):", range(y, na.rm=TRUE), "\n")
+            oce.debug(debug, "range(y):", paste(range(y, na.rm=TRUE), sep="-"), "\n")
             if (have.brush.correlation && type == "p") {
                 good <- as.numeric(x$data$ma$c[,which[w]-4]) >= brush.correlation
-                oce.plot.ts(x$data$ts$time[good], y[good], ylab=expression(a[which[w]-4]),
+                oce.plot.ts(x$data$ts$time[good], y[good],
+                            ylab=c(expression(a[1]),expression(a[2]),expression(a[3]),expression(a[4]))[which[w]-4],
                             draw.time.range=draw.time.range,
                             adorn=adorn[w],
                             xlim=if (gave.xlim) xlim[w,] else tlim,
                             ylim=if (gave.ylim) ylim[w,] else range(y, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
                 points(x$data$ts$time[!good], y[!good], col=col.brush)
             } else {
-                oce.plot.ts(x$data$ts$time, y, ylab=expression(a[which[w]-4]),
+                oce.plot.ts(x$data$ts$time, y,
+                            ylab=c(expression(a[1]),expression(a[2]),expression(a[3]),expression(a[4]))[which[w]-4],
                             draw.time.range=draw.time.range,
                             adorn=adorn[w],
                             xlim=if (gave.xlim) xlim[w,] else tlim,
                             ylim=if (gave.ylim) ylim[w,] else range(y, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             }
@@ -1448,28 +1537,31 @@ plot.adv <- function(x,
             y <- as.numeric(x$data$ma$c[,which[w]-8])
             if (have.brush.correlation && type == "p") {
                 good <- as.numeric(x$data$ma$c[,which[w]-8]) >= brush.correlation
-                oce.plot.ts(x$data$ts$time[good], y[good], ylab=expression(q[which[w-8]]),
+                oce.plot.ts(x$data$ts$time[good], y[good],
+                            ylab=c(expression(q[1]),expression(q[2]),expression(q[3]),expression(q[4]))[which[w]-8],
                             draw.time.range=draw.time.range,
                             adorn=adorn[w],
                             xlim=if (gave.xlim) xlim[w,] else tlim,
                             ylim=if (gave.ylim) ylim[w,] else range(y, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
                 points(x$data$ts$time[!good], y[!good], col=col.brush)
             } else {
-                oce.plot.ts(x$data$ts$time, y, ylab=expression(q[which[w-8]]),
+                oce.plot.ts(x$data$ts$time, y,
+                            ylab=c(expression(q[1]),expression(q[2]),expression(q[3]),expression(q[4]))[which[w]-8],
                             draw.time.range=draw.time.range,
                             adorn=adorn[w],
                             xlim=if (gave.xlim) xlim[w,] else tlim,
                             ylim=if (gave.ylim) ylim[w,] else range(y, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=col[w],
                             debug=debug-1,
                             ...)
             }
@@ -1483,8 +1575,9 @@ plot.adv <- function(x,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts.slow$temperature, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=if(col.per.point) col else col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             } else {
@@ -1495,8 +1588,9 @@ plot.adv <- function(x,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts$temperature, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=if(col.per.point) col else col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             }
@@ -1508,8 +1602,9 @@ plot.adv <- function(x,
                         ylim=if (gave.ylim) ylim[w,] else range(x$data$ts$pressure, na.rm=TRUE),
                         type=type,
                         cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                        mgp=mgp,
-                        mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                        mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                        lwd=lwd[w], col=if(col.per.point) col else col[w],
+                        main=main,
                         debug=debug-1,
                         ...)
         } else if (which[w] == 16 || which[w] == "heading") {
@@ -1521,8 +1616,9 @@ plot.adv <- function(x,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts.slow$heading, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=if(col.per.point) col else col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             } else {
@@ -1533,8 +1629,9 @@ plot.adv <- function(x,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts$heading, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=if(col.per.point) col else col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             }
@@ -1547,8 +1644,9 @@ plot.adv <- function(x,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts.slow$pitch, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=if(col.per.point) col else col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             } else {
@@ -1557,9 +1655,11 @@ plot.adv <- function(x,
                             adorn=adorn[w],
                             xlim=if (gave.xlim) xlim[w,] else tlim,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts$pitch, na.rm=TRUE),
+                            type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=if(col.per.point) col else col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             }
@@ -1572,8 +1672,9 @@ plot.adv <- function(x,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts.slow$roll, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=if(col.per.point) col else col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             } else {
@@ -1584,8 +1685,9 @@ plot.adv <- function(x,
                             ylim=if (gave.ylim) ylim[w,] else range(x$data$ts$roll, na.rm=TRUE),
                             type=type,
                             cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                            mgp=mgp,
-                            mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5),
+                            lwd=lwd[w], col=col[w],
+                            main=main,
                             debug=debug-1,
                             ...)
             }
@@ -1593,23 +1695,50 @@ plot.adv <- function(x,
         } else if (which[w] == 19) {    # beam 1 correlation-amplitude diagnostic plot
             a <- as.numeric(x$data$ma$a[,1])
             c <- as.numeric(x$data$ma$c[,1])
-            smoothScatter(a, c, nbin=64, xlab="Amplitude", ylab="Correlation",
-                          xlim=if (gave.xlim) xlim[w,] else range(a),
-                          ylim=if (gave.ylim) ylim[w,] else range(c))
+            n <- length(a)
+            if (n < 2000 || (!missing(use.smoothScatter) && !use.smoothScatter)) {
+                plot(a, c, xlab="Amplitude", ylab="Correlation",
+                     xlim=if (gave.xlim) xlim[w,] else range(a),
+                     ylim=if (gave.ylim) ylim[w,] else range(c),
+                     main=main)
+            } else {
+                smoothScatter(a, c, nbin=64, xlab="Amplitude", ylab="Correlation",
+                     xlim=if (gave.xlim) xlim[w,] else range(a),
+                     ylim=if (gave.ylim) ylim[w,] else range(c),
+                     main=main)
+            }
             mtext("beam 1")
         } else if (which[w] == 20) {    # beam 2 correlation-amplitude diagnostic plot
             a <- as.numeric(x$data$ma$a[,2])
             c <- as.numeric(x$data$ma$c[,2])
-            smoothScatter(a, c, nbin=64, xlab="Amplitude", ylab="Correlation",
-                          xlim=if (gave.xlim) xlim[w,] else range(a),
-                          ylim=if (gave.ylim) ylim[w,] else range(c))
+            n <- length(a)
+            if (n < 2000 || (!missing(use.smoothScatter) && !use.smoothScatter)) {
+                plot(a, c, xlab="Amplitude", ylab="Correlation",
+                     xlim=if (gave.xlim) xlim[w,] else range(a),
+                     ylim=if (gave.ylim) ylim[w,] else range(c),
+                     main=main)
+            } else {
+                smoothScatter(a, c, nbin=64, xlab="Amplitude", ylab="Correlation",
+                              xlim=if (gave.xlim) xlim[w,] else range(a),
+                              ylim=if (gave.ylim) ylim[w,] else range(c),
+                              main=main)
+            }
             mtext("beam 2")
         } else if (which[w] == 21) {    # beam 3 correlation-amplitude diagnostic plot
             a <- as.numeric(x$data$ma$a[,3])
             c <- as.numeric(x$data$ma$c[,3])
-            smoothScatter(a, c, nbin=64, xlab="Amplitude", ylab="Correlation",
-                          xlim=if (gave.xlim) xlim[w,] else range(a),
-                          ylim=if (gave.ylim) ylim[w,] else range(c))
+            n <- length(a)
+            if (n < 2000 || (!missing(use.smoothScatter) && !use.smoothScatter)) {
+                plot(a, c, xlab="Amplitude", ylab="Correlation",
+                     xlim=if (gave.xlim) xlim[w,] else range(a),
+                     ylim=if (gave.ylim) ylim[w,] else range(c),
+                     main=main)
+            } else {
+                smoothScatter(a, c, nbin=64, xlab="Amplitude", ylab="Correlation",
+                              xlim=if (gave.xlim) xlim[w,] else range(a),
+                              ylim=if (gave.ylim) ylim[w,] else range(c),
+                              main=main)
+            }
             mtext("beam 3")
         } else if (which[w] == 23 || which[w] == "progressive vector") {    # progressive vector
             par(mar=c(mgp[1]+1,mgp[1]+1,1,1))
@@ -1625,19 +1754,21 @@ plot.adv <- function(x,
             y.dist <- cumsum(v) * dt / m.per.km
             plot(x.dist, y.dist, xlab="km", ylab="km", type=type,
                  cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                 asp=1, ...)
+                 asp=1, lwd=lwd[w], col=col[w], ...)
+            if (main[w] != "")
+                mtext(main[w], adj=1)
         } else if (which[w] >= 28) {
             oce.debug(debug, "doing horizontal-velocity diagram\n")
             par(mar=c(mgp[1]+1,mgp[1]+1,1,1))
             n <- length(x$data$ts$time)
-            if (n < 2000) {
+            if (n < 2000 || (!missing(use.smoothScatter) && !use.smoothScatter)) {
                 plot(x$data$ma$v[,1], x$data$ma$v[,2], xlab="u [m/s]", ylab="v [m/s]", type=type,
                      cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                     asp=1, ...)
+                     asp=1, xlim=xlim, ylim=ylim, lwd=lwd[w], col=col[w], main=main, ...)
             } else {
                 smoothScatter(x$data$ma$v[,1], x$data$ma$v[,2], xlab="u [m/s]", ylab="v [m/s]",
                               cex=cex, cex.axis=cex.axis, cex.main=cex.main,
-                              asp=1, ...)
+                              asp=1, xlim=xlim, ylim=ylim, ...)
             }
             if (which[w] >= 29) {
                 ok <- !is.na(x$data$ma$v[,1]) & !is.na(x$data$ma$v[,2])
@@ -1650,15 +1781,16 @@ plot.adv <- function(x,
                 theta0 <- atan2(e$vectors[2,1], e$vectors[1,1])
                 rotate <- matrix(c(cos(theta0), -sin(theta0), sin(theta0), cos(theta0)), nrow=2, byrow=TRUE)
                 xxyy <- rotate %*% rbind(xx, yy)
-                col <- if ("col" %in% names(dots)) col else "darkblue"
                 lines(xxyy[1,], xxyy[2,], lwd=5, col="yellow")
-                lines(xxyy[1,], xxyy[2,], lwd=2, col=col)
+                lines(xxyy[1,], xxyy[2,], lwd=2, col="darkblue")
                 if (which[w] >= 30) {
                     umean <- mean(x$data$ma$v[,1], na.rm=TRUE)
                     vmean <- mean(x$data$ma$v[,2], na.rm=TRUE)
                     arrows(0, 0, umean, vmean, lwd=5, length=1/10, col="yellow")
                     arrows(0, 0, umean, vmean, lwd=2, length=1/10, col=col)
                 }
+                if (main[w] != "")
+                    mtext(main[w], adj=1)
             }
         } else {
             stop("unknown value of \"which\":", which[w])
@@ -1673,16 +1805,17 @@ plot.adv <- function(x,
         }
     }
     oce.debug(debug, "\b\b} # plot.adv()\n")
+    invisible()
 }
 
-adv.2enu <- function(x, declination=0, debug=getOption("oce.debug"))
+to.enu.adv <- function(x, declination=0, debug=getOption("oce.debug"))
 {
     oce.debug(debug, "\b\badv.2enu() {\n")
     coord <- x$metadata$oce.coordinate
     if (coord == "beam") {
-        x <- adv.xyz2enu(adv.beam2xyz(x, debug=debug-1), declination=declination, debug=debug-1)
+        x <- xyz.to.enu.adv(beam.to.xyz.adv(x, debug=debug-1), declination=declination, debug=debug-1)
     } else if (coord == "xyz") {
-        x <- adv.xyz2enu(x, declination=declination, debug=debug-1)
+        x <- xyz.to.enu.adv(x, declination=declination, debug=debug-1)
     } else if (coord == "enu") {
         ;
     } else {
@@ -1692,25 +1825,21 @@ adv.2enu <- function(x, declination=0, debug=getOption("oce.debug"))
     x
 }
 
-adv.beam2xyz <- function(x, debug=getOption("oce.debug"))
+beam.to.xyz.adv <- function(x, debug=getOption("oce.debug"))
 {
-    oce.debug(debug, "\b\badv.beam2xyz() {\n")
+    oce.debug(debug, "\b\bbeam.to.xyz.adv() {\n")
     if (!inherits(x, "adv"))
         stop("method is only for objects of class \"adv\"")
     if (x$metadata$oce.coordinate != "beam")
         stop("input must be in beam coordinates, but it is in ", x$metadata$oce.coordinate, " coordinates")
-    if (is.null(x$metadata$transformation.matrix))
-        stop("can't convert coordinates because object metadata$transformation.matrix is NULL")
+    if (is.null(x$metadata$transformation.matrix)) {
+        cat("How to add a transformation matrix to a velocimeter record named 'x':
+            x$metadata$transformation.matrix <- rbind(c(11100, -5771,  -5321),
+                                                      c(  291,  9716, -10002),
+                                                      c( 1409,  1409,   1409)) / 4096")
+        stop("cannot convert coordinates because metadata$transformation.matrix is NULL (see above).")
+    }
     tm <- x$metadata$transformation.matrix
-    ## alter transformation matrix if pointing downward. FIXME: is this right?
-    ##if (FALSE) {  # FIXME: should we modify the transformation matrix?
-    ##    if (x$metadata$orientation == "downward") {
-    ##        tm[2,] <- -tm[2,]
-    ##        tm[3,] <- -tm[3,]
-    ##    }
-    ##}
-    if (x$metadata$orientation == "downward")
-        warning("Q: since the instrument points downwards, should the sign of rows 2 and 3 of transformation matrix be altered?")
     oce.debug(debug, "Transformation matrix:\n")
     oce.debug(debug, sprintf("%.10f %.10f %.10f\n", tm[1,1], tm[1,2], tm[1,3]))
     oce.debug(debug, sprintf("%.10f %.10f %.10f\n", tm[2,1], tm[2,2], tm[2,3]))
@@ -1726,24 +1855,30 @@ adv.beam2xyz <- function(x, debug=getOption("oce.debug"))
     x$metadata$oce.coordinate <- "xyz"
     x$processing.log <- processing.log.add(x$processing.log,
                                            paste(deparse(match.call()), sep="", collapse=""))
-    oce.debug(debug, "\b\b} # adv.beam2xyz()\n")
+    oce.debug(debug, "\b\b} # beam.to.xyz.adv()\n")
     x
 }
 
-adv.xyz2enu <- function(x, declination=0, debug=getOption("oce.debug"))
+xyz.to.enu.adv <- function(x, declination=0, debug=getOption("oce.debug"))
 {
-    oce.debug(debug, "\b\badv.xyz2enu() {\n")
-    if (!inherits(x, "adv")) stop("method is only for objects of class \"adv\"")
-    if (x$metadata$oce.coordinate != "xyz") stop("input must be in xyz coordinates, but it is in ", x$metadata$oce.coordinate, " coordinates")
+    oce.debug(debug, "\b\bxyz.to.enu.adv(x, declination=", declination, ",debug) {\n")
+    if (!inherits(x, "adv"))
+        stop("method is only for objects of class \"adv\"")
+    if (x$metadata$oce.coordinate != "xyz")
+        stop("input must be in xyz coordinates, but it is in ", x$metadata$oce.coordinate, " coordinates")
     have.ts.slow <- "ts.slow" %in% names(x$data)
-    have.steady.angles <- (have.ts.slow && length(x$data$ts.slow$heading) == 1 && length(x$data$ts.slow$pitch) == 1 && length(x$data$ts.slow$roll) == 1) || (!have.ts.slow && length(x$data$ts$heading) == 1 && length(x$data$ts$pitch) == 1 && length(x$data$ts$roll) == 1)
+    have.steady.angles <- (have.ts.slow && length(x$data$ts.slow$heading)==1 && length(x$data$ts.slow$pitch)==1 && length(x$data$ts.slow$roll)==1) ||
+    (!have.ts.slow && length(x$data$ts$heading) == 1 && length(x$data$ts$pitch) == 1 && length(x$data$ts$roll) == 1)
     oce.debug(debug, "have.steady.angles=",have.steady.angles,"\n")
     if (have.ts.slow) {
+        oce.debug(debug, "adv data has data$ts.slow\n")
         if (have.steady.angles) {
+            oce.debug(debug, "adv data has constant heading, pitch, and roll\n")
             heading <- x$data$ts.slow$heading
             pitch <- x$data$ts.slow$pitch
             roll <- x$data$ts.slow$roll
         } else {
+            oce.debug(debug, "adv data has time-varying heading, pitch, and roll\n")
             t0 <- as.numeric(x$data$ts.slow$time[1])    # arbitrary; done in case approx hates large x values
             t.fast <- as.numeric(x$data$ts$time) - t0
             t.slow <- as.numeric(x$data$ts.slow$time) - t0
@@ -1752,104 +1887,101 @@ adv.xyz2enu <- function(x, declination=0, debug=getOption("oce.debug"))
             roll <- approx(t.slow, x$data$ts.slow$roll, xout=t.fast)$y
         }
     } else {
+        oce.debug(debug, "adv data does not have data$ts.slow; time-series data are data$ts\n")
         heading <- x$data$ts$heading
         pitch <- x$data$ts$pitch
         roll <- x$data$ts$roll
     }
-    heading <- heading + declination
     ##print(x$metadata)
-    if (1 == length(agrep("nortek", x$metadata$manufacturer)) ||
-        1 == length(agrep("sontek", x$metadata$manufacturer))) {
-        warning("detected nortek-vector or sontek-adv, and subtracting 90 from heading")
-        heading <- heading - 90 # CAUTION 20100825: 3-to-0 vote for -90 (but +90 got 2-to-0 vote yesterday!)
-        warning("detected nortek-vector or sontek-adv, and changing sign of pitch")
-        pitch <- - pitch
+    if (1 == length(agrep("nortek", x$metadata$manufacturer))) {
+        ## Adjust the heading, so that the formulae (based on RDI) will work here
+        ## FIXME: should check if cabeled or not.
+        if (x$metadata$orientation == "upward") {
+            heading <- heading - 90
+            pitch <- - pitch
+            oce.debug(debug, "used heading=heading=90; pitch=-pitch\n")
+        } else if (x$metadata$orientation == "downward") {
+            heading <- heading - 90
+            pitch <- - pitch
+            oce.debug(debug, "used heading=heading=90; pitch=-pitch\n")
+        } else {
+            stop("need metadata$orientation='upward' or 'downward', not '",x$metadata$orientation,"'")
+        }
+    } else if (1 == length(agrep("sontek", x$metadata$manufacturer))) {
+        ## Adjust the heading, so that the formulae (based on RDI) will work here
+        ## FIXME: should check up vs down, non-cabelled vs cabelled.
+        if (x$metadata$orientation == "upward") {
+            heading <- heading - 90
+            pitch <- - pitch
+            oce.debug(debug, "used heading=heading=90; pitch=-pitch\n")
+        } else if (x$metadata$orientation == "downward") {
+            heading <- heading - 90
+            pitch <- - pitch
+            oce.debug(debug, "used heading=heading=90; pitch=-pitch\n")
+        } else {
+            stop("need metadata$orientation='upward' or 'downward', not '",x$metadata$orientation,"'")
+        }
     }
-    oce.debug(debug, vector.show(heading, "heading"))
-    oce.debug(debug, vector.show(pitch, "pitch"))
-    oce.debug(debug, vector.show(roll, "roll"))
-    to.radians <- atan2(1,1) / 45
-    hrad <- to.radians * heading        # This could save millions of multiplies
-    prad <- to.radians * pitch          # although the trig is probably taking
-    rrad <- to.radians * roll           # most of the time.
-    CH <- cos(hrad)
-    SH <- sin(hrad)
-    CP <- cos(prad)
-    SP <- sin(prad)
-    CR <- cos(rrad)
-    SR <- sin(rrad)
     if (x$metadata$orientation == "downward") { #FIXME: I think this is plain wrong; should change sign of row 2 and 3 (??)
-        warning("adv.xyz2enu() switching signs of pitch and roll, because unit is oriented downward. BUT IS THIS CORRECT??")
-        SP <- -SP
-        SR <- -SR
+        warning("FIXME: xyz.to.enu.adv() should switch signs of pitch and roll, because unit is oriented downward. BUT IS THIS CORRECT??")
     }
+    ## FIXME: should be defining starboard, forward, mast in the above devices-specific blocks
+    starboard <- x$data$ma$v[,1]
+    forward <- x$data$ma$v[,2]
+    mast <- x$data$ma$v[,3]
     np <- dim(x$data$ma$v)[1]
-    if (have.steady.angles) {
-        oce.debug(debug, "the heading, pitch, and roll are all constant\n")
-        R <- array(numeric(), dim=c(3, 3))
-        R[1,1] <-  CH * CR + SH * SP * SR
-        R[1,2] <-  SH * CP
-        R[1,3] <-  CH * SR - SH * SP * CR
-        R[2,1] <- -SH * CR + CH * SP * SR
-        R[2,2] <-  CH * CP
-        R[2,3] <- -SH * SR - CH * SP * CR
-        R[3,1] <- -CP * SR
-        R[3,2] <-  SP
-        R[3,3] <-  CP * CR
-        u <- R[1,1] * x$data$ma$v[,1] + R[1,2] * x$data$ma$v[,2] + R[1,3] * x$data$ma$v[,3]
-        v <- R[2,1] * x$data$ma$v[,1] + R[2,2] * x$data$ma$v[,2] + R[2,3] * x$data$ma$v[,3]
-        w <- R[3,1] * x$data$ma$v[,1] + R[3,2] * x$data$ma$v[,2] + R[3,3] * x$data$ma$v[,3]
-        x$data$ma$v[,1] <- u
-        x$data$ma$v[,2] <- v
-        x$data$ma$v[,3] <- w
-        ##(speed test; replace above 3 lines with this) x$data$ma$v <- t(R %*% t(x$data$ma$v))
-    } else {
-        ## as with corresponding adp routine, construct single 3*3*np matrix
-        tr.mat <- array(numeric(), dim=c(3, 3, np))
-        tr.mat[1,1,] <-  CH * CR + SH * SP * SR
-        tr.mat[1,2,] <-  SH * CP
-        tr.mat[1,3,] <-  CH * SR - SH * SP * CR
-        tr.mat[2,1,] <- -SH * CR + CH * SP * SR
-        tr.mat[2,2,] <-  CH * CP
-        tr.mat[2,3,] <- -SH * SR - CH * SP * CR
-        tr.mat[3,1,] <- -CP * SR
-        tr.mat[3,2,] <-  SP
-        tr.mat[3,3,] <-  CP * CR
-        ##rm(hrad,prad,rrad,CH,SH,CP,SP,CR,SR) # might be tight on space (but does this waste time?)
-        rotated <- matrix(unlist(lapply(1:np, function(p) tr.mat[,,p] %*% x$data$ma$v[p,])), nrow=3)
-        x$data$ma$v[,1] <- rotated[1,]
-        x$data$ma$v[,2] <- rotated[2,]
-        x$data$ma$v[,3] <- rotated[3,]
-    }
+    enu <- .C("sfm_enu",
+              as.integer(length(heading)), # need not equal np
+              as.double(heading + declination),
+              as.double(pitch),
+              as.double(roll), 
+              as.integer(np),
+              as.double(starboard),
+              as.double(forward),
+              as.double(mast),
+              east = double(np),
+              north = double(np),
+              up = double(np),
+              NAOK=TRUE,
+              PACKAGE="oce")
+    x$data$ma$v[,1] <- enu$east
+    x$data$ma$v[,2] <- enu$north
+    x$data$ma$v[,3] <- enu$up
     x$metadata$oce.coordinate <- "enu"
     x$processing.log <- processing.log.add(x$processing.log,
                                            paste(deparse(match.call()), sep="", collapse=""))
-    oce.debug(debug, "\b\b} # adv.xyz2enu()\n")
+    oce.debug(debug, "\b\b} # xyz.to.enu.adv()\n")
     x
 }
 
-adv.enu2other <- function(x, heading=0, pitch=0, roll=0)
+enu.to.other.adv <- function(x, heading=0, pitch=0, roll=0)
 {
-    oce.debug(debug, "\b\badv.enu2other() {\n")
-    if (!inherits(x, "adv")) stop("method is only for objects of class \"adv\"")
-    if (x$metadata$oce.coordinate != "enu") stop("input must be in \"enu\" coordinates, but it is in ", x$metadata$oce.coordinate, " coordinates")
-    to.radians <- atan2(1,1) / 45
-    CH <- cos(to.radians * heading)
-    SH <- sin(to.radians * heading)
-    CP <- cos(to.radians * pitch)
-    SP <- sin(to.radians * pitch)
-    CR <- cos(to.radians * roll)
-    SR <- sin(to.radians * roll)
-    tr.mat <- matrix(c( CH * CR + SH * SP * SR,  SH * CP,  CH * SR - SH * SP * CR,
-                       -SH * CR + CH * SP * SR,  CH * CP, -SH * SR - CH * SP * CR,
-                       -CP * SR,                 SP,       CP * CR),               nrow=3, byrow=TRUE)
-    other <- tr.mat %*% rbind(x$data$ma$v[,1], x$data$ma$v[,2], x$data$ma$v[,3])
-    x$data$ma$v[,1] <- other[1,]
-    x$data$ma$v[,2] <- other[2,]
-    x$data$ma$v[,3] <- other[3,]
+    oce.debug(debug, "\b\benu.to.other.adv() {\n")
+    if (!inherits(x, "adv"))
+        stop("method is only for objects of class \"adv\"")
+    if (x$metadata$oce.coordinate != "enu")
+        stop("input must be in \"enu\" coordinates, but it is in ", x$metadata$oce.coordinate, " coordinates")
+    np <- dim(x$data$ma$v)[1]
+    other <- .C("sfm_enu",
+              as.integer(length(heading)), # need not equal np
+              as.double(heading),
+              as.double(pitch),
+              as.double(roll), 
+              as.integer(np),
+              as.double(x$data$ma$v[,1]),
+              as.double(x$data$ma$v[,2]),
+              as.double(x$data$ma$v[,3]),
+              v1new = double(np),
+              v2new = double(np),
+              v3new = double(np),
+              NAOK=TRUE,
+              PACKAGE="oce")
+    x$data$ma$v[,1] <- other$v1new
+    x$data$ma$v[,2] <- other$v2new
+    x$data$ma$v[,3] <- other$v3new
     x$metadata$oce.coordinate <- "other"
     x$processing.log <- processing.log.add(x$processing.log,
                                            paste(deparse(match.call()), sep="", collapse=""))
-    oce.debug(debug, "\b\b} # adv.enu2other()\n")
+    oce.debug(debug, "\b\b} # enu.to.other.adv()\n")
     x
 }

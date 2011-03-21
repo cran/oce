@@ -2,6 +2,7 @@
 \alias{read.adp}
 \alias{read.adp.nortek}
 \alias{read.adp.sontek}
+\alias{read.adp.sontek.serial}
 \alias{read.adp.rdi}
 
 \title{Read an ADP data file}
@@ -12,24 +13,34 @@
 read.adp(file, from=1, to, by=1, tz=getOption("oce.tz"),
   latitude=NA, longitude=NA,
   type=c("rdi", "nortek", "sontek"),
-  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action, \dots)
+  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action,
+  \dots)
 read.adp.rdi(file, from=1, to, by=1, tz=getOption("oce.tz"),
   latitude=NA, longitude=NA,
   type=c("workhorse"),
-  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action, \dots)
+  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action,
+  \dots)
 read.adp.nortek(file, from=1, to, by=1, tz=getOption("oce.tz"),
   latitude=NA, longitude=NA,
   type=c("aquadopp high resolution"),
-  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action, \dots)
+  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action,
+  \dots)
 read.adp.sontek(file, from=1, to, by=1, tz=getOption("oce.tz"),
   latitude=NA, longitude=NA,
-  type=c("adp"),
-  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action, \dots)
+  type=c("adp","pcadp"),
+  debug=getOption("oce.debug"), monitor=TRUE, despike=FALSE, log.action,
+  \dots)
+read.adp.sontek.serial(file, from=1, to, by=1, tz=getOption("oce.tz"),
+                      latitude=NA, longitude=NA,
+                      beam.angle=25,
+                      monitor=TRUE, log.action,
+                      debug=getOption("oce.debug")) 
 }
 
 \arguments{
   \item{file}{a connection or a character string giving the name of the
-    file to load.}
+    file to load.  (For \code{read.adp.sontek.serial}, this is
+    generally a list of files, which will be concatenated.}
   \item{from}{indication of the first profile to read.  This can be an
     integer, the sequence number of the first profile to read, or a
     POSIXt time before which profiles should be skipped, or a character
@@ -53,6 +64,7 @@ read.adp.sontek(file, from=1, to, by=1, tz=getOption("oce.tz"),
     degrees East.}
   \item{debug}{a flag that turns on debugging.  Set to 1 to get a
     moderate amount of debugging information, or to 2 to get more.} 
+  \item{beam.angle}{angle between instrument axis and beams, in degrees.}
   \item{monitor}{boolean, set to \code{TRUE} to provide an indication
     (with numbers and dots) of every profile read.}
   \item{despike}{if \code{TRUE}, \code{\link{despike}} will be used
@@ -150,19 +162,19 @@ read.adp.sontek(file, from=1, to, by=1, tz=getOption("oce.tz"),
   Several functions are provided to manipulate \code{adp} objects.  For
   example, in many research applications, the records are stored in beam
   coordinates, instead of the further-processed forms such as instrument
-  or enu coordinates.  Accordingly, \code{\link{adp.beam2xyz}} is
+  or enu coordinates.  Accordingly, \code{\link{beam.to.xyz.adp}} is
   provided, convert the velocity portions of \code{adp} objects from
   beam coordinates to xyz-based (also called ship-based or
   instrument-based) coordinates.  Similarly,
-  \code{\link{adp.xyz2enu}} converts from xyz to enu
+  \code{\link{xyz.to.enu.adp}} converts from xyz to enu
   coordinates, taking into account the varying orientation of an
   instrument attached to a ship or a mobile mooring.  For applications
   in which enu-based coordinates are not desired (e.g. if a coordinate
   is to be aligned with the local coastline or a mean current),
-  \code{\link{adp.enu2other}} is provided, to convert from enu
+  \code{\link{enu.to.other.adp}} is provided, to convert from enu
   coordinates to another coordinate system. 
 
- Another convenience function is \code{\link{adp.beam.attenuate}},
+ Another convenience function is \code{\link{beam.attenuate.adp}},
 which performs a correction for \eqn{r^2}{r^2} beam spreading.}
 
 \examples{

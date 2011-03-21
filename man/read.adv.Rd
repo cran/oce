@@ -1,7 +1,7 @@
 \name{read.adv}
 \alias{read.adv}
 \alias{read.adv.nortek}
-\alias{read.adv.sontek.realtime}
+\alias{read.adv.sontek.serial}
 \alias{read.adv.sontek.adr}
 \alias{read.adv.sontek.text}
 
@@ -11,31 +11,31 @@
 
 \usage{
 read.adv(file, from=1, to, by=1, tz=getOption("oce.tz"),
-        type=c("nortek", "sontek", "sontek.adr", "sontek.text"),
-        header=TRUE,
-        latitude=NA, longitude=NA,
-        start, deltat,
-        debug=getOption("oce.debug"), monitor=TRUE, log.action)
+  type=c("nortek", "sontek", "sontek.adr", "sontek.text"),
+  header=TRUE,
+  latitude=NA, longitude=NA,
+  start, deltat,
+  debug=getOption("oce.debug"), monitor=TRUE, log.action)
 read.adv.nortek(file, from=1, to, by=1, tz=getOption("oce.tz"), 
-                type="vector",
-                header=TRUE,
-                latitude=NA, longitude=NA,
-                debug=getOption("oce.debug"), monitor=TRUE, log.action)
-read.adv.sontek.realtime(file, from=1, to, by=1, tz=getOption("oce.tz"),
-                         type="default",
-                         latitude=NA, longitude=NA,
-                         start, deltat,
-                         debug=getOption("oce.debug"), monitor=TRUE, log.action)
+  type="vector",
+  header=TRUE,
+  latitude=NA, longitude=NA,
+  debug=getOption("oce.debug"), monitor=TRUE, log.action)
+read.adv.sontek.serial(file, from=1, to, by=1, tz=getOption("oce.tz"),
+  type="default",
+  latitude=NA, longitude=NA,
+  start, deltat,
+  debug=getOption("oce.debug"), monitor=TRUE, log.action)
 read.adv.sontek.adr(file, from=1, to, by=1, tz=getOption("oce.tz"),
-                    header=TRUE, 
-                    latitude=NA, longitude=NA,
-                    type="",
-                    debug=getOption("oce.debug"), monitor=TRUE, log.action)
+  header=TRUE, 
+  latitude=NA, longitude=NA,
+  type="",
+  debug=getOption("oce.debug"), monitor=TRUE, log.action)
 read.adv.sontek.text(basefile, from=1, to, by=1, tz=getOption("oce.tz"),
-                     coordinate.system="xyz",
-                     transformation.matrix,
-                     latitude=NA, longitude=NA,
-                     debug=getOption("oce.debug"), log.action)
+  coordinate.system="xyz",
+  transformation.matrix,
+  latitude=NA, longitude=NA,
+  debug=getOption("oce.debug"), log.action)
 }
 
 \arguments{
@@ -44,7 +44,7 @@ read.adv.sontek.text(basefile, from=1, to, by=1, tz=getOption("oce.tz"),
     for the case of data split into files by a data logger, and in that
     case, \code{header} must be \code{FALSE}, \code{start} must be a
     vector of times, and \code{deltat} must be provided.}
-  \item{basefile}{character string giving the base name of files to load
+  \item{basefile}{character string naming the base of filenames to load
     (used only by \code{read.adv.sontek.text}). The actual filenames are
     constructed by appending \code{".hd1"} and \code{".ts1"} to the base
     name.}
@@ -106,7 +106,7 @@ read.adv.sontek.text(basefile, from=1, to, by=1, tz=getOption("oce.tz"),
   required for further processing.
 
   Files \emph{without} headers may be created in experiments in which a
-  data logger was set up to monitor the real-time data stream from an
+  data logger was set up to monitor the serial data stream from an
   instrument.  The lack of header information places a burden on the
   user, who must supply such basic information as the times of
   observations, the instrument orientation, the instrument coordinate
@@ -124,7 +124,7 @@ read.adv.sontek.text(basefile, from=1, to, by=1, tz=getOption("oce.tz"),
     \item The call to the \code{read} function must include a start time
     (\code{start}) and the number of seconds between data
     (\code{deltat}), again, because the instrument data stream may lack
-    those things when the device is set to a real-time mode.  Also, of
+    those things when the device is set to a serial mode.  Also, of
     course, it is necessary to set \code{header=FALSE} in the function
     call.
 
@@ -149,14 +149,14 @@ read.adv.sontek.text(basefile, from=1, to, by=1, tz=getOption("oce.tz"),
 
     \item Next, velocity chunks (at which velocities are stored, but not
     heading, etc.), are located within the buffer by using
-    \code{match.bytes(buf, 0xa5, 0x10)}.  \emph{BUG:} the checksum
+    \code{matchBytes(buf, 0xa5, 0x10)}.  \emph{BUG:} the checksum
     provided in bytes 23 and 24 of these chunks should be examined to
     discard matches that occur randomly (with probability 1:65025) but
     this is not done in the present version of the
     \code{read.adv.nortek} function.
 
     \item System chunks (which hold heading, pitch, etc.) are found with
-    \code{match.bytes(buf, 0xa5, 0x11, 0x0e)}.
+    \code{matchBytes(buf, 0xa5, 0x11, 0x0e)}.
 
     \item Times from the system chunks are mapped to velocity chunks by
     \emph{assuming} a constant sampling rate for each chunk.  If this
@@ -212,22 +212,20 @@ read.adv.sontek.text(basefile, from=1, to, by=1, tz=getOption("oce.tz"),
  }
 
 \value{An object of \code{\link[base]{class}} \code{"adv"}, which
-  contains measurements made with an ADV device.  As with all \code{oce}
-  objects, the returned value is a list containing lists named
-  \code{metadata}, \code{data}, and \code{processing.log}.  The
-  \code{data} list contains lists \code{ts}, potentially (for Nortek
-  Vector units) \code{ts.slow}, and \code{ma} (matrices of velocity,
-  etc).  These are as \code{adp} objects, except for the presence of
-  \code{ts.slow}, for timeseries that vary on a slow timescale, e.g. on
-  Nortek Vector units, \code{ts.slow} holds \code{heading},
-  \code{pitch}, \code{roll}, and \code{temperature}, while \code{ts}
-  holds only \code{pressure}.
-}
+  contains measurements made with an ADV device.  This is a list
+  containing lists named \code{metadata}, \code{data}, and
+  \code{processing.log}.  The \code{data} list contains lists \code{ts},
+  potentially (for Nortek Vector units) \code{ts.slow}, and \code{ma}
+  (matrices of velocity, etc).  These are as \code{adp} objects, except
+  for the presence of \code{ts.slow}, for timeseries that vary on a slow
+  timescale, e.g. on Nortek Vector units, \code{ts.slow} holds
+  \code{heading}, \code{pitch}, \code{roll}, and \code{temperature},
+  while \code{ts} holds only \code{pressure}.  }
 
 \seealso{Objects of class \code{adv} may be plotted with
   \code{\link{plot.adv}} or summarized with \code{\link{summary.adv}}.
-  Coordinate transformations are done with \code{\link{adv.beam2xyz}},
-  \code{\link{adv.xyz2enu}}, and \code{\link{adv.enu2other}}, in
+  Coordinate transformations are done with \code{\link{beam.to.xyz.adv}},
+  \code{\link{xyz.to.enu.adv}}, and \code{\link{enu.to.other.adv}}, in
   that order.}
 
 \examples{
@@ -281,19 +279,19 @@ library(oce)
 table <- logger.toc("/data/archive/sleiwex/2008/moorings/m05/adv/sontek_202h/raw",
                     from=as.POSIXct("2008-07-01 00:00:00", tz="UTC"),
                     to=as.POSIXct("2008-07-01 2:00:00", tz="UTC"))
-d <- read.adv.sontek.realtime(file=table$filename, start=table$start.time, deltat=1/10)
+d <- read.adv.sontek.serial(file=table$filename, start=table$start.time, deltat=1/10)
 d <- oce.edit(d, "coordinate.system", "xyz") # original coordinate
 d <- oce.edit(d, "oce.coordinate", "xyz")    # present coordinate
 # Note that the transformation matrix varies from instrument to instrument.
 d <- oce.edit(d, "transformation.matrix", rbind(c(11033,-8503,-5238),
                                                 c(347,-32767,9338),
                                                 c(-1418, -1476, -1333)) / 4096)
-d <- oce.edit(d, "orientation", "up")
+d <- oce.edit(d, "orientation", "upward")
 d <- oce.edit(d, "heading", 0)
 d <- oce.edit(d, "pitch", 0)
 d <- oce.edit(d, "roll", 0)
 d <- oce.edit(d, "serial.number", "202h")
-enu <- adv.xyz2enu(d)
+enu <- xyz.to.enu(d)
 plot(enu, which=c("u1", "u2", "u3", "temperature"))
 }
 }

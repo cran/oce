@@ -10,15 +10,20 @@
      col,
      zlim,
      titles,
+     lwd=par('lwd'),
+     type='l',
      ytype=c("profile", "distance"),
      adorn=NULL,
      draw.time.range=getOption("oce.draw.time.range"),
+     use.smoothScatter,
      mgp=getOption("oce.mgp"),
-     mar=c(mgp[1],mgp[1]+1.5,1.5,1.5),
+     mar=c(mgp[1]+1.5,mgp[1]+1.5,1.5,1.5),
      margins.as.image=FALSE,
-     cex=1,
+     cex=par("cex"), cex.axis=par("cex.axis"), cex.main=par("cex.main"),
+     xlim, ylim, 
      control,
      use.layout=FALSE,
+     main="",
      debug=getOption("oce.debug"),
      \dots)}
 
@@ -46,6 +51,11 @@
     placed in the right hand side of the top margin.  For timeseries,
     these strings are ignored.
     If this is provided, its length must equal that of \code{which}.}
+  \item{lwd}{if the plot is of a time-series or scattergraph format with lines,
+      this is used in the usual way; otherwise, e.g. for image formats, this is ignored.}
+  \item{type}{if the plot is of a time-series or scattergraph format, this is
+      used in the usual way, e.g. \code{"l"} for lines, etc.; otherwise, as for
+      image formats, this is ignored.}
   \item{ytype}{character string controlling the type of the y axis for
     images (ignored for time series).  If \code{"distance"}, then the y
     axis will be distance from the sensor head, with smaller distances
@@ -63,6 +73,10 @@
   \item{draw.time.range}{boolean that applies to panels with time as the
     horizontal axis, indicating whether to draw the time range in 
     the top-left margin of the plot.}
+  \item{use.smoothScatter}{boolean that indicates whether to use
+      \code{\link{smoothScatter}} in various plots, such as \code{which="uv"}.
+      If not provided a default is used, with \code{\link{smoothScatter}} being
+      used if there are more than 2000 points to plot.},
   \item{mgp}{3-element numerical vector to use for \code{par(mgp)}, and
     also for \code{par(mar)}, computed from this.  The default is
     tighter than the R default, in order to use more space for the data
@@ -71,7 +85,13 @@
   \item{margins.as.image}{boolean, \code{TRUE} to put a wide margin to the
     right of time-series plots, even if there are no images in the \code{which}
     list.  (The margin is made wide if there are some images in the sequence.)}
-  \item{cex}{value for the character-expansion parameter, used by \code{\link{par}("cex")}.}
+  \item{cex}{size of labels on axes; see \code{\link[graphics]{par}}("cex").}
+  \item{cex.axis}{see \code{\link[graphics]{par}}("cex.axis").}
+  \item{cex.main}{see \code{\link[graphics]{par}}("cex.main").}
+  \item{xlim}{optional 2-element list for \code{xlim}, or 2-column matrix, in which case
+    the rows are used, in order, for the panels of the graph.}
+  \item{ylim}{optional 2-element list for \code{ylim}, or 2-column matrix, in which case
+    the rows are used, in order, for the panels of the graph.}
   \item{control}{optional list of parameters that may be used for
     different plot types.  Possibilities are \code{draw.bottom} (which
     means to draw the bottom, for downward-pointing units that track the
@@ -80,6 +100,7 @@
   \item{use.layout}{set to \code{FALSE} to prevent using
     \code{\link{layout}} to set up the plot.  This is needed if the call
     is to be part of a sequence set up by e.g. \code{par(mfrow)}.}
+  \item{main}{main title for plot, used just on the top panel, if there are several panels.}
   \item{debug}{a flag that turns on debugging.  Set to 1 to get a
     moderate amount of debugging information, or to 2 to get more.} 
   \item{\dots}{optional arguments passed to plotting functions,
@@ -105,8 +126,8 @@
       \code{"other"} coordinates, it will be component corresponding to
       east, after rotation (labelled \code{u\'}).  Note that the
       coordinate is set by \code{\link{read.adp}}, or by
-      \code{\link{adp.beam2xyz}}, \code{\link{adp.xyz2enu}}, or
-      \code{\link{adp.enu2other}}.
+      \code{\link{beam.to.xyz.adp}}, \code{\link{xyz.to.enu.adp}}, or
+      \code{\link{enu.to.other.adp}}.
     
     \item \code{which=5:8} (or \code{which="a1"} to \code{"a4"}) yield
       distance-time images of backscatter intensity of the respective beams.
@@ -145,7 +166,7 @@
       rotated-upward velocity, depending on the coordinate system.
 
     \item \code{which=22} yields a time-series of distance-averaged
-      velocity for beam 4, for \code{beam} coordiantes, or velocity
+      velocity for beam 4, for \code{beam} coordinates, or velocity
       estimate, for other coordinates.  (This is ignored for 3-beam
       data.)
 
@@ -193,6 +214,14 @@
       \code{"bottom.u4"}) for bottom velocity from beams 1 to 4.
 
     }
+    In addition to the above, there are some groupings defined:
+    \itemize{
+        \item \code{which="velocity"} equivalent to \code{which=1:3} (velocity components)
+        \item \code{which="amplitude"} equivalent to \code{which=5:7} (backscatter intensity components)
+        \item \code{which="quality"} equivalent to \code{which=9:11} (quality components)
+        \item \code{which="hydrography"} equivalent to \code{which=14:15} (temperature and pressure)
+        \item \code{which="angles"} equivalent to \code{which=16:18} (heading, pitch and roll)
+    }
 
     The color scheme for image plots (\code{which} in 1:12) is provided
     by the \code{col} argument, which is passed to \code{\link{image}}
@@ -226,13 +255,13 @@
   \code{\link{read.adp.nortek}} (for NorTek files).  These files may be
   in beam coordinates, in xyz coordinates, or in enu coordinates.  It is
   common in a scientific setting to use beam coordinates, and so this
-  package offers functions \code{\link{adp.beam2xyz}} and
-  \code{\link{adp.xyz2enu}} to take the intermediate steps, and
-  \code{\link{adp.enu2other}} to go further, e.g. to rotate into a
+  package offers functions \code{\link{beam.to.xyz.adp}} and
+  \code{\link{xyz.to.enu.adp}} to take the intermediate steps, and
+  \code{\link{enu.to.other.adp}} to go further, e.g. to rotate into a
   coordinate system aligned with the shoreline or with an isobath.
 
   The beam stength may be corrected for R-squared spreading with
-  \code{\link{adp.beam.attenuate}}.
+  \code{\link{beam.attenuate.adp}}.
 
   Summaries of ADP data are provided by \code{\link{summary.adp}}.
 

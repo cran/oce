@@ -4,8 +4,8 @@
 
 \title{Seawater quasi-potential density anomaly}
 
-\description{Compute \eqn{\sigma_t}{sigma-t}, a quasi-potential density
-  of seawater, minus 1000 kg/m\eqn{^3}{^3}.}
+\description{Compute \eqn{\sigma_t}{sigma-t}, a rough estimate of
+  potential density of seawater, minus 1000 kg/m\eqn{^3}{^3}.}
 
 \usage{sw.sigma.t(salinity, temperature=NULL, pressure=NULL)}
 
@@ -30,9 +30,9 @@
 
 \value{Quasi-potential density anomaly [kg/m\eqn{^3}{^3}].}
 
-\seealso{Related density routines include: \code{link{sw.rho}}, 
-  \code{link{sw.sigma}}, and
-  \code{link{sw.sigma.theta}}.
+\seealso{Related density routines include: \code{\link{sw.rho}}, 
+  \code{\link{sw.sigma}}, and
+  \code{\link{sw.sigma.theta}}.
 }
 
 \examples{sigma.t <- sw.sigma.t(35, 13, 1000)}

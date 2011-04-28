@@ -4,22 +4,22 @@ plot.topo <- function(x,
                       center, span,
                       expand=1.5,
                       water.z,
-                      water.col,
-                      water.lty,
-                      water.lwd,
+                      col.water,
+                      lty.water,
+                      lwd.water,
                       land.z,
-                      land.col,
-                      land.lty,
-                      land.lwd,
-                      legend.loc="topright",
-                      mgp=getOption("oce.mgp"),
+                      col.land,
+                      lty.land,
+                      lwd.land,
+                      location="topright",
+                      mgp=getOption("oceMgp"),
                       mar=c(mgp[1]+1,mgp[1]+1,1,1),
-                      debug=getOption("oce.debug"),
+                      debug=getOption("oceDebug"),
                       ...)
 {
     if (!inherits(x, "topo"))
         stop("method is only for topo objects")
-    oce.debug(debug, "\b\bplot.topo() {\n")
+    oceDebug(debug, "\b\bplot.topo() {\n")
 
     opar <- par(no.readonly = TRUE)
     ##on.exit(par(opar))
@@ -39,7 +39,7 @@ plot.topo <- function(x,
         asp <- 1 / cos(center[1] * pi / 180) #  ignore any provided asp
         yr <- center[1] + span * c(-1/2, 1/2) / 111.11
         xr <- center[2] + span * c(-1/2, 1/2) / 111.11 * asp
-        oce.debug(debug, "gave center; calculated xr=",xr," yr=", yr, " asp=", asp, "\n")
+        oceDebug(debug, "gave center; calculated xr=",xr," yr=", yr, " asp=", asp, "\n")
     } else {
         if (missing(asp)) {
             if ("ylim" %in% names(dots))
@@ -50,8 +50,8 @@ plot.topo <- function(x,
         ## Expand
         xr0 <- range(x$data$longitude, na.rm=TRUE)
         yr0 <- range(x$data$latitude, na.rm=TRUE)
-        oce.debug(debug, "xr0=", xr0, "\n")
-        oce.debug(debug, "yr0=", yr0, "\n")
+        oceDebug(debug, "xr0=", xr0, "\n")
+        oceDebug(debug, "yr0=", yr0, "\n")
         if (expand >= 0 && max(abs(xr0)) < 100 && max(abs(yr0) < 70)) { # don't expand if full map
             xr <- mean(xr0) + expand * diff(xr0) * c(-1/2, 1/2)
             yr <- mean(yr0) + expand * diff(yr0) * c(-1/2, 1/2)
@@ -75,29 +75,29 @@ plot.topo <- function(x,
     ## tendency of plot() to produce latitudes past the poles.
     ## BUG: the use of par("pin") seems to mess up resizing in aqua windows.
     asp.page <- par("pin")[2] / par("pin")[1] # dy / dx
-    oce.debug(debug, "par('pin')=",par('pin'), "asp=",asp,"asp.page=", asp.page, "\n")
+    oceDebug(debug, "par('pin')=",par('pin'), "asp=",asp,"asp.page=", asp.page, "\n")
     if (asp > asp.page) {               # FIXME: this seems to have x and y mixed up (asp=dy/dx)
-        oce.debug(debug, "type 1 (will narrow x range)\n")
+        oceDebug(debug, "type 1 (will narrow x range)\n")
         d <- asp / asp.page * diff(xr)
         xr <- mean(xr) + d * c(-1/2, 1/2)
-        oce.debug(debug, "xr narrowed to:", xr, "\n")
+        oceDebug(debug, "xr narrowed to:", xr, "\n")
         ## xr[2] <- xr[1] + (xr[2] - xr[1]) * (asp / asp.page)
     } else {
-        oce.debug(debug, "type 2 (will narrow y range)\n")
+        oceDebug(debug, "type 2 (will narrow y range)\n")
         d <- asp / asp.page * diff(yr)
         yr <- mean(yr) + d * c(-1/2, 1/2)
-        oce.debug(debug, "yr narrowed to:", yr, "\n")
+        oceDebug(debug, "yr narrowed to:", yr, "\n")
         ##yr[2] <- yr[1] + (yr[2] - yr[1]) / (asp / asp.page)
     }
 
-    oce.debug(debug, "xr:", xr, "(before trimming)\n")
-    oce.debug(debug, "yr:", yr, "(before trimming)\n")
+    oceDebug(debug, "xr:", xr, "(before trimming)\n")
+    oceDebug(debug, "yr:", yr, "(before trimming)\n")
 #    if (xr[1] < -180) xr[1] <- -180
 #    if (xr[2] >  180) xr[2] <- 180
     if (yr[1] < -90)  yr[1] <- -90
     if (yr[2] >  90)  yr[2] <-  90
-    oce.debug(debug, "xr:", xr, "(after trimming)\n")
-    oce.debug(debug, "yr:", yr, "(after trimming)\n")
+    oceDebug(debug, "xr:", xr, "(after trimming)\n")
+    oceDebug(debug, "yr:", yr, "(after trimming)\n")
 
     ## Data may not extend across plot region
     lon.range <- range(x$data$longitude, na.rm=TRUE)
@@ -113,8 +113,8 @@ plot.topo <- function(x,
 
     xr.pretty <- pretty(xr)
     yr.pretty <- pretty(yr)
-    oce.debug(debug, "xr.pretty=", xr.pretty, "(before trimming)\n")
-    oce.debug(debug, "yr.pretty=", yr.pretty, "(before trimming)\n")
+    oceDebug(debug, "xr.pretty=", xr.pretty, "(before trimming)\n")
+    oceDebug(debug, "yr.pretty=", yr.pretty, "(before trimming)\n")
 
 if (0){
     if (!(min(yr.pretty) > -80 && max(yr.pretty) < 80))
@@ -123,17 +123,17 @@ if (0){
     yr.pretty <- subset(yr.pretty, yr.pretty <= yr[2])
     if (!(min(xr.pretty) > 0 && max(xr.pretty) < 360))
         xr.pretty <- seq(0, 360, 45)
-    oce.debug(debug, "xr.pretty=", xr.pretty, "(after trimming)\n")
-    oce.debug(debug, "yr.pretty=", yr.pretty, "(after trimming)\n")
+    oceDebug(debug, "xr.pretty=", xr.pretty, "(after trimming)\n")
+    oceDebug(debug, "yr.pretty=", yr.pretty, "(after trimming)\n")
 }
 
 
-    oce.debug(debug, "xr.pretty=", xr.pretty, "(before trimming)\n")
-    oce.debug(debug, "yr.pretty=", yr.pretty, "(before trimming)\n")
+    oceDebug(debug, "xr.pretty=", xr.pretty, "(before trimming)\n")
+    oceDebug(debug, "yr.pretty=", yr.pretty, "(before trimming)\n")
     xr.pretty <- subset(xr.pretty, xr.pretty >= xr[1] & xr.pretty <= xr[2])
     yr.pretty <- subset(yr.pretty, yr.pretty >= yr[1] & yr.pretty <= yr[2])
-    oce.debug(debug, "xr.pretty=", xr.pretty, "(after trimming)\n")
-    oce.debug(debug, "yr.pretty=", yr.pretty, "(after trimming)\n")
+    oceDebug(debug, "xr.pretty=", xr.pretty, "(after trimming)\n")
+    oceDebug(debug, "yr.pretty=", yr.pretty, "(after trimming)\n")
 
     lines(c(xr[1], xr[2], xr[2], xr[1], xr[1]), c(yr[1], yr[1], yr[2], yr[2], yr[1])) # axis box
     axis(1, at=xr.pretty, pos=yr[1])
@@ -141,10 +141,10 @@ if (0){
     axis(2, at=yr.pretty, pos=xr[1])
     axis(4, at=yr.pretty, pos=max(xr), labels=FALSE)
 
-    oce.debug(debug, "xr=", xr, "yr=",yr,"\n")
+    oceDebug(debug, "xr=", xr, "yr=",yr,"\n")
     yaxp <- par("yaxp")
-    oce.debug(debug, "par(yaxp)",par("yaxp"),"\n")
-    oce.debug(debug, "par(pin)",par("pin"),"\n")
+    oceDebug(debug, "par(yaxp)",par("yaxp"),"\n")
+    oceDebug(debug, "par(pin)",par("pin"),"\n")
 
     ## need to clip because contour() does not do so
     xclip <- x$data$longitude < xr[1] | xr[2] < x$data$longitude
@@ -177,23 +177,23 @@ if (0){
             water.z <- rev(sort(water.z))
         }
         nz <- length(water.z)
-        if (missing(water.col))
-            water.col <- oce.colors.gebco(nz, "water", "line")
-        if (missing(water.lty))
-            water.lty <- rep(par("lty"), nz)
-        else if (length(water.lty) == 1)
-            water.lty <- rep(water.lty, nz)
-        if (missing(water.lwd))
-            water.lwd <- rep(par("lwd"), nz)
-        else if (length(water.lwd) == 1)
-            water.lwd <- rep(water.lwd, nz)
+        if (missing(col.water))
+            col.water <- oceColorsGebco(nz, "water", "line")
+        if (missing(lty.water))
+            lty.water <- rep(par("lty"), nz)
+        else if (length(lty.water) == 1)
+            lty.water <- rep(lty.water, nz)
+        if (missing(lwd.water))
+            lwd.water <- rep(par("lwd"), nz)
+        else if (length(lwd.water) == 1)
+            lwd.water <- rep(lwd.water, nz)
         legend <- c(legend, water.z)
-        lwd    <- c(lwd,    water.lwd)
-        lty    <- c(lty,    water.lty)
-        col    <- c(col,    water.col)
+        lwd    <- c(lwd,    lwd.water)
+        lty    <- c(lty,    lty.water)
+        col    <- c(col,    col.water)
         #contour(x$data$longitude, x$data$latitude, x$data$z,
         contour(xx, yy, zz,
-                levels=water.z, lwd=water.lwd, lty=water.lty, col=water.col,
+                levels=water.z, lwd=lwd.water, lty=lty.water, col=col.water,
                 drawlabels=FALSE, add=TRUE, ...)
     }
     if (zr[2] > 0) {
@@ -207,69 +207,74 @@ if (0){
         }
         nz <- length(land.z)
         if (nz > 0) {
-            if (missing(land.col))
-                land.col <- oce.colors.gebco(nz, "land", "line")
-            if (missing(land.lty))
-                land.lty <- rep(par("lty"), nz)
-            else if (length(land.lty) == 1)
-                land.lty <- rep(land.lty, nz)
-            if (missing(land.lwd))
-                land.lwd <- rep(par("lwd"), nz)
-            else if (length(land.lwd) == 1)
-                land.lwd <- rep(land.lwd, nz)
+            if (missing(col.land))
+                col.land <- oceColorsGebco(nz, "land", "line")
+            if (missing(lty.land))
+                lty.land <- rep(par("lty"), nz)
+            else if (length(lty.land) == 1)
+                lty.land <- rep(lty.land, nz)
+            if (missing(lwd.land))
+                lwd.land <- rep(par("lwd"), nz)
+            else if (length(lwd.land) == 1)
+                lwd.land <- rep(lwd.land, nz)
             legend <- c(legend, land.z)
-            lwd    <- c(lwd,    land.lwd)
-            lty    <- c(lty,    land.lty)
-            col    <- c(col,    land.col)
+            lwd    <- c(lwd,    lwd.land)
+            lty    <- c(lty,    lty.land)
+            col    <- c(col,    col.land)
             contour(xx, yy, zz,
-                    levels=land.z, lwd=land.lwd, lty=land.lty, col=land.col,
+                    levels=land.z, lwd=lwd.land, lty=lty.land, col=col.land,
                     drawlabels=FALSE, add=TRUE, ...)
         }
     }
-    if (!is.null(legend.loc)) {
+    if (!is.null(location)) {
         o <- rev(order(legend))
-        legend(legend.loc, lwd=lwd[o], lty=lty[o],
+        legend(location, lwd=lwd[o], lty=lty[o],
                bg="white", legend=legend[o], col=col[o])
     }
     if (debug && !missing(center))
-        points(center[2],center[1],cex=10,col='red')
-    oce.debug(debug, "\b\b} # plot.topo()\n")
+        points(center[2], center[1], cex=10, col='red')
+    oceDebug(debug, "\b\b} # plot.topo()\n")
+    invisible()
 }
 
-read.topo <- function(file, log.action, ...)
+read.topo <- function(file, history, ...)
 {
     nh <- 6
     header <- readLines(file, n=nh)
-    ncols <- as.numeric(strsplit(header[1],"[ ]+",perl=TRUE)[[1]][2])
-    nrows <- as.numeric(strsplit(header[2],"[ ]+",perl=TRUE)[[1]][2])
-    lon.ll <- as.numeric(strsplit(header[3],"[ ]+",perl=TRUE)[[1]][2])
-    lat.ll <- as.numeric(strsplit(header[4],"[ ]+",perl=TRUE)[[1]][2])
-    cellsize <- as.numeric(strsplit(header[5],"[ ]+",perl=TRUE)[[1]][2])
-    zz <- as.matrix(read.table(file, header=FALSE, skip=nh),byrow=TRUE)
-    longitude <- lon.ll + cellsize * seq(0, ncols-1)
-    latitude <- lat.ll + cellsize * seq(0, nrows-1)
+    ncol <- as.numeric(strsplit(header[1],"[ ]+",perl=TRUE)[[1]][2])
+    nrow <- as.numeric(strsplit(header[2],"[ ]+",perl=TRUE)[[1]][2])
+    longitudeLowerLeft <- as.numeric(strsplit(header[3],"[ ]+",perl=TRUE)[[1]][2])
+    latitudeLowerLeft <- as.numeric(strsplit(header[4],"[ ]+",perl=TRUE)[[1]][2])
+    cellSize <- as.numeric(strsplit(header[5],"[ ]+",perl=TRUE)[[1]][2])
+    zz <- as.matrix(read.table(file, header=FALSE, skip=nh), byrow=TRUE)
+    rownames(zz) <- NULL
+    colnames(zz) <- NULL
+    longitude <- longitudeLowerLeft + cellSize * seq(0, ncol-1)
+    latitude <- latitudeLowerLeft + cellSize * seq(0, nrow-1)
     z <- t(zz[dim(zz)[1]:1,])
-    if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
-    log.item <- processing.log.item(log.action)
-    as.topo(longitude, latitude, z, filename=file, log.action=log.item)
+    if (missing(history))
+        history <- paste(deparse(match.call()), sep="", collapse="")
+    hitem <- historyItem(history)
+    as.topo(longitude, latitude, z, filename=file, history=hitem)
 }
 
-as.topo <- function(longitude, latitude, z, filename="", log.action)
+as.topo <- function(longitude, latitude, z, filename="", history)
 {
     ncols <- length(longitude)
     nrows <- length(latitude)
-    lon.ll <- min(longitude, na.rm=TRUE)
-    lat.ll <- min(latitude, na.rm=TRUE)
+    longitudeLowerLeft <- min(longitude, na.rm=TRUE)
+    latitudeLowerLeft <- min(latitude, na.rm=TRUE)
     dim <- dim(z)
     if (dim[1] != ncols)
         stop("longitude vector has length ", ncols, ", which does not match matrix width ", dim[1])
     if (dim[2] != nrows)
         stop("latitude vector has length ", ncols, ", which does not match matrix height ", dim[2])
     data <- list(longitude=longitude, latitude=latitude, z=z)
-    metadata <- list(filename=file, ncols=ncols, nrows=nrows, lon.ll=lon.ll, lat.ll=lat.ll)
-    if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
-    log.item <- processing.log.item(log.action)
-    rval <- list(data=data, metadata=metadata, processing.log=log.item)
+    metadata <- list(filename=file, ncols=ncols, nrows=nrows,
+                     longitudeLowerLeft=longitudeLowerLeft, latitudeLowerLeft=latitudeLowerLeft)
+    if (missing(history))
+        history <- historyItem(paste(deparse(match.call()), sep="", collapse=""))
+    rval <- list(data=data, metadata=metadata, history=history)
     class(rval) <- c("topo", "oce")
     rval
 }
@@ -281,21 +286,20 @@ summary.topo <- function(object, ...)
     res <- list(lat.range=range(object$data$lat, na.rm=TRUE),
                 lon.range=range(object$data$lon, na.rm=TRUE),
                 z.range=range(object$data$z, na.rm=TRUE),
-                processing.log=processing.log.summary(object))
+                history=object$history)
     class(res) <- "summary.topo"
     res
 }
 
 print.summary.topo <- function(x, digits=max(6, getOption("digits") - 1), ...)
 {
-    cat("\nETOPO dataset\n")
-    cat("latitude range:", format(x$lat.range[1], digits),
+    cat("\ntopo dataset\n")
+    cat("* latitude range:", format(x$lat.range[1], digits),
         " to ", format(x$lat.range[2], digits), "\n")
-    cat("longitude range:", format(x$lon.range[1], digits),
+    cat("* longitude range:", format(x$lon.range[1], digits),
         " to ", format(x$lon.range[2], digits), "\n")
-    cat("elevation range:", format(x$z.range[1], digits=digits),
+    cat("* elevation range:", format(x$z.range[1], digits=digits),
         " to ", format(x$z.range[2], digits), "\n")
-    cat("Processing Log:\n", ...)
-    cat(x$processing.log, ...)
+    print(summary(x$history))
     invisible(x)
 }

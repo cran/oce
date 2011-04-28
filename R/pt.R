@@ -1,17 +1,51 @@
-plot.pt <- function (x, which=1:4, title="", adorn=NULL,
-                     tlim, plim, Tlim,
-                     xlab, ylab,
-                     draw.time.range=getOption("oce.draw.time.range"),
-                     abbreviate.time.range=getOption("oce.abbreviate.time.range"),
-                     use.smoothScatter=FALSE,
-                     mgp=getOption("oce.mgp"),
-                     mar=c(mgp[1]+1.5,mgp[1]+1.5,1.5,1.5),
-                     main="",
-                     debug=getOption("oce.debug"),
-                     ...)
+as.pt <- function(time, temperature, pressure,
+                  filename="",
+                  instrumentType="rbr",
+                  serialNumber="",
+                  history, debug=getOption("oceDebug"))
+{
+    debug <- min(debug, 1)
+    oceDebug(debug, "\bas.pt(..., filename=\"", filename, "\", serialNumber=\"", serialNumber, "\")\n", sep="")
+    if (missing(time) || missing(temperature) || missing(pressure))
+        stop("must give (at least) time, temperature, and pressure")
+    if (!inherits(time, "POSIXt"))
+        stop("'time' must be POSIXt")
+    time <- as.POSIXct(time)
+    if (length(time) != length(temperature))
+        stop("lengths of 'time' and 'temperature' must match")
+    if (length(time) != length(pressure))
+        stop("lengths of 'time' and 'pressure' must match")
+    data <- list(ts=list(time=time, temperature=temperature, pressure=pressure))
+    metadata <- list(filename=filename,
+                     instrumentType=instrumentType,
+                     serialNumber=serialNumber)
+    if (missing(history))
+        history <- paste(deparse(match.call()), sep="", collapse="")
+    historyItem <- historyItem(history)
+    rval <- list(data=data, metadata=metadata, history=historyItem)
+    class(rval) <- c("pt", "oce")
+    oceDebug(debug, "\b} # as.pt()\n", sep="")
+    rval
+}
+
+plot.pt <- function(x, which=1:4, title="", adorn=NULL,
+                    tlim, plim, Tlim,
+                    xlab, ylab,
+                    drawTimeRange=getOption("oceDrawTimeRange"),
+                    abbreviateTimeRange=getOption("oceAbbreviateTimeRange"),
+                    useSmoothScatter=FALSE,
+                    mgp=getOption("oceMgp"),
+                    mar=c(mgp[1]+1.5,mgp[1]+1.5,1.5,1.5),
+                    main="",
+                    debug=getOption("oceDebug"),
+                    ...)
 {
     if (!inherits(x, "pt"))
         stop("method is only for pt objects")
+    if (0 == sum(!is.na(x$data$ts$temperature)))
+        stop("no good temperatures to plot")
+    if (0 == sum(!is.na(x$data$ts$pressure)))
+        stop("no good pressures to plot")
     nw <- length(which)
     opar <- par(no.readonly = TRUE)
     if (nw > 1)
@@ -52,30 +86,33 @@ plot.pt <- function (x, which=1:4, title="", adorn=NULL,
         main <- rep('', length.out=nw)
     else
         main <- rep(main, length.out=nw)
-    oce.debug(debug, "after nickname-substitution, which=c(", paste(which, collapse=","), ")\n")
+    oceDebug(debug, "after nickname-substitution, which=c(", paste(which, collapse=","), ")\n")
     for (w in 1:nw) {
+        oceDebug(debug, "which[", w, "]=", which[w], "\n")
         if (which[w] == 1) {
             oce.plot.ts(x$data$ts$time, x$data$ts$temperature,
-                 ylab=resizable.label("T", "y"),
+                 ylab=resizableLabel("T", "y"),
                  type='l',
                  xlim=if (missing(tlim)) range(x$data$ts$time, na.rm=TRUE) else tlim,
                  ylim=if (missing(Tlim)) range(x$data$ts$temperature, na.rm=TRUE) else Tlim,
+                 drawTimeRange=drawTimeRange,
                  main=main[w])
             ##box()
-            ##oce.axis.POSIXct(1, x=x$data$ts$time, draw.time.range=draw.time.range, abbreviate.time.range=abbreviate.time.range)
-            draw.time.range <- FALSE    # only the first time panel gets the time indication
+            ##oce.axis.POSIXct(1, x=x$data$ts$time, drawTimeRange=drawTimeRange, abbreviateTimeRange=abbreviateTimeRange)
+            drawTimeRange <- FALSE    # only the first time panel gets the time indication
             axis(2)
         } else if (which[w] == 3) {     # pressure timeseries
             oce.plot.ts(x$data$ts$time, x$data$ts$pressure,
-                 ylab=resizable.label("p", "y"),
+                 ylab=resizableLabel("p", "y"),
                  type='l',
                  xlim=if (missing(tlim)) range(x$data$ts$time, na.rm=TRUE) else tlim,
                  ylim=if (missing(plim)) range(x$data$ts$pressure, na.rm=TRUE) else plim,
                  main=main[w],
+                 drawTimeRange=drawTimeRange,
                  mgp=mgp, mar=c(mgp[1], mgp[1]+1.5, 1.5, 1.5))
             ##box()
-            ##oce.axis.POSIXct(1, x=x$data$ts$time, draw.time.range=draw.time.range)
-            draw.time.range <- FALSE
+            ##oce.axis.POSIXct(1, x=x$data$ts$time, drawTimeRange=drawTimeRange)
+            drawTimeRange <- FALSE
             ##axis(2)
         } else if (which[w] == 2) {
             text.item <- function(item, cex=4/5*par("cex")) {
@@ -97,8 +134,8 @@ plot.pt <- function (x, which=1:4, title="", adorn=NULL,
             text.item(title, cex=1.25*cex)
             ##if (!is.null(x$metadata$filename))
             ##    text.item(x$metadata$filename, cex=cex)
-            if (!is.null(x$metadata$serial.number))
-                text.item(paste("Serial Number: ", x$metadata$serial.number),cex=cex)
+            if (!is.null(x$metadata$serialNumber))
+                text.item(paste("Serial Number: ", x$metadata$serialNumber),cex=cex)
             if (!(1 %in% which || 2 %in% which)) { # don't bother with these if already on a time-series panel
                 text.item(paste("Start:", x$data$ts$time[1], attr(x$data$ts$time, "tzone")), cex=cex)
                 text.item(paste("End:", x$data$ts$time[length(x$data$ts$time)], attr(x$data$ts$time, "tzone")), cex=cex)
@@ -107,8 +144,8 @@ plot.pt <- function (x, which=1:4, title="", adorn=NULL,
             par(mar=mar)
         } else if (which[w] == 4) {     # "profile"
             args <- list(x=x$data$ts$temperature, y=x$data$ts$pressure,
-                         xlab=resizable.label("T"),
-                         ylab=resizable.label("p"),
+                         xlab=resizableLabel("T"),
+                         ylab=resizableLabel("p"),
                          xlim=if (missing(Tlim)) range(x$data$ts$temperature, na.rm=TRUE) else Tlim,
                          ylim=if (missing(plim)) rev(range(x$data$ts$pressure, na.rm=TRUE)) else plim,
                          ...)
@@ -117,7 +154,7 @@ plot.pt <- function (x, which=1:4, title="", adorn=NULL,
             if (!("cex"  %in% names(list(...))))
                 args <- c(args, cex=1/2)
             np <- length(x$data$ts$pressure)
-            if (use.smoothScatter) {
+            if (useSmoothScatter) {
                 args <- args[names(args) != "type"]
                 do.call(smoothScatter, args)
             } else {
@@ -133,11 +170,12 @@ plot.pt <- function (x, which=1:4, title="", adorn=NULL,
     invisible()
 }
 
-read.pt <- function(file,from=1,to,by=1,tz=getOption("oce.tz"),log.action,debug=getOption("oce.debug"))
+read.pt <- function(file, from=1, to, by=1, tz=getOption("oceTz"),
+                    history, debug=getOption("oceDebug"))
 {
-    if (!missing(to))
-        oce.debug(debug, 'to=', to, '\n')
-    file <- full.filename(file)
+    debug <- max(0, min(debug, 2))
+    oceDebug(debug, "\b\bread.pt(file=\"", file, "\", from=", format(from), ", to=", if(missing(to))"(not given)" else format(to), ", by=", by, ", tz=\"", tz, "\", ...)\n", sep="")
+    file <- fullFilename(file)
     filename <- file
     if (is.character(file)) {
         file <- file(file, "r")
@@ -149,7 +187,7 @@ read.pt <- function(file,from=1,to,by=1,tz=getOption("oce.tz"),log.action,debug=
         open(file, "r")
         on.exit(close(file))
     }
-    oce.debug(debug, "from=", from, "\n")
+    oceDebug(debug, "from=", from, "\n")
     from.keep <- from
     measurement.deltat <- 0
     if (is.numeric(from) && from < 1)
@@ -160,9 +198,9 @@ read.pt <- function(file,from=1,to,by=1,tz=getOption("oce.tz"),log.action,debug=
     by.keep <- by
     host.time <- 0
     logger.time <- 0
-    subsample.start <- 0
-    subsample.end <- 0
-    subsample.period <- 0
+    subsampleStart <- 0
+    subsampleEnd <- 0
+    subsamplePeriod <- 0
     number.channels <- 0
     ## Q: what ends the header? a blank line?  Line 21?
     ## calibration 1
@@ -173,14 +211,14 @@ read.pt <- function(file,from=1,to,by=1,tz=getOption("oce.tz"),log.action,debug=
     ## columns time, Temperature, p
     ##header <- scan(file, what='char', sep="\n", n=19, quiet=TRUE)
     header <- c()
-    measurement.start <-measurement.end <- measurement.deltat <- NULL
+    measurementStart <-measurementEnd <- measurementDeltat <- NULL
     while (TRUE) {
         line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE)
         if (0 < (r<-regexpr("Temp[ \t]*Pres", line))) break
         header <- c(header, line)
         if (0 < (r<-regexpr("Logging[ \t]*start", line))) {
             l <- sub("[ ]*Logging[ \t]*start[ ]*", "", line)
-            measurement.start <- as.POSIXct(strptime(l,"%y/%m/%d %H:%M:%S", tz=tz))
+            measurementStart <- as.POSIXct(strptime(l,"%y/%m/%d %H:%M:%S", tz=tz))
         }
         ## "Logging end" would seem to be the sensible thing to examine,
         ## but "Logger time" seems correct in SLEIWEX 2008 data.  I think
@@ -188,98 +226,99 @@ read.pt <- function(file,from=1,to,by=1,tz=getOption("oce.tz"),log.action,debug=
         ## that time (the relevant one) is in "Logger time".
         ##OLD if (0 < (r<-regexpr("Logging[ \t]*end", line))) {
         ##OLD    l <- sub("[ ]*Logging[ \t]*end[ ]*", "", line)
-        ##OLD    measurement.end <- as.POSIXct(strptime(l,"%y/%m/%d %H:%M:%S", tz=tz))
+        ##OLD    measurementEnd <- as.POSIXct(strptime(l,"%y/%m/%d %H:%M:%S", tz=tz))
         ##OLD }
         if (0 < (r<-regexpr("Logger[ \t]*time", line))) {
             l <- sub("[ ]*Logger[ \t]*time[ ]*", "", line)
-            measurement.end <- as.POSIXct(strptime(l,"%y/%m/%d %H:%M:%S", tz=tz))
+            measurementEnd <- as.POSIXct(strptime(l,"%y/%m/%d %H:%M:%S", tz=tz))
         }
         if (0 < (r<-regexpr("Sample[ \t]*period", line))) {
             l <- sub("[ ]*Sample[ \t]*period[ ]*", "", line)
             sp <- as.numeric(strsplit(l, ":")[[1]])
-            measurement.deltat <- (sp[3] + 60*(sp[2] + 60*sp[1]))
+            measurementDeltat <- (sp[3] + 60*(sp[2] + 60*sp[1]))
         }
     }
-    oce.debug(debug, "measurement.start =", format(measurement.start), "\n")
-    oce.debug(debug, "measurement.end =", format(measurement.end), "\n")
-    oce.debug(debug, "measurement.deltat  =", measurement.deltat, "\n")
-    serial.number <- strsplit(header[1],"[\t ]+")[[1]][4]
-    oce.debug(debug, "serial.number=", serial.number,"\n")
+    oceDebug(debug, "measurementStart =", format(measurementStart), "\n")
+    oceDebug(debug, "measurementEnd =", format(measurementEnd), "\n")
+    oceDebug(debug, "measurementDeltat  =", measurementDeltat, "\n")
+    serialNumber <- strsplit(header[1],"[\t ]+")[[1]][4]
+    oceDebug(debug, "serialNumber=", serialNumber,"\n")
     ## Now that we know the logging times, we can work with 'from 'and 'to'
     if (inherits(from, "POSIXt") || inherits(from, "character")) {
         if (!inherits(to, "POSIXt") && !inherits(to, "character"))
             stop("if 'from' is POSIXt or character, then 'to' must be, also")
-        from <- as.numeric(difftime(as.POSIXct(from, tz=tz), measurement.start, units="secs")) / measurement.deltat
-        oce.debug(debug, "inferred from =", format(from, width=7), " based on 'from' arg", from.keep, "\n")
-        to <- as.numeric(difftime(as.POSIXct(to, tz=tz), measurement.start, units="secs")) / measurement.deltat
-        oce.debug(debug, "inferred   to =",   format(to, width=7), " based on   'to' arg", to.keep, "\n")
+        if (to <= from)
+            stop("cannot have 'to' <= 'from'")
+        from <- as.numeric(difftime(as.POSIXct(from, tz=tz), measurementStart, units="secs")) / measurementDeltat
+        oceDebug(debug, "inferred from =", format(from, width=7), " based on 'from' arg", from.keep, "\n")
+        to <- as.numeric(difftime(as.POSIXct(to, tz=tz), measurementStart, units="secs")) / measurementDeltat
+        oceDebug(debug, "inferred   to =",   format(to, width=7), " based on   'to' arg", to.keep, "\n")
+    } else {
+        if (from < 1)
+            stop("cannot have 'from' < 1")
+        if (!missing(to) && to < from)
+            stop("cannot have 'to' < 'from'")
     }
-    oce.debug(debug, "by=", by, "in argument list\n")
-    by <- ctime.to.seconds(by)
-    oce.debug(debug, "inferred by=", by, "s\n")
-
+    oceDebug(debug, "by=", by, "in argument list\n")
+    by <- ctimeToSeconds(by)
+    oceDebug(debug, "inferred by=", by, "s\n")
     col.names <- strsplit(gsub("[ ]+"," ", gsub("[ ]*$","",gsub("^[ ]+","",line))), " ")[[1]]
-
     ## Read a line to determine if there is a pair of columns for time
     line <- scan(file, what='char', sep="\n", n=1, quiet=TRUE)
     pushBack(line, file)
     line <- gsub("[ ]+$", "", gsub("^[ ]+","", line))
     nvar <- length(strsplit(line, "[ ]+")[[1]])
-
-    oce.debug(debug, " data line '", line, "' reveals ", nvar, " data per line\n", sep="")
-    if (missing(to)) {
-        oce.debug(debug, "reading whole file, since 'to' was not provided\n")
-        d <- scan(file, character(), skip=from-1, quiet=TRUE) # whole file
-    } else {
-        oce.debug(debug, "skipping (from-1)=", from-1, "lines, then reading (to-from+1)=", to-from+1, "lines\n")
-        d <- scan(file, character(), skip=from-1, quiet=TRUE, nlines=(to - from + 1))
-    }
-    oce.debug(debug, "got length(d)=", length(d), "during the scan()\n")
-    ## FIXME: it is slow to read whole file and then subset ... would multiple calls to scan() be faster?
+    oceDebug(debug, " data line '", line, "' reveals ", nvar, " data per line\n", sep="")
+    d <- scan(file, character(), quiet=TRUE) # read whole file (it's too tricky to bisect times with text data)
     n <- length(d) / nvar
+    oceDebug(debug, "file has", length(d), "items; assuming", nvar, "items per line, based on first line\n")
     dim(d) <- c(nvar, n)
-
-    ## subset
-    look <- seq(from=1, to=n, by=by)    # BUG: why not using proper 'from'?
-    d <- d[,look]
-    n <- dim(d)[2]
-    subsample.start <- measurement.start + (from - 1) * measurement.deltat # FIXME: check this
-    subsample.deltat <- by * measurement.deltat
     if (nvar == 2) {
-        time <- subsample.start + seq(from=0, to=n-1) * subsample.deltat
-        oce.debug(debug, "nvar=2; setting time[1]=", format(time[1]), "and time[2]=", format(time[2]), "with subsample.deltat=", subsample.deltat,"\n")
-        temperature <- as.numeric(d[1,])
-        pressure <- as.numeric(d[2,])
+        time <- measurementStart + seq(from=0, to=n-1) * measurementDeltat
+        Tcol <- 1
+        pcol <- 2
     } else if (nvar == 4) {
-        oce.debug(debug, "nvar=4; decoding data\n")
-        time <- as.POSIXct(paste(d[1,], d[2,]), tz=tz)
-        temperature <- as.numeric(d[3,])
-        pressure <- as.numeric(d[4,])
+        ## This time conversion is the slowest part of this function.  With R 2.13.0a working on
+        ## a 620524-long vector: strptime() took 24s on a particular machine, and
+        ## as.POSIXct() took 104s.  So, use strptime(), if the first time seems
+        ## to be in a stanadard format.
+        if (1 == length(grep("[0-9]{4}/[0-3][0-9]/[0-3][0-9]", d[1,1])))
+            time <- strptime(paste(d[1,], d[2,]), format="%Y/%m/%d %H:%M:%S", tz=tz)
+        else
+            time <- as.POSIXct(paste(d[1,], d[2,]), tz=tz)
+        Tcol <- 3
+        pcol <- 4
     } else if (nvar == 5) {
-        oce.debug(debug, "nvar=5; decoding data\n")
         ## 2008/06/25 10:00:00   18.5260   10.2225    0.0917
-        time <- as.POSIXct(paste(d[1,], d[2,]),tz=tz)
-        temperature <- as.numeric(d[3,])
-        pressure <- as.numeric(d[4,])
-        ## ignore column 5
-    } else stop("wrong number of variables; need 2, 4, or 5, but got ", nvar)
-    data <- list(ts=list(time=time, temperature=temperature, pressure=pressure))
-    metadata <- list(filename=filename,
-                     instrument.type="rbr",
-                     serial.number=serial.number,
-                     measurement.start=measurement.start,
-                     measurement.end=measurement.end,
-                     measurement.deltat=measurement.deltat,
-                     subsample.start=time[1],
-                     subsample.end=time[length(time)],
-                     subsample.deltat=as.numeric(time[2])-as.numeric(time[1]))
-    if (missing(log.action)) log.action <- paste(deparse(match.call()), sep="", collapse="")
-    log.item <- processing.log.item(log.action)
-    rval <- list(data=data, metadata=metadata, processing.log=log.item)
-    class(rval) <- c("pt", "oce")
-    rval
-}
+        if (1 == length(grep("[0-9]{4}/[0-3][0-9]/[0-3][0-9]", d[1,1])))
+            time <- strptime(paste(d[1,], d[2,]), format="%Y/%m/%d %H:%M:%S", tz=tz)
+        else
+            time <- as.POSIXct(paste(d[1,], d[2,]), tz=tz)
+        Tcol <- 3
+        pcol <- 4
+    } else
+        stop("wrong number of variables; need 2, 4, or 5, but got ", nvar)    ## subset
 
+    ## subset times
+    if (inherits(from, "POSIXt") || inherits(from, "character")) {
+        keep <- from <= time & time <= to # FIXME: from may be int or time
+    } else {
+        if (missing(to))
+            look <- from:n
+        else
+            look <- from:to
+    }
+    oceDebug(debug, "will be skipping time with seq(..., by=", by, ")\n")
+    look <- seq.int(1, dim(d)[2], by=by)
+    time <- time[look]
+    temperature <- as.numeric(d[Tcol, look])
+    pressure <- as.numeric(d[pcol, look])
+    as.pt(time, temperature, pressure, instrumentType="rbr",
+          serialNumber=serialNumber,
+          filename=filename,
+          history=paste(deparse(match.call()), sep="", collapse=""),
+          debug=debug-1)
+}
 
 summary.pt <- function(object, ...)
 {
@@ -292,16 +331,12 @@ summary.pt <- function(object, ...)
     colnames(fives) <- c("Min.", "1st Qu.", "Median", "3rd Qu.", "Max.")
     rownames(fives) <- c("Temperature", "Pressure")
     res <- list(filename=object$metadata$filename,
-                serial.number=object$metadata$serial.number,
-                measurement.start=object$metadata$measurement.start,
-                measurement.end=object$metadata$measurement.end,
-                measurement.deltat=object$metadata$measurement.deltat,
-                subsample.start=object$metadata$subsample.start,
-                subsample.end=object$metadata$subsample.end,
-                subsample.deltat=object$metadata$subsample.deltat,
-                samples=length(object$data$ts$temperature), # FIXME: do we need this?
+                serialNumber=object$metadata$serialNumber,
                 fives=fives,
-                processing.log=processing.log.summary(object))
+                tstart=object$data$ts$time[1],
+                tend=object$data$ts$time[length(object$data$ts$time)],
+                deltat=as.numeric(object$data$ts$time[2]) - as.numeric(object$data$ts$time[1]),
+                history=object$history)
     class(res) <- "summary.pt"
     res
 }
@@ -309,25 +344,21 @@ summary.pt <- function(object, ...)
 print.summary.pt <- function(x, digits=max(6, getOption("digits") - 1), ...)
 {
     cat("PT Summary\n----------\n", ...)
-    cat(paste("* Instrument:         RBR, serial number ``", x$serial.number, "``\n", sep=""), ...)
+    cat(paste("* Instrument:         RBR, serial number ``", x$serialNumber, "``\n", sep=""), ...)
     cat(paste("* Source:             ``", x$filename, "``\n", sep=""), ...)
     cat(sprintf("* Measurements:       %s %s to %s %s sampled at %.4g Hz\n",
-                format(x$measurement.start), attr(x$measurement.start, "tzone"),
-                format(x$measurement.end), attr(x$measurement.end, "tzone"),
-                1 / x$measurement.deltat), ...)
-    cat(sprintf("* Subsample:          %s %s to %s %s sampled at %.4g Hz\n",
-                format(x$subsample.start), attr(x$subsample.start, "tzone"),
-                format(x$subsample.end),  attr(x$subsample.end, "tzone"),
-                1 / x$subsample.deltat), ...)
+                format(x$tstart), attr(x$tstart, "tzone"),
+                format(x$tend), attr(x$tend, "tzone"),
+                1 / x$deltat), ...)
     cat("* Statistics of subsample::\n\n", ...)
-    cat(show.fives(x, indent='     '), ...)
-    ##cat("\n* Processing log::\n\n", ...)
+    cat(showFives(x, indent='     '), ...)
+    ##cat("\n* history::\n\n", ...)
     cat("\n")
-    print(x$processing.log, ...)
+    print(summary(x$history))
     invisible(x)
 }
 
-pt.patm <- function(x, dp=0.5)
+ptPatm <- function(x, dp=0.5)
 {
     p <- if (inherits(x, "pt")) x$data$ts$pressure else x
     sap <- 10.1325                      # standard atm pressure
@@ -341,34 +372,34 @@ pt.patm <- function(x, dp=0.5)
         c(sap, median(p), mean(p), weighted.mean(p, w))
 }
 
-pt.trim <- function(x, method="water", parameters=NULL, debug=getOption("oce.debug"))
+ptTrim <- function(x, method="water", parameters=NULL, debug=getOption("oceDebug"))
 {
-    oce.debug(debug, "\b\bpt.trim() {\n")
+    oceDebug(debug, "\b\bptTrim() {\n")
     if (!inherits(x, "pt"))
         stop("method is only for pt objects")
     res <- x
     n <- length(x$data$ts$temperature)
-    oce.debug(debug, "dataset has", n, "points\n")
+    oceDebug(debug, "dataset has", n, "points\n")
     if (n < 2) {
         warning("too few data to trim pt record")
     } else {
         which.method <- pmatch(method, c("water", "time", "index"), nomatch=0)
-        oce.debug(debug, "using method", which.method, "\n")
+        oceDebug(debug, "using method", which.method, "\n")
         if (which.method == 1) {        # "water"
             keep <- rep(FALSE, n)
             air <- x$data$ts$pressure < 10.5 # NB. standard pressure is 10.1325
-            water.indices <- which(!air)
+            waterIndices <- which(!air)
             b <- 2                      # trim a few descending points
-            i.start <- water.indices[1] + b
-            i.stop <- water.indices[-b + length(water.indices)]
+            i.start <- waterIndices[1] + b
+            i.stop <- waterIndices[-b + length(waterIndices)]
             keep[i.start:i.stop] <- TRUE
         } else if (which.method == 2) { # "time"
-            oce.debug(debug, "trimming to time range ",as.character(parameters[1])," to ", as.character(parameters[2]), "\n")
+            oceDebug(debug, "trimming to time range ",as.character(parameters[1])," to ", as.character(parameters[2]), "\n")
             keep <- rep(TRUE, n)
             keep[x$data$ts$time < as.POSIXlt(parameters[1])] <- FALSE
             keep[x$data$ts$time > as.POSIXlt(parameters[2])] <- FALSE
         } else if (which.method == 3) { # "index"
-            oce.debug(debug, "parameters:",parameters,"\n")
+            oceDebug(debug, "parameters:",parameters,"\n")
             if (min(parameters) < 1)
                 stop("Cannot select indices < 1");
             if (max(parameters) > n)
@@ -382,8 +413,8 @@ pt.trim <- function(x, method="water", parameters=NULL, debug=getOption("oce.deb
     for (name in names(x$data$ts))
         res$data$ts[[name]] <- subset(x$data$ts[[name]], keep)
     res$data$ts$pressure <- res$data$ts$pressure - 10.1325 # remove avg sealevel pressure
-    res$processing.log <- processing.log.add(res$processing.log,
-                                             paste(deparse(match.call()), sep="", collapse=""))
-    oce.debug(debug, "\b\b} # pt.trim()n")
+    res$history <- historyAdd(res$history,
+                              paste(deparse(match.call()), sep="", collapse=""))
+    oceDebug(debug, "\b\b} # ptTrim()n")
     res
 }

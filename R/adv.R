@@ -111,7 +111,7 @@ read.adv.nortek <- function(file, from=1, to, by=1, tz=getOption("oceTz"),
                      velocityScale=header$user$velocityScale,
                      coordinateSystem=header$user$coordinateSystem,
                      oceCoordinate=header$user$coordinateSystem,
-                     oceBeamAttenuated=FALSE,
+                     oceBeamUnattenuated=FALSE,
                      deployName=header$user$deployName,
                      comments=header$user$comments)
     if (missing(history))
@@ -810,10 +810,10 @@ read.adv.sontek.adr <- function(file, from=1, to, by=1, tz=getOption("oceTz"),  
         metadata$samplesPerBurst <- metadata$samplesPerBurst[1]
         if (metadata$samplesPerBurst < 0)
             stop("samplesPerBurst must be a positive integer, but got ", metadata$samplesPerBurst)
-        metadata$deploymentName <- paste(integer2ascii(as.integer(deploymentParameters[49:57])), collapse="")
-        metadata$comments1 <- paste(integer2ascii(as.integer(deploymentParameters[66:125])), collapse="")
-        metadata$comments2 <- paste(integer2ascii(as.integer(deploymentParameters[126:185])), collapse="")
-        metadata$comments3 <- paste(integer2ascii(as.integer(deploymentParameters[126:185])), collapse="")
+        metadata$deploymentName <- paste(integerToAscii(as.integer(deploymentParameters[49:57])), collapse="")
+        metadata$comments1 <- paste(integerToAscii(as.integer(deploymentParameters[66:125])), collapse="")
+        metadata$comments2 <- paste(integerToAscii(as.integer(deploymentParameters[126:185])), collapse="")
+        metadata$comments3 <- paste(integerToAscii(as.integer(deploymentParameters[126:185])), collapse="")
     }                                   # if (header)
 
     ## Use 3-byte flag to find bursts in buf.  Then find their times, and # samples in each.

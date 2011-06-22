@@ -26,6 +26,7 @@
      latlon.cex=1.5,
      latlon.col="red",
      cex=1,
+     pch=1,
      useSmoothScatter=FALSE,
      adorn=NULL,
      mgp=getOption("oceMgp"),
@@ -34,10 +35,11 @@
      \dots)
 }
 \arguments{
-  \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}.}
+  \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}, or a
+      list containing items named \code{salinity} and \code{temperature}.}
   \item{which}{list of desired plot types.  
     \itemize{
-      \item \code{which=1} or \code{which="temperature+salinity"} gives
+      \item \code{which=1} or \code{which="salinity+temperature"} gives
       a combined profile of temperature and salinity
       \item \code{which=2} or \code{which="density+N2"} gives a combined
       profile of \eqn{\sigma_\theta}{sigma-theta} and \eqn{N^2}{N^2}
@@ -81,7 +83,8 @@
   \item{latlon.pch}{pch for sample location (ignored if no map plotted)}
   \item{latlon.cex}{cex for sample location (ignored if no map plotted)}
   \item{latlon.col}{col for sample location (ignored if no map plotted)}
-  \item{cex}{size to be used for plot symbols}
+  \item{cex}{size to be used for plot symbols (see \code{\link{par}})}
+  \item{pch}{code for plotting symbol (see \code{\link{par}}).}
   \item{useSmoothScatter}{boolean, set to \code{TRUE} to use 
     \code{\link{smoothScatter}} instead of \code{\link{plot}} to draw
     the plot.}
@@ -133,22 +136,6 @@ latlim <- 47 + c(48, 58) / 60
 plot(ctd, which=c(1,2,3,5),
      coastline=coastlineSLE,
      adorn=expression({},{},{},{text(-69.72,47.85,'IAL',pos=4)}))
-
-# Trimming
-data(ctdRaw)
-plot(ctdRaw, which=8)
-abline(v=100)
-abline(v=120)
-abline(v=130)
-abline(v=350)
-# The range 130 to 350 seems good, but you can narrow in
-# by repeating the command below, with differing ranges.
-plot(ctdTrim(ctdRaw, "range",
-  parameters=list(item="index", from=130, to=350)), which=8)
-# See results
-ctdTrimmed <- ctdTrim(ctdRaw, "range",
-  parameters=list(item="index", from=130, to=350))
-plot(ctdTrimmed)
 }
 \author{Dan Kelley}
-\keyword{misc}
+\keyword{hplot}

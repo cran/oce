@@ -1,7 +1,11 @@
 \name{plot.TS}
+
 \alias{plot.TS}
+
 \title{Plot temperature-salinity diagram for seawater (CTD) data}
+
 \description{Plot temperature-salinity diagram for seawater (CTD) data.}
+
 \usage{plot.TS(x,
      rhoLevels = 6,
      grid = TRUE,
@@ -11,8 +15,7 @@
      col = par("col"),
      col.rho = "darkgray",
      cex.rho = 0.9*par("cex"),
-     cex = par("cex"),
-     pch = 21,
+     cex = par("cex"), pch = 1,
      rotateRhoLabels = FALSE,
      connectPoints = FALSE,
      useSmoothScatter = FALSE,
@@ -25,6 +28,7 @@
      lwd.rho=par("lwd"), lty.rho=par("lty"),
      \dots)
 }
+
 \arguments{
   \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}.}
   \item{rhoLevels}{Either a list of density levels for which to draw isopycnal
@@ -37,8 +41,8 @@
   \item{col}{colour for symbols.}
   \item{col.rho}{colour for isopycnal lines.}
   \item{cex.rho}{size of isopycnal labels.}
-  \item{cex}{size of symbols on graph.}
-  \item{pch}{code for symbols on graph.}
+  \item{cex}{size to be used for plot symbols (see \code{\link{par}})}
+  \item{pch}{code for plotting symbol (see \code{\link{par}}).}
   \item{rotateRhoLabels}{if TRUE, labels in right-hand margin are written vertically}
   \item{connectPoints}{if TRUE, the points are connected with line segments, in sequence}
   \item{useSmoothScatter}{if TRUE, use \code{\link{smoothScatter}} to plot the points.}
@@ -64,6 +68,7 @@
   \code{\link{summary.ctd}} summarizes the information, while
   \code{\link{read.ctd}} scans it from a file.
 }
+
 \examples{
 library(oce)
 # Plot TS diagram for a mid-Atlantic station at 36N
@@ -73,5 +78,7 @@ profile <- a03$data$station[[60]] # 124 stations in total
 plot.TS(profile)
 title("Mid-Atlantic at 36N")
 }
+
 \author{Dan Kelley}
-\keyword{misc}
+
+\keyword{hplot}

@@ -1,3 +1,23 @@
+0.3-1
+- add read.oce.odf()
+- add findInOrdered
+- generalize tidem() argument list
+- read.adv.nortek(): handle burst-mode data
+- add datasets wilson, redfieldNP, redfieldNC, redfieldPlankton, and riley
+- change data(ctd) to be derived from data(ctdRaw)
+- change to monitor=FALSE for all reading functions
+- add accessor functions heading(), latitude(), longitude(), pitch(),
+  pressure(), processingLog(), roll(), salinity(), temperature(), time(), and
+  velocity().
+- rename history as processingLog
+- flatten all data objects to be 1 level thick (for future matlab exports)
+- add threenum() added, and use it in all summaries (for speed)
+
+0.2-3
+- head.adp() added
+- tail.adp() added
+- extract() added
+
 0.2-2
 - velocityStatistics() added
 - new names: oceApprox() integerToAscii() rangeLimit() ctdRaw
@@ -283,7 +303,7 @@
 - add swSoundSpeed()
 
 0.1.62
-- add historyAppend() and related code
+- add historyAppend() (later named processingLogAppend()) and related code
 - improve ctdTrim()
 
 0.1.61

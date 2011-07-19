@@ -28,9 +28,10 @@
      cex=1,
      pch=1,
      useSmoothScatter=FALSE,
+     type='l',
      adorn=NULL,
      mgp=getOption("oceMgp"),
-     mar=c(mgp[1]+1,mgp[1]+1,mgp[1]+1.5,mgp[1]+1),
+     mar=c(mgp[1]+1,mgp[1]+1,mgp[1]+1,mgp[1]+1),
      debug=getOption("oceDebug"),
      \dots)
 }
@@ -47,8 +48,12 @@
       \item \code{which=4} or \code{which="text"} gives a textual
       summary of some aspects of the data
       \item \code{which=5} or \code{which="map"} gives a map, with a dot
-      for the station location (note that this requires that a
-      \code{coastline} be given)
+      for the station location.  If a coastline is given, that is drawn as
+      well.  Notes near the top boundary of the map give the station number,
+      the sampling date, and the name of the chief scientist, if these are
+      known.
+      \item \code{which=5.1} as for \code{which=5}, except that the file name
+      is drawn above the map
       \item \code{which=6} or \code{which="density+dpdt"} gives a
       profile of density and \eqn{dP/dt}{dP/dt}, which is useful for
       evaluating whether the instrument is dropping properly through the
@@ -88,6 +93,7 @@
   \item{useSmoothScatter}{boolean, set to \code{TRUE} to use 
     \code{\link{smoothScatter}} instead of \code{\link{plot}} to draw
     the plot.}
+  \item{type}{type of plot to draw, using the same scheme as \code{\link{plot}}.}
   \item{adorn}{list of expressions to be executed for the panels in
     turn, e.g. to adorn the plots.  If the number matches the number of
     panels, then the strings are applied to the appropriate panels, 

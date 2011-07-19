@@ -193,7 +193,7 @@ ctdDecimate <- function(x, p, method=c("approx", "boxcar","lm","reiniger-ross"),
 }
 
 ctdTrim <- function(x, method=c("downcast", "index", "range"),
-                    inferWaterDepth=TRUE, removeDepthInversions=TRUE,    
+                    inferWaterDepth=TRUE, removeDepthInversions=FALSE, 
                     parameters, debug=getOption("oceDebug"))
 {
     oceDebug(debug, "\b\bctdTrim() {\n")
@@ -209,13 +209,18 @@ ctdTrim <- function(x, method=c("downcast", "index", "range"),
         oceDebug(debug, paste("ctdTrim() using method \"", method,"\"\n", sep=""))
         keep <- rep(TRUE, n)
         if (method == "index") {
-            ##if (verbose)	cat("  parameters:",parameters,"\n");
-            if (min(parameters) < 1)
-                stop("Cannot select indices < 1");
-            if (max(parameters) > n)
-                stop(paste("Cannot select past end of array, i.e. past ", n))
-            keep <- rep(FALSE, n)
-            keep[parameters] <- TRUE
+            if (is.logical(parameters)) {
+                if (length(parameters) != n)
+                    stop("for method=\"index\", need length(parameters) to match number of pressure values")
+                keep <- parameters
+            } else {
+                if (min(parameters) < 1)
+                    stop("Cannot select indices < 1");
+                if (max(parameters) > n)
+                    stop(paste("Cannot select past end of array, i.e. past ", n))
+                keep <- rep(FALSE, n)
+                keep[parameters] <- TRUE
+            }
         } else if (method == "downcast") {
             ## 1. despike to remove (rare) instrumental problems
             x$data$pressure <- smooth(x$data$pressure,kind="3R")
@@ -372,9 +377,10 @@ plot.ctd <- function (x, which = 1:4,
                       cex=1,
                       pch=1,
                       useSmoothScatter=FALSE,
+                      type='l',
                       adorn=NULL,
                       mgp=getOption("oceMgp"),
-                      mar=c(mgp[1]+1,mgp[1]+1,mgp[1]+1.5,mgp[1]+1),
+                      mar=c(mgp[1]+1,mgp[1]+1,mgp[1]+1,mgp[1]+1),
                       debug=getOption("oceDebug"),
                       ...)
 {
@@ -384,6 +390,12 @@ plot.ctd <- function (x, which = 1:4,
     opar <- par(no.readonly = TRUE)
     lw <- length(which)
     if (lw > 1) on.exit(par(opar))
+    if (length(type) < lw)
+        type <- rep(type, lw) # FIXME: recycle more sensibly
+    if (length(pch) < lw)
+        pch <- rep(pch, lw) # FIXME: recycle more sensibly
+    if (length(cex) < lw)
+        cex <- rep(cex, lw) # FIXME: recycle more sensibly
     dec_deg <- function(x, code = "lat") {
         if (code == "lat") {
             if (x < 0) {
@@ -448,61 +460,61 @@ plot.ctd <- function (x, which = 1:4,
     for (w in 1:length(which)) {
         if (which[w] == 1 || which[w] == "temperature+salinity")
             plot.profile(x, xtype="salinity+temperature", Slim=Slim, Tlim=Tlim, ylim=plim,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         grid=grid, col.grid=col.grid, lty.grid=lty.grid)
+                         grid=grid, col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 2 || which[w] == "density+N2")
             plot.profile(x, xtype="density+N2",
                          ylim=plim,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         grid=grid, col.grid=col.grid, lty.grid=lty.grid)
+                         grid=grid, col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 6 || which[w] == "density+dpdt")
             plot.profile(x, xtype="density+dpdt",
                          ylim=plim, densitylim=densitylim, dpdtlim=dpdtlim,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         grid=grid, col.grid=col.grid, lty.grid=lty.grid)
+                         grid=grid, col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 7 || which[w] == "density+time")
             plot.profile(x, xtype="density+time",
                          ylim=plim, densitylim=densitylim, timelim=timelim,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         grid=grid, col.grid=col.grid, lty.grid=lty.grid)
+                         grid=grid, col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 8 || which[w] == "index")
             plot.profile(x, xtype="index",
                          ylim=plim,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         grid=grid, col.grid=col.grid, lty.grid=lty.grid)
+                         grid=grid, col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 9 || which[w] == "salinity")
             plot.profile(x, xtype="salinity",
                          ylim=plim,
                          Slim=Slim,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         grid=grid, col.grid=col.grid, lty.grid=lty.grid)
+                         grid=grid, col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 10 || which[w] == "temperature") {
             plot.profile(x, xtype="temperature",
                          ylim=plim,
                          Tlim=Tlim,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         grid=grid, col.grid=col.grid, lty.grid=lty.grid)
+                         grid=grid, col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         } else if (which[w] == 11 || which[w] == "density")
             plot.profile(x, xtype="density",
                          ylim=plim,
                          grid=grid,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         col.grid=col.grid, lty.grid=lty.grid)
+                         col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 12 || which[w] == "N2")
             plot.profile(x, xtype="N2",
                          ylim=plim,
                          grid=grid,
-                         cex=cex, pch=pch,
                          useSmoothScatter=useSmoothScatter,
-                         col.grid=col.grid, lty.grid=lty.grid)
+                         col.grid=col.grid, lty.grid=lty.grid,
+                         cex=cex[w], pch=pch[w], type=type[w])
         else if (which[w] == 3 || which[w] == "TS") {
             ##par(mar=c(3.5,3,2,2))
             plot.TS(x, Slim=Slim, Tlim=Tlim,
@@ -543,46 +555,60 @@ plot.ctd <- function (x, which = 1:4,
                                                ",", dec_deg(ref.lat), ") = ", kms), adj = c(0, 0), cex=cex)
                 yloc <- yloc - d.yloc
             }
-        } else if (which[w] == 5 || which[w] == "map") {
-            if (missing(coastline))
-                stop("need a coastline to draw a map")
-            if (missing(lonlim)) {
-                lonlim.c <- x$metadata$longitude + c(-1, 1) * min(abs(range(coastline$data$longitude, na.rm=TRUE) - x$metadata$longitude))
-                clon <- mean(lonlim.c)
-                if (missing(latlim)) {
-                    latlim.c <- x$metadata$latitude + c(-1, 1) * min(abs(range(coastline$data$latitude,na.rm=TRUE) - x$metadata$latitude))
-                    span <- diff(range(latlim.c)) / 1.5 * 111
-                    plot(coastline, center=c(mean(latlim.c), clon), span=span, debug=debug-1)
-                    oceDebug(debug, "CASE 1: both latlim and lonlim missing\n")
+        } else if (round(which[w]) == 5 || which[w] == "map") {
+            if (missing(coastline)) {
+                if (!is.null(x$metadata$station) && !is.na(x$metadata$station)) {
+                    plot(x$metadata$longitude, x$metadata$latitude, xlab="", ylab="")
                 } else {
-                    clat <- mean(latlim)
-                    span <- diff(range(latlim)) / 1.5 * 111
-                    plot(coastline, center=c(clat, clon), span=span, debug=debug-1)
-                    oceDebug(debug, "CASE 2: latlim given, lonlim missing\n")
+                    warning("no latitude or longitude in object's metadata, so cannot draw map")
                 }
             } else {
-                clon <- mean(lonlim)
-                if (missing(latlim)) {
-                    latlim.c <- x$metadata$latitude + c(-1, 1) * min(abs(range(coastline$data$latitude,na.rm=TRUE) - x$metadata$latitude))
-                    clat <- mean(latlim.c)
-                    span <- diff(range(latlim.c)) / 1.5 * 111
-                    plot(coastline, center=c(clat, clon), span=span, debug=debug-1)
-                    oceDebug(debug, "CASE 3: lonlim given, latlim missing\n")
+                if (missing(lonlim)) {
+                    lonlim.c <- x$metadata$longitude + c(-1, 1) * min(abs(range(coastline$data$longitude, na.rm=TRUE) - x$metadata$longitude))
+                    clon <- mean(lonlim.c)
+                    if (missing(latlim)) {
+                        latlim.c <- x$metadata$latitude + c(-1, 1) * min(abs(range(coastline$data$latitude,na.rm=TRUE) - x$metadata$latitude))
+                        span <- diff(range(latlim.c)) / 1.5 * 111
+                        plot(coastline, center=c(mean(latlim.c), clon), span=span, debug=debug-1)
+                        oceDebug(debug, "CASE 1: both latlim and lonlim missing\n")
+                    } else {
+                        clat <- mean(latlim)
+                        span <- diff(range(latlim)) / 1.5 * 111
+                        plot(coastline, center=c(clat, clon), span=span, debug=debug-1)
+                        oceDebug(debug, "CASE 2: latlim given, lonlim missing\n")
+                    }
+                    if (round(which[w],1) == 5.1) # HIDDEN FEATURE
+                        mtext(gsub(".*/", "", x$metadata$filename), side=3, line=0.1, cex=0.7*cex)
                 } else {
-                    clat <- mean(latlim)
-                    span <- diff(range(latlim)) / 1.5 * 111
-                    plot(coastline, center=c(clat, clon), span=span, debug=debug-1)
-                    oceDebug(debug, "CASE 4: both latlim and lonlim given\n")
+                    clon <- mean(lonlim)
+                    if (missing(latlim)) {
+                        latlim.c <- x$metadata$latitude + c(-1, 1) * min(abs(range(coastline$data$latitude,na.rm=TRUE) - x$metadata$latitude))
+                        clat <- mean(latlim.c)
+                        span <- diff(range(latlim.c)) / 1.5 * 111
+                        plot(coastline, center=c(clat, clon), span=span, debug=debug-1)
+                        oceDebug(debug, "CASE 3: lonlim given, latlim missing\n")
+                    } else {
+                        clat <- mean(latlim)
+                        span <- diff(range(latlim)) / 1.5 * 111
+                        plot(coastline, center=c(clat, clon), span=span, debug=debug-1)
+                        oceDebug(debug, "CASE 4: both latlim and lonlim given\n")
+                    }
                 }
+                points(x$metadata$longitude, x$metadata$latitude, cex=latlon.cex, col=latlon.col, pch=latlon.pch)
+                if (!is.null(x$metadata$station) && !is.na(x$metadata$station))
+                    mtext(paste("Station", x$metadata$station), side=3, adj=0, cex=0.8*par("cex"))
+                if (!is.null(x$metadata$startTime))
+                    mtext(format(x$metadata$startTime), side=3, adj=1, cex=0.8*par("cex"))
+                if (!is.null(x$metadata$scientist))
+                    mtext(paste(" ", x$metadata$scientist, sep=""), side=3, line=-1, adj=0, cex=0.8*par("cex"))
             }
-            points(x$metadata$longitude, x$metadata$latitude, cex=latlon.cex, col=latlon.col, pch=latlon.pch)
-            if (!is.na(x$metadata$station))
-                mtext(paste("Station", x$metadata$station), side=3, cex=par("cex"))
+        } else {
+            stop("unknown value of which, ", which[w])
         }
-        else stop("unknown value of which, ", which[w])
         if (w <= adorn.length && nchar(adorn[w]) > 0) {
             t <- try(eval(adorn[w]), silent=TRUE)
-            if (class(t) == "try-error") warning("cannot evaluate adorn[", w, "]\n")
+            if (class(t) == "try-error")
+                warning("cannot evaluate adorn[", w, "]\n")
         }
     }
     oceDebug(debug, "\b\b} # plot.ctd()\n")
@@ -1268,17 +1294,28 @@ read.ctd.odf <- function(file, columns=NULL, station=NULL, missing.value=-999, m
     if (!length(parameterStart))
         stop("cannot locate any lines containing 'PARAMETER_HEADER'")
     namesWithin <- parameterStart[1]:dataStart[1]
-    names <- gsub("',", "", gsub("\\s*NAME\\s*=\\s*'", "", lines[parameterStart[1]-1+grep("NAME=", lines[namesWithin])]))
+    ## extract column codes in a step-by-step way, to make it easier to adjust if the format changes
+    nullValue <- as.numeric(fromHeader("NULL_VALUE")[1]) # FIXME: should do this for columns separately
+    names <- lines[grep("^\\s*CODE\\s*=", lines)]
+    names <- gsub("\\s*$", "", gsub("^\\s*", "", names)) # trim start/end whitespace
+    names <- gsub(",", "", names) # trim commas
+    names <- gsub("'", "", names) # trim single quotes
+    names <- gsub(",\\s*$", "", gsub("^\\s*","", names)) # "  CODE=PRES_01," -> "CODE=PRES_01"
+    names <- gsub("^CODE\\s*=\\s*", "", names) # "CODE=PRES_01" -> "PRES_01"
+    names <- gsub("\\s*$", "", gsub("^\\s*", "", names)) # trim remnant start/end spaces
     scientist <- fromHeader("CHIEF_SCIENTIST")
     ship <- fromHeader("PLATFORM") # maybe should rename, e.g. for helicopter
     institute <- fromHeader("ORGANIZATION") # maybe should rename, e.g. for helicopter
     latitude <- as.numeric(fromHeader("INITIAL_LATITUDE"))
     longitude <- as.numeric(fromHeader("INITIAL_LONGITUDE"))
     cruise <- fromHeader("CRUISE_NAME")
+    countryInstituteCode <- fromHeader("COUNTRY_INSTITUTE_CODE")
+    cruiseNumber <- fromHeader("CRUISE_NUMBER")
     date <- strptime(fromHeader("START_DATE"), "%b %d/%y")
     startTime <- strptime(tolower(fromHeader("START_DATE_TIME")), "%d-%b-%Y %H:%M:%S", tz="UTC")
     endTime <- strptime(tolower(fromHeader("END_DATE_TIME")), "%d-%b-%Y %H:%M:%S", tz="UTC")
     waterDepth <- as.numeric(fromHeader("SOUNDING"))
+    station <- fromHeader("EVENT_NUMBER")
     if (!is.na(waterDepth) && waterDepth < 0)                # catch -999
         waterDepth <- NA
     type <- fromHeader("INST_TYPE")
@@ -1295,7 +1332,9 @@ read.ctd.odf <- function(file, columns=NULL, station=NULL, missing.value=-999, m
                      institute=institute,
                      address=NULL,
                      cruise=cruise,
-                     station=NULL,
+                     station=station,
+                     countryInstituteCode=countryInstituteCode, # ODF only
+                     cruiseNumber=cruiseNumber, # ODF only
                      date=startTime,
                      startTime=startTime,
                      latitude=latitude,
@@ -1303,8 +1342,6 @@ read.ctd.odf <- function(file, columns=NULL, station=NULL, missing.value=-999, m
                      recovery=NULL,
                      waterDepth=waterDepth,
                      sampleInterval=NA,
-                     names=NULL,
-                     labels=NULL,
                      filename=filename)
     fff <- textConnection(lines)
     data <- read.table(fff, skip=dataStart)
@@ -1318,35 +1355,33 @@ read.ctd.odf <- function(file, columns=NULL, station=NULL, missing.value=-999, m
     ## or whatever), this is a place to look.  That's why the debugging flag displays a before-and-after
     ## view of names.
     ## Step 1: trim numbers at end (which occur for BIO files)
-    names <- gsub("_\\d*", "", names) # make e.g. PSAL_01 into PSAL
     ## Step 2: recognize some official names
-    names[which(names=="CNTR")[1]] <- "scan"
-    names[which(names=="CRAT")[1]] <- "conductivity"
-    names[which(names=="OCUR")[1]] <- "oxygen_by_mole"
-    names[which(names=="OTMP")[1]] <- "oxygen_temperature"
-    names[which(names=="PSAL")[1]] <- "salinity"
-    names[which(names=="PSAR")[1]] <- "par"
-    names[which(names=="DOXY")[1]] <- "oxygen_by_volume"
-    names[which(names=="TEMP")[1]] <- "temperature"
-    names[which(names=="PRES")[1]] <- "pressure"
-    names[which(names=="SIGP")[1]] <- "sigmaTheta"
-    names[which(names=="FFFF")[1]] <- "flag"
+    names[grep("CNTR_*.*", names)[1]] <- "scan"
+    names[grep("CRAT_*.*", names)[1]] <- "conductivity"
+    names[grep("OCUR_*.*", names)[1]] <- "oxygen_by_mole"
+    names[grep("OTMP_*.*", names)[1]] <- "oxygen_temperature"
+    names[grep("PSAL_*.*", names)[1]] <- "salinity"
+    names[grep("PSAR_*.*", names)[1]] <- "par"
+    names[grep("DOXY_*.*", names)[1]] <- "oxygen_by_volume"
+    names[grep("TEMP_*.*", names)[1]] <- "temperature"
+    names[grep("TE90_*.*", names)[1]] <- "temperature"
+    names[grep("PRES_*.*", names)[1]] <- "pressure"
+    names[grep("DEPH_*.*", names)[1]] <- "pressure" # FIXME possibly this actually *is* depth, but I doubt it
+    names[grep("SIGP_*.*", names)[1]] <- "sigmaTheta"
+    names[grep("FLOR_*.*", names)[1]] <- "fluorometer"
+    names[grep("FFFF_*.*", names)[1]] <- "flag"
     ## Step 3: recognize something from moving-vessel CTDs
     names[which(names=="FWETLABS")[1]] <- "fwetlabs" # FIXME: what is this?
-    ## Step 4: special tricks needed for IML files
-    names[grep("Pressure", names, ignore.case=TRUE)[1]] <- "pressure"
-    names[grep("Conductivity", names, ignore.case=TRUE)[1]] <- "conductivity"
-    names[grep("^Sea Temperature", names, ignore.case=TRUE)[1]] <- "temperature"
-    names[grep("^Temperature", names, ignore.case=TRUE)[1]] <- "temperature"
-    names[grep("Fluorescence", names, ignore.case=TRUE)[1]] <- "fluorescence"
-    names[grep("Conductivity Ratio", names, ignore.case=TRUE)[1]] <- "conductivity"
-    names[grep("Practical Salinity", names, ignore.case=TRUE)[1]] <- "salinity"
-    names[grep("Sigma-Theta", names, ignore.case=TRUE)[1]] <- "sigmaTheta"
-    names[grep("Potential Temperature", names, ignore.case=TRUE)[1]] <- "theta"
-    ## Step 5: another special trick for IML files (got through 2300 test files before seeing this)
-    names[grep("Sensor Depth below Sea Surface", names, ignore.case=TRUE)[1]] <- "pressure"
     if (debug) cat("Finally, column names are:", paste(names, collapse="|"), "\n\n")
     names(data) <- names
+    if (!is.na(nullValue)) {
+        data[data==nullValue] <- NA
+    }
+    if (!("salinity" %in% names)) warning("missing data$salinity")
+    if (!("pressure" %in% names)) warning("missing data$pressure")
+    if (!("temperature" %in% names)) warning("missing data$temperature")
+    metadata$names <- names
+    metadata$labels <- labels 
     if (missing(processingLog))
         processingLog <- paste(deparse(match.call()), sep="", collapse="")
     hitem <- processingLogItem(processingLog)
@@ -1600,10 +1635,10 @@ plot.profile <- function (x,
         } else if (type == 's') {
             lines(x, y, col = col, lwd=lwd, type='s')
         } else if (type == 'p') {
-            points(x, y, col = col, cex=cex)
+            points(x, y, col = col, cex=cex, pch=pch)
         } else if (type == 'b') {
             lines(x, y, col = col, lwd=lwd)
-            points(x, y, col = col, cex=cex)
+            points(x, y, col = col, cex=cex, pch=pch)
         } else {
             lines(x, y, col = col, lwd=lwd)
         }
@@ -1775,7 +1810,7 @@ plot.profile <- function (x,
         mtext(expression(paste(sigma[theta], " [ ", kg/m^3, " ]")), side = 3, line = axis.name.loc, col = col.rho, cex=par("cex"))
         axis(2)
         box()
-        lines(st, y, col = col.rho, lwd=lwd)
+        if (type == 'l') lines(st, y, col = col.rho, lwd=lwd) else points(st, y, col = col.rho, pch=pch)
         par(new = TRUE)
         N2 <- swN2(x$data$pressure, st, xaxs=xaxs, yaxs=yaxs)
         if (missing(N2lim)) N2lim <- range(N2, na.rm=TRUE)
@@ -1783,7 +1818,7 @@ plot.profile <- function (x,
              xlim=N2lim, ylim=ylim,
              type = "n", xlab = "", ylab = "", axes = FALSE, lwd=lwd, xaxs=xaxs, yaxs=yaxs)
         axis(1, col = col.N2, col.axis = col.N2, col.lab = col.N2)
-        lines(N2, y, col = col.N2, lwd=lwd)
+        if (type == 'l') lines(N2, y, col = col.N2, lwd=lwd) else points(N2, y, col = col.N2, pch=pch)
         mtext(expression(paste(N^2, " [ ", s^-2, " ]")), side = 1, line = axis.name.loc, col = col.N2, cex=par("cex"))
         box()
         if (grid) {

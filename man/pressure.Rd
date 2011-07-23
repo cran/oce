@@ -6,6 +6,8 @@
 \alias{temperature}
 \alias{latitude}
 \alias{longitude}
+\alias{time}
+\alias{elevation}
 
 \concept{data extraction}
 
@@ -21,13 +23,15 @@
   temperature(x, time)
   latitude(x, time)
   longitude(x, time)
+  time(x, time)
+  elevation(x, time)
 }
 
 \arguments{
   \item{x}{an \code{oce} object.}
 
   \item{time}{optional indication of times to which to interpolate.  This may be a vector of POSIXt
-    times, or an \code{oce} object containing such a vector of POSIXt times.}
+    times, or an \code{oce} object that contains a vector of POSIXt times.}
 
 }
 

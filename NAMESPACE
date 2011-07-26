@@ -61,10 +61,12 @@ export(
        is.enu,
        latFormat,
        latitude,
+       "latitude<-",
        latlonFormat,
        loggerToc,
        lonFormat,
        longitude,
+       "longitude<-",
        magic,
        magneticDeclination,
        makeFilter,
@@ -106,7 +108,7 @@ export(
        plot.tidem,
        plot.windrose,
        pressure,
-       summary.processingLog,
+       "pressure<-",
        ptPatm,
        ptTrim,
        pwelch,
@@ -128,6 +130,7 @@ export(
        read.ctd.sbe,
        read.ctd.woce,
        read.ctd.odf,
+       read.drifter,
        read.lobo,
        read.topo,
        read.oce,
@@ -141,6 +144,7 @@ export(
        secondsToCtime,
        resizableLabel,
        salinity,
+       "salinity<-",
        sectionGrid,
        sectionSmooth,
        sectionSort,
@@ -148,6 +152,7 @@ export(
        sigmaTheta,
        stickplot,
        subset.oce,
+       summary.processingLog,
        sunAngle,
        swAlpha,
        swAlphaOverBeta,
@@ -172,6 +177,7 @@ export(
        swTSrho,
        swViscosity,
        temperature,
+       "temperature<-",
        threenum,
        tidem,
        tidemAstron,
@@ -202,6 +208,7 @@ S3method(plot, adv)
 S3method(plot, cm)
 S3method(plot, coastline)
 S3method(plot, ctd)
+S3method(plot, drifter)
 S3method(plot, lobo)
 S3method(plot, sealevel)
 S3method(plot, section)
@@ -215,6 +222,7 @@ S3method(print, summary.adv)
 S3method(print, summary.cm)
 S3method(print, summary.coastline)
 S3method(print, summary.ctd)
+S3method(print, summary.drifter)
 S3method(print, summary.lobo)
 S3method(print, summary.sealevel)
 S3method(print, summary.section)
@@ -227,6 +235,7 @@ S3method(summary, adv)
 S3method(summary, cm)
 S3method(summary, coastline)
 S3method(summary, ctd)
+S3method(summary, drifter)
 S3method(summary, lobo)
 S3method(summary, oce)
 S3method(summary, sealevel)

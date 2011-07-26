@@ -108,7 +108,11 @@ threenum <- function(x)
 {
     if (is.raw(x))
         x <- as.numeric(x)
-    c(min(x, na.rm=TRUE), mean(x, na.rm=TRUE), max(x, na.rm=TRUE))
+    if (sum(!is.na(x))) {
+        c(min(x, na.rm=TRUE), mean(x, na.rm=TRUE), max(x, na.rm=TRUE))
+    } else {
+        c(NA, NA, NA)
+    }
 }
 
 normalize <- function(x)
@@ -863,9 +867,13 @@ addColumn <- function (x, data, name)
     nd <- length(data)
     if (nd != n)
         stop("data length is ", nd, " but it must be ", n, " to match existing data")
-    rval <- x
-    rval$data <- data.frame(x$data, data)
-    names(rval$data) <- c(names(x$data), name)
+    if (inherits(x, "ctd")) {
+        rval <- ctdAddColumn(x, data, name)
+    } else {
+        rval <- x
+        rval$data <- data.frame(x$data, data)
+        names(rval$data) <- c(names(x$data), name)
+    }
     rval$processingLog <- processingLog(rval$processingLog, paste(deparse(match.call()), sep="", collapse=""))
     rval
 }

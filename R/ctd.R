@@ -74,11 +74,14 @@ ctdAddColumn <- function (x, column, name, label, debug = FALSE)
         stop("must supply \"name\"")
     if (missing(label))
         label <- name
+    replace <- name %in% names(x$data)
     res <- x
     r <- range(column)
     res$data[,name] <- column
-    res$metadata$names <- c(res$metadata$names, name)
-    res$metadata$labels <- c(res$metadata$labels, label)
+    if (!replace) {
+        res$metadata$names <- c(res$metadata$names, name)
+        res$metadata$labels <- c(res$metadata$labels, label)
+    }
     res$processingLog <- processingLog(res$processingLog, paste(deparse(match.call()), sep="", collapse=""))
     res
 }
@@ -525,7 +528,6 @@ plot.ctd <- function (x, which = 1:4,
             text.item <- function(item, label, cex=0.8) {
                 if (!is.null(item) && !is.na(item)) {
                     text(xloc, yloc, paste(label, item), adj = c(0, 0), cex=cex);
-                    yloc <<- yloc - d.yloc;
                 }
             }
             par(mar=c(0,0,0,0))
@@ -538,16 +540,42 @@ plot.ctd <- function (x, which = 1:4,
             text(xloc, yloc, paste("CTD Station"), adj = c(0, 0), cex=cex)
             yloc <- yloc - d.yloc
             xm <- x$metadata
-            if (!is.null(xm$filename) && nchar(xm$filename) > 0)    	text.item(xm$filename,    " File:     ", cex=cex)
-            if (!is.null(xm$scientist))	text.item(xm$scientist,   " Scientist:", cex=cex)
-            if (!is.null(xm$institute))	text.item(xm$institute,   " Institute:", cex=cex)
-            if (!is.null(xm$date))    	text.item(xm$date,        " Date:     ", cex=cex)
-            if (!is.null(xm$ship))		text.item(xm$ship,        " Ship:     ", cex=cex)
-            if (!is.null(xm$cruise))    	text.item(xm$cruise,      " Cruise:   ", cex=cex)
-            if (!is.null(xm$station))    	text.item(xm$station,     " Station:  ", cex=cex)
-            if (!is.null(xm$waterDepth))  	text.item(xm$waterDepth, " Depth:    ", cex=cex)
-            if (!is.na(xm$longitude) && !is.na(xm$latitude))
+            if (!is.null(xm$filename) && nchar(xm$filename) > 0) {
+                text.item(xm$filename,    " File:     ", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.null(xm$scientist))	{
+                text.item(xm$scientist,   " Scientist:", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.null(xm$institute))	{
+                text.item(xm$institute,   " Institute:", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.null(xm$date)) {
+                text.item(xm$date,        " Date:     ", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.null(xm$ship)) {
+                text.item(xm$ship,        " Ship:     ", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.null(xm$cruise)) {
+                text.item(xm$cruise,      " Cruise:   ", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.null(xm$station)) {
+                text.item(xm$station,     " Station:  ", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.null(xm$waterDepth)) {
+                text.item(xm$waterDepth, " Depth:    ", cex=cex)
+                yloc <- yloc - d.yloc
+            }
+            if (!is.na(xm$longitude) && !is.na(xm$latitude)) {
                 text.item(latlonFormat(xm$latitude, xm$longitude),   " Location: ", cex=cex)
+                yloc <- yloc - d.yloc
+            }
             if (!is.na(ref.lat) && !is.na(ref.lon)) {
                 dist <- geodDist(xm$latitude, xm$longitude, ref.lat, ref.lon)
                 kms <- sprintf("%.2f km", dist/1000)
@@ -619,7 +647,7 @@ plot.ctd.scan <- function(x,
                           name = "scan",
                           S.col = "darkgreen",
                           T.col = "darkred",
-                          p.col = "blue",
+                          p.col = "black",
                           adorn=NULL,
                           mgp=getOption("oceMgp"),
                           ...)
@@ -653,7 +681,7 @@ plot.ctd.scan <- function(x,
     mtext(paste("Station", x$metadata$station), side=3, adj=1)
     mtext(latlonFormat(x$metadata$latitude, x$metadata$longitude, digits=5), side=3, adj=0)
     box()
-    grid(col="brown")
+    grid()
     axis(1)
     axis(2,col=p.col, col.axis=p.col, col.lab = p.col)
     if (1 <= adorn.length) {
@@ -671,7 +699,7 @@ plot.ctd.scan <- function(x,
     axis(1)
     axis(2,col=T.col, col.axis = T.col, col.lab = T.col)
     box()
-    grid(NULL, NA, col="brown")
+    grid()
 
     mtext(resizableLabel("T", "y"), side = 2, line = 2, col = T.col)
 
@@ -1728,7 +1756,6 @@ plot.profile <- function (x,
             abline(v=seq(at[1], at[2], length.out=at[3]+1), col=col.grid, lty=lty.grid)
         }
     } else if (xtype == "S" || xtype == "salinity") {
-        type <- if ("type" %in% names(dots)) dots$type else 'l'
         if (missing(Slim)) {
             if ("xlim" %in% names(dots)) Slim <- dots$xlim else Slim <- range(x$data$salinity, na.rm=TRUE)
         }
@@ -1755,7 +1782,6 @@ plot.profile <- function (x,
             plotJustProfile(x$data$salinity, y, col = col.salinity, type=type, lwd=lwd, cex=cex, pch=pch)
         }
     } else if (xtype == "T" || xtype == "temperature") {
-        type <- if ("type" %in% names(dots)) dots$type else 'l'
         if (missing(Tlim)) {
             if ("xlim" %in% names(dots)) Tlim <- dots$xlim else Tlim <- range(x$data$temperature, na.rm=TRUE)
         }

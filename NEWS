@@ -1,3 +1,8 @@
+0.8-2
+- fix bug in read.coastline(), reversing lon and lat [issue162]
+- fix bug in S4 adp validity checker
+- geodDist(): add argument 'alongPath'
+- remove compilation warning about doc for summary.ctd()
 0.8-1
 - switch to S4 classes, and add new accessors and 'show' functions.
 - add support for RBR 'rsk' files

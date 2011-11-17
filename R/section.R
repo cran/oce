@@ -31,6 +31,10 @@ setMethod(f="[[",
                   if (missing(j))
                       stop("must give station number")
                   return(x@data$station[[j]])
+              } else if ("dynamic height" == i) {
+                  return(swDynamicHeight(x)) # FIXME: should emulate elsewhere
+              } else {
+                  stop("cannot access item named \"", i, "\" in this section object")
               }
           })
 
@@ -47,8 +51,9 @@ setMethod(f="show",
                   cat("    ")
                   if (!is.null(thisStn@metadata$station) && "" != thisStn@metadata$station)
                       cat(thisStn@metadata$station, " ")
-                  cat(sprintf("%.5f N %.5f E", object@data$station[[i]]@metadata$latitude,
-                              object@data$station[[i]]@metadata$longitude))
+                  cat(sprintf("%.5f N   %.5f E   %.0f m", object@data$station[[i]]@metadata$latitude,
+                              object@data$station[[i]]@metadata$longitude,
+                              object@data$station[[i]]@metadata$waterDepth))
                   cat("\n")
               }
           })
@@ -218,8 +223,8 @@ setMethod(f="plot",
                       asp <- 1 / cos(mean(range(lat,na.rm=TRUE))*pi/180)
                       latm <- mean(lat, na.rm=TRUE)
                       lonm <- mean(lon, na.rm=TRUE)
-                      lonr <- lonm + 1.2 * (range(lon, na.rm=TRUE) - mean(lon, na.rm=TRUE)) # expand range
-                      latr <- latm + 1.2 * (range(lat, na.rm=TRUE) - mean(lat, na.rm=TRUE))
+                      lonr <- lonm + sqrt(2) * (range(lon, na.rm=TRUE) - mean(lon, na.rm=TRUE)) # expand range
+                      latr <- latm + sqrt(2) * (range(lat, na.rm=TRUE) - mean(lat, na.rm=TRUE))
                       if (!is.null(map.xlim)) {
                           map.xlim <- sort(map.xlim)
                           plot(lonr, latr, xlim=map.xlim, asp=asp, type='n', xlab="Longitude", ylab="Latitude")
@@ -243,8 +248,10 @@ setMethod(f="plot",
                       col <- if("col" %in% names(list(...))) list(...)$col else "black"
                       points(lon, lat, col=col, pch=3, lwd=1/2)
                       points(lon - 360, lat, col=col, pch=3, lwd=1/2)
-                      points(lon[1], lat[1], col=col, pch=22, cex=3*par("cex"), lwd=1/2)
-                      points(lon[1] - 360, col=col, lat[1], pch=22, cex=3*par("cex"), lwd=1/2)
+                      if (xtype == "distance") {
+                          points(lon[1], lat[1], col=col, pch=22, cex=3*par("cex"), lwd=1/2)
+                          points(lon[1] - 360, col=col, lat[1], pch=22, cex=3*par("cex"), lwd=1/2)
+                      }
                       if (indicate.stations) {
                           dx <- 5 * mean(diff(sort(x@metadata$longitude)),na.rm=TRUE)
                           dy <- 5 * mean(diff(sort(x@metadata$latitude)),na.rm=TRUE)
@@ -266,30 +273,23 @@ setMethod(f="plot",
                       yyrange <- range(yy, na.rm=TRUE)
                       ##yyrange[1] <- -1
 
-                      ## Put x in order, if it's not already
-                      ox <- order(xx)
-                      if (any(xx[ox] != xx)) {
-                          xx <- xx[ox]
-                          zz <- zz[ox,]
-                          warning("plot.section() reordered the stations to make x monotonic")
-                      }
                       ylim <- if (!is.null(ylim)) sort(-abs(ylim)) else yyrange
                       par(xaxs="i", yaxs="i")
-                      ylab <- if ("ylab" %in% names(list(...)))
-                          list(...)$ylab
-                      else { if (which.ytype==1) resizableLabel("p") else "Depth [ m ]" }
+                      ylab <- if ("ylab" %in% names(list(...))) list(...)$ylab else { if (which.ytype==1) resizableLabel("p") else "Depth [ m ]" }
                       if (is.null(at)) {
                           plot(xxrange, yyrange,
                                xaxs="i", yaxs="i",
                                xlim=xlim,
                                ylim=ylim,
                                col="white",
-                               xlab=if (which.xtype==1) "Distance [ km ]" else "Along-track Distance [km]",
+                               xlab=switch(which.xtype, "Distance [ km ]", "Along-track Distance [km]", "Latitude", "Longitude"),
                                ylab=ylab,
                                axes=FALSE)
                           axis(4, labels=FALSE)
                           ytics <- axis(2, labels=FALSE)
                           axis(2, at=ytics, labels=-ytics)
+                          axis(1)
+                          box()
                       } else {
                           plot(xxrange, yyrange,
                                xaxs="i", yaxs="i",
@@ -351,7 +351,18 @@ setMethod(f="plot",
 
                       ##par(xaxs="i", yaxs="i")
 
+
+                      ## Put x in order, if it's not already
+                      ox <- order(xx)
+                      xxOrig <- xx
+                      if (any(xx[ox] != xx)) {
+                          xx <- xx[ox]
+                          zz <- zz[ox,] ## FIXME keep this???
+                          ##warning("plot.section() reordered the stations to make x monotonic")
+                      }
+
                       ## cannot contour with duplicates in x or y; the former is the only problem
+
                       xx.unique <- 0 != diff(xx)
                       if (!is.null(contourLevels) && !is.null(contourLabels)) {
                           oceDebug(debug, "user-supplied contourLevels: ", contourLevels, "\n")
@@ -389,7 +400,9 @@ setMethod(f="plot",
                       if (length(bottom.x) == length(bottom.y))
                           polygon(bottom.x, bottom.y, col="lightgray")
                       box()
+                      ##axis(1, pretty(xxOrig))
                       axis(1)
+                      ##lines(xx, -waterDepth[ox], col='red')
                       legend(legend.loc, title, bg="white", x.intersp=0, y.intersp=0.5,cex=1)
                   }
                   oceDebug(debug, "\b} # plotSubsection()\n")
@@ -398,7 +411,10 @@ setMethod(f="plot",
                   stop("method is only for section objects")
               opar <- par(no.readonly = TRUE)
               if (length(which) > 1) on.exit(par(opar))
-              which.xtype <- pmatch(xtype, c("distance", "track"), nomatch=0)
+              which.xtype <- pmatch(xtype, c("distance", "track", "latitude", "longitude"), nomatch=0)
+              if (0 == which.xtype)
+                  stop('xtype must be one of: "distance", "track", "latitude", or "longitude"')
+              xtype <- c("distance", "track", "latitude", "longitude")[which.xtype]
               which.ytype <- pmatch(ytype, c("pressure", "depth"), nomatch=0)
               if (missing(stationIndices)) {
                   numStations <- length(x@data$station)
@@ -438,13 +454,18 @@ setMethod(f="plot",
                                                             x@data$station[[j]]@metadata$latitude,
                                                             x@data$station[[j]]@metadata$longitude)
                           }
+                      } else if (which.xtype == 3) {
+                          xx[ix] <- x@data$station[[j]]@metadata$latitude
+                      } else if (which.xtype == 4) {
+                          xx[ix] <- x@data$station[[j]]@metadata$longitude
                       } else {
-                          stop("unknown xtype")
+                          stop('unkown xtype; it must be one of: "distance", "track", "latitude", or "longitude"')
                       }
                   }
               } else {
                   xx <- at
               }
+              dan.xx<<-xx
 
               if (which.ytype == 1) yy <- rev(-x@data$station[[stationIndices[1]]]@data$pressure)
               else if (which.ytype == 2) yy <- rev(-swDepth(x@data$station[[stationIndices[1]]]@data$pressure))
@@ -736,7 +757,7 @@ read.section <- function(file, sectionId="", flags,
     res <- new("section")
     res@metadata <- metadata
     res@data <- data
-    warning("should update processingLog")
+    res@processingLog <- processingLog(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     res
 }
 

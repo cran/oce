@@ -14,6 +14,7 @@ setClass("coastline", contains="oce")
 setClass("ctd", contains="oce")
 setClass("drifter", contains="oce")
 setClass("lobo", contains="oce")
+setClass("met", contains="oce")
 setClass("pt", contains="oce")
 setClass("sealevel", contains="oce")
 setClass("section", contains="oce")
@@ -67,11 +68,15 @@ setMethod(f="show",
               ncol <- length(names)
               for (i in 1:ncol) {
                   d <- object@data[[i]]
-                  if (is.vector(d)) {
+                  if (inherits(d, "POSIXt")) {
+                      cat(vectorShow(d, paste("  ", names[i])))
+                  } else if (is.vector(d)) {
                       cat(vectorShow(d, paste("  ", names[i])))
                   } else if (is.array(d)) {
                       dim <- dim(object@data[[i]])
-                      if (length(dim) == 2) {
+                      if (length(dim) == 1) {
+                          cat(vectorShow(d, paste("  ", names[i])))
+                      } else if (length(dim) == 2) {
                           cat("   ", names[i], ", a ", dim[1], "x", dim[2], " array with value ", d[1,1], " at [1,1] position\n", sep="")
                       } else if (length(dim) == 3) {
                           cat("   ", names[i], ", a ", dim[1], "x", dim[2], "x", dim[3], " array with value ", d[1,1,1],

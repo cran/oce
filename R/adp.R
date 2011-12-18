@@ -7,8 +7,8 @@ setMethod(f="initialize",
               if (!missing(a)) .Object@data$a <- a 
               if (!missing(q)) .Object@data$q <- q
               .Object@metadata$filename <- if (missing(filename)) "" else filename
-              .Object@processingLog$time=c(.Object@processingLog$time, Sys.time())
-              .Object@processingLog$value=c(.Object@processingLog$value, "create 'adp' object")
+              .Object@processingLog$time <- as.POSIXct(Sys.time())
+              .Object@processingLog$value <- "create 'adp' object"
               return(.Object)
           })
 
@@ -314,6 +314,7 @@ summary.adp <- function(object, ...)
     colnames(threes) <- c("Min.", "Mean", "Max.")
     cat("* Statistics of subsample::\n\n")
     print(threes)
+    processingLogShow(object)
 }
 
 setMethod(f="plot",
@@ -405,6 +406,8 @@ setMethod(f="plot",
                           stop("xlim must be a vector of length 2, or a 2-column matrix")
                       xlim2 <- matrix(xlim[1:2], ncol=2, nrow=nw, byrow=TRUE)
                   }
+                  class(xlim2) <- class(xlim)
+                  attr(xlim2, "tzone") <- attr(xlim, "tzone")
                   xlim <- xlim2
               }
               if (missing(zlim)) {
@@ -567,22 +570,42 @@ setMethod(f="plot",
                           skip <- TRUE
                       }
                       if (!skip) {
-                          imagep(x=tt, y=x@data$distance, z=z,
-                                 zlim=zlim,
-                                 flip.y=flip.y,
-                                 col=if (gave.col) col else oceColorsPalette(128, 1),
-                                 ylab=resizableLabel("distance"),
-                                 xlab="Time",
-                                 zlab=zlab,
-                                 drawTimeRange=drawTimeRange,
-                                 drawContours=FALSE,
-                                 adorn=adorn[w],
-                                 mgp=mgp,
-                                 mar=mar,
-                                 cex=cex*(1 - min(nw / 8, 1/4)), # FIXME: should emulate par(mfrow)
-                                 main=main[w],
-                                 debug=debug-1,
-                                 ...)
+                          if (gave.xlim) {
+                              imagep(x=tt, y=x@data$distance, z=z,
+                                     xlim=xlim[w,],
+                                     zlim=zlim,
+                                     flip.y=flip.y,
+                                     col=if (gave.col) col else oceColorsPalette(128, 1),
+                                     ylab=resizableLabel("distance"),
+                                     xlab="Time",
+                                     zlab=zlab,
+                                     drawTimeRange=drawTimeRange,
+                                     drawContours=FALSE,
+                                     adorn=adorn[w],
+                                     mgp=mgp,
+                                     mar=mar,
+                                     cex=cex*(1 - min(nw / 8, 1/4)), # FIXME: should emulate par(mfrow)
+                                     main=main[w],
+                                     debug=debug-1,
+                                     ...)
+                          } else {
+                               imagep(x=tt, y=x@data$distance, z=z,
+                                     zlim=zlim,
+                                     flip.y=flip.y,
+                                     col=if (gave.col) col else oceColorsPalette(128, 1),
+                                     ylab=resizableLabel("distance"),
+                                     xlab="Time",
+                                     zlab=zlab,
+                                     drawTimeRange=drawTimeRange,
+                                     drawContours=FALSE,
+                                     adorn=adorn[w],
+                                     mgp=mgp,
+                                     mar=mar,
+                                     cex=cex*(1 - min(nw / 8, 1/4)), # FIXME: should emulate par(mfrow)
+                                     main=main[w],
+                                     debug=debug-1,
+                                     ...)
+                          }
                       }
                       if (showBottom)
                           lines(x@data$time, bottom)
@@ -1103,6 +1126,7 @@ beamToXyzAdp <- function(x, debug=getOption("oceDebug"))
 
 xyzToEnuAdp <- function(x, declination=0, debug=getOption("oceDebug"))
 {
+    ##cat("adp.R:xyzToEnuAdp(): called as", paste(deparse(match.call()), sep="", collapse=""), "\n")
     debug <- if (debug > 0) 1 else 0
     oceDebug(debug, "\b\bxyzToEnuAdp(x, declination=", declination, ", debug=", debug, ") {\n", sep="")
     if (!inherits(x, "adp"))
@@ -1212,7 +1236,8 @@ xyzToEnuAdp <- function(x, declination=0, debug=getOption("oceDebug"))
         res@data$v[,c,3] <- enu$up
     }
     res@metadata$oceCoordinate <- "enu"
-    res@processingLog <- processingLog(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    res@processingLog <- processingLog(res@processingLog,
+                                       paste("xyzToEnu(x", ", declination=", declination, ", debug=", debug, ")", sep=""))
     oceDebug(debug, "\b\b\b} # xyzToEnuAdp()\n")
     res
 }

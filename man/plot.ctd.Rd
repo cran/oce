@@ -15,7 +15,7 @@
      grid=TRUE,
      col.grid="lightgray",
      lty.grid="dotted",
-     coastline,
+     coastline="coastlineWorld",
      Slim, 
      Tlim, 
      plim,
@@ -39,7 +39,7 @@
      \dots)
 }
 \arguments{
-  \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}, or a
+  \item{x}{A \code{ctd} object, e.g. as read by \code{\link{read.ctd}}, or a
       list containing items named \code{salinity} and \code{temperature}.}
   \item{which}{list of desired plot types.  
     \itemize{
@@ -78,8 +78,17 @@
   \item{grid}{Set \code{TRUE} to get a grid on all plots.}
   \item{col.grid}{colour for the grid.}
   \item{lty.grid}{line type for grid.}
-  \item{coastline}{a \code{coastline} object, e.g. as read by
-    \code{\link{read.coastline}} (ignored if no map plotted).}
+  \item{coastline}{a \code{coastline} object, or a character string naming one.
+      There are several built-in datasets: \code{coastlineWorld} (the default),
+      \code{coastlineMaritimes}, \code{coastlineHalifax}, and
+      \code{coastlineSLE}, and any other coastline object (e.g. as read by
+      \code{\link{read.coastline}}) may be used also.  There is a speed penalty
+      for providing \code{coastline} as a character string, because it forces
+      \code{plot.coastline} to load it on every call.  So, if
+      \code{plot.coastline} is to be called several times for a given
+      coastline, it makes sense to load it in before the first call, and to
+      supply the object as an argument, as opposed to the name of the object.
+      If no coastline is desired, use \code{coastline="none"}.}
   \item{Slim}{optional limits of salinity axes}
   \item{Tlim}{optional limits of temperature axes}
   \item{plim}{optional limits of pressure axes}
@@ -139,14 +148,7 @@
 library(oce)
 data(ctd) 
 plot(ctd)
-
-data(coastlineSLE)
-lonlim <- -(69 + c(52, 41) / 60)
-latlim <- 47 + c(48, 58) / 60
-# IAL = Ile aux Lievres
-plot(ctd, which=c(1,2,3,5),
-     coastline=coastlineSLE,
-     adorn=expression({},{},{},{text(-69.72,47.85,'IAL',pos=4)}))
+plot(ctd, which=c(1,2,3,5), coastline="coastlineHalifax")
 }
 \author{Dan Kelley}
 \keyword{hplot}

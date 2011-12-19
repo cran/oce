@@ -228,13 +228,13 @@ oce.plot.ts <- function(x, y, type="l", xlim, ylim, xlab="", ylab="",
         xx <- c(x[1], x, x[length(x)])
         yy <- c(0, y, 0)
         plot(x, y, axes=FALSE, xaxs=xaxs, xlab=xlab,
-             ylab=if (missing(ylab)) deparse(substitute(y)) else ylab,
+             ylab=ylab,
              type=type, cex=cex, ...)
         fillcol <- if ("col" %in% names(args)) args$col else "lightgray" # FIXME: should be a formal argument
         do.call(polygon, list(x=xx, y=yy, col=fillcol))
     } else {
         plot(x, y, axes=FALSE, xaxs=xaxs, xlab=xlab,
-             ylab=if (missing(ylab)) deparse(substitute(y)) else ylab,
+             ylab=ylab,
              ylim=if (missing(ylim)) NULL else ylim,
              type=type, cex=cex, ...)
     }
@@ -418,6 +418,8 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
     oceDebug(debug, "\b\bsubset.oce(..., debug=", debug, ", ...) {\n")
     if (!inherits(x, "oce"))
         stop("method is only for oce objects")
+    subsetString <- paste(deparse(substitute(subset)), collapse=" ")
+    oceDebug(debug, "subsetString='", subsetString, "'\n")
     if (inherits(x, "cm")) {
         if (!is.null(indices)) {
             oceDebug(debug, vectorShow(keep, "keeping indices"))
@@ -427,8 +429,8 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
                 rval@data[[name]] <- x@data[[name]][keep]
             }
         } else if (!missing(subset)) {
-            subsetString <- deparse(substitute(subset))
-            oceDebug(debug, "subsetString='", subsetString, "'\n")
+            ##subsetString <- deparse(substitute(subset))
+            ##oceDebug(debug, "subsetString='", subsetString, "'\n")
             if (length(grep("time", subsetString))) {
                 oceDebug(debug, "subsetting a cm by time\n")
                 keep <- eval(substitute(subset), x@data, parent.frame())
@@ -451,8 +453,8 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
             oceDebug(debug, vectorShow(keep, "keeping indices"))
             stop("this version of oce cannot subset adp data by index")
         } else if (!missing(subset)) {
-            subsetString <- deparse(substitute(subset))
-            oceDebug(debug, "subsetString='", subsetString, "'\n")
+            ##subsetString <- deparse(substitute(subset))
+            ##oceDebug(debug, "subsetString='", subsetString, "'\n")
             if (length(grep("time", subsetString))) {
                 oceDebug(debug, "subsetting an adp by time\n")
                 keep <- eval(substitute(subset), x@data, parent.frame())
@@ -521,8 +523,8 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
             rval@data <- data
             rval@processingLog <- unclass(x@processingLog)
         } else {                        # subset within the stations
-            subsetString <- deparse(substitute(subset))
-            oceDebug(debug, "subsetString='", subsetString, "'\n")
+            ##subsetString <- deparse(substitute(subset))
+            ##oceDebug(debug, "subsetString='", subsetString, "'\n")
             rval <- x
             if (length(grep("distance", subsetString))) {
                 l <- list(distance=geodDist(rval))
@@ -588,8 +590,8 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
             stop("cannot specify 'indices' for adv objects (not coded yet)")
         if (missing(subset))
             stop("must specify a 'subset'")
-        subsetString <- paste(deparse(substitute(subset)), collapse=" ")
-        oceDebug(debug, "subsetString='", subsetString, "'\n")
+        ##subsetString <- paste(deparse(substitute(subset)), collapse=" ")
+        ##oceDebug(debug, "subsetString='", subsetString, "'\n")
         if (length(grep("time", subsetString))) {
             oceDebug(debug, "subsetting an adv object by time\n")
             keep <- eval(substitute(subset), x@data, parent.frame()) # used for $ts and $ma, but $tsSlow gets another
@@ -644,6 +646,36 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
             rval@data[[i]] <- x@data[[i]][r]
         }
         names(rval@data) <- names(x@data)
+    } else if (inherits(x, "echosounder")) {
+        ##subsetString <- paste(deparse(substitute(subset)), collapse=" ")
+        ##oceDebug(debug, "subsetString='", subsetString, "'\n")
+        if (length(grep("time", subsetString))) {
+            oceDebug(debug, "subsetting an echosounder object by time\n")
+            keep <- eval(substitute(subset), x@data, parent.frame())
+            rval <- x
+            rval[["time"]] <- rval[["time"]][keep]
+            rval[["latitude"]] <- rval[["latitude"]][keep]
+            rval[["longitude"]] <- rval[["longitude"]][keep]
+            rval[["time"]] <- rval[["time"]][keep]
+            rval[["a"]] <- rval[["a"]][keep,]
+            warning("only subsetting ping-based data, not timeSlow, latitudeSlow or longitudeSlow")
+        } else if (length(grep("depth", subsetString))) {
+            oceDebug(debug, "subsetting an echosounder object by depth\n")
+            keep <- eval(substitute(subset), x@data, parent.frame())
+            rval <- x
+            rval[["depth"]] <- rval[["depth"]][keep]
+            rval[["a"]] <- rval[["a"]][,keep]
+        } else {
+            stop("can only subset an echosounder object by 'time' or 'depth'")
+        }
+    } else if (inherits(x, "coastline")) {
+        if (!length(grep("latitude", subsetString)) && !length(grep("longitude", subsetString)))
+            stop("can only subset a coastline by 'latitude' or 'longitude'")
+        oceDebug(debug, "subsetting a coastline object\n")
+        keep <- eval(substitute(subset), x@data, parent.frame())
+        rval <- x
+        rval@data$latitude[!keep] <- NA
+        rval@data$longitude[!keep] <- NA
     } else {
         if (isS4(x)) {
             r <- eval(substitute(subset), x@data, parent.frame())
@@ -725,7 +757,10 @@ magic <- function(file, debug=getOption("oceDebug"))
         oceDebug(debug, "this is a shapefile; see e.g. http://en.wikipedia.org/wiki/Shapefile\n")
         return("shapefile")
     }
-
+    if (bytes[3] == 0xff && bytes[4] == 0xff) {
+        oceDebug(debug, "this is a biosonics echosounder file")
+        return("echosounder")
+    }
     if (bytes[1] == 0x10 && bytes[2] == 0x02) {
         ## 'ADPManual v710.pdf' p83
         if (96 == readBin(bytes[3:4], "integer", n=1, size=2,endian="little"))
@@ -822,6 +857,8 @@ read.oce <- function(file, ...)
     processingLog <- paste(deparse(match.call()), sep="", collapse="")
     if (type == "shapefile")
         stop("cannot read shapefiles")
+    if (type == "echosounder")
+        return(read.echosounder(file, ...))
     if (type == "adp/rdi")
         return(read.adp.rdi(file, processingLog=processingLog, ...))
     if (type == "adp/sontek")

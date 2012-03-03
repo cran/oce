@@ -17,8 +17,9 @@
      mar=c(mgp[1]+1,mgp[1]+1,1,1),
      bg,
      fill='lightgray',
-     axes=TRUE,
-     add=FALSE,
+     axes=TRUE, cex.axis=par('cex.axis'),
+     add=FALSE, inset=FALSE,
+     geographical=FALSE,
      debug=getOption("oceDebug"),
      \dots)}
 
@@ -67,10 +68,17 @@
     by \code{\link{read.coastline}}).  Set to \code{NULL} to turn off
     filling.} 
   \item{axes}{boolean, set to \code{TRUE} to plot axes.}
+  \item{cex.axis}{value for axis font size factor.}
   \item{add}{boolean, set to \code{TRUE} to draw the coastline on an existing
       plot.  Note that this retains the aspect ratio of that existing plot, so
       it is important to set that correctly, e.g. with \code{asp=1/cos(lat * pi
           / 180)}, where \code{clat} is the central latitude of the plot.}
+  \item{inset}{set to \code{TRUE} for use within \code{\link{plotInset}}.  The
+      effect is to prevent the present function from adjusting margins, which
+      is necessary because margin adjustment is the basis for the method
+      used by \code{\link{plotInset}}.}
+  \item{geographical}{set to \code{TRUE} to get latitude and longitude labels
+      that are always positive.}
   \item{debug}{set to \code{TRUE} to get debugging information during
     processing.}
   \item{\dots}{optional arguments passed to plotting functions.  For

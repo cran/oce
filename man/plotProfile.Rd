@@ -27,6 +27,7 @@
              type='l',
              mgp=getOption("oceMgp"),
              mar=c(1 + if (length(grep('\\\\+', xtype))) mgp[1] else 0, mgp[1]+1, mgp[1] + 2, 1),
+             inset=FALSE,
              debug=getOption("oceDebug"),
              \dots)
 }
@@ -45,7 +46,7 @@
 	single axis frame.}
       \item{\code{N2}}{Profile of square of buoyancy frequency \eqn{N^2}{N^2},
           calculated with \code{\link{swN2}} with an optional argument setting
-          of \code{df=length(x@data$pressure)/4} to do some smoothing.}
+          of \code{df=length(x[["pressure"]])/4} to do some smoothing.}
       \item{\code{density+N2}}{Profile of sigma-theta and the square of buoyancy
 	frequency within a single axis frame.}
       \item{\code{density+dpdt}}{Profile of sigma-theta and dP/dt for
@@ -55,8 +56,8 @@
 	grid-point wiggles that result because the SBE software only
 	writes 3 decimal places in pressure).  Note that dP/dt may be
 	off by a scale factor; this should not be a problem if there is
-	a \code{x@data$time} column, or a \code{x@metadata$sample.rate}
-	value in the header.}
+	a \code{time} column in the \code{data} slot, or a \code{sample.rate}
+        in the \code{metadata} slot. }
       \item{\code{spice}}{Profile of spice}
     }
   }
@@ -92,6 +93,10 @@
     tighter than the R default, in order to use more space for the data
     and less for the axes.}
   \item{mar}{value to be used with \code{\link{par}("mar")}.}
+  \item{inset}{set to \code{TRUE} for use within \code{\link{plotInset}}.  The
+      effect is to prevent the present function from adjusting margins, which
+      is necessary because margin adjustment is the basis for the method
+      used by \code{\link{plotInset}}.}
   \item{debug}{a flag that turns on debugging, if it exceeds 0.}
   \item{\dots}{Optional arguments passed to other functions.  A common example is
     to set \code{df}, for use in \link{swN2} calculations.} 

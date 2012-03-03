@@ -186,28 +186,34 @@ oce.plot.sticks <- function(x, y, u, v, yscale=1, add=FALSE, length=1/20,
 
 
 oce.plot.ts <- function(x, y, type="l", xlim, ylim, xlab="", ylab="",
-                        drawTimeRange=TRUE, xaxs="r", grid=TRUE, adorn=NULL, fill=FALSE,
+                        drawTimeRange=TRUE, adorn=NULL, fill=FALSE,
+                        xaxs="i", yaxs="i",
                         cex=par("cex"), cex.axis=par("cex.axis"), cex.main=par("cex.main"),
                         mgp=getOption("oceMgp"),
-                        mar=c(mgp[1]+if(nchar(xlab)>0) 1 else 0.5,
-                              mgp[1]+if(nchar(ylab)>0) 1.5 else 1,
-                              mgp[2]+1,
-                              mgp[2]+3/4),
+                        mar=c(mgp[1]+if(nchar(xlab)>0) 1.5 else 1, mgp[1]+1.5, mgp[2]+1, mgp[2]+3/4),
+                        mai.palette=c(0, 1/8, 0, 3/8),
                         main="",
                         despike=FALSE,
                         axes=TRUE,
+                        marginsAsImage=FALSE,
+                        grid=FALSE, grid.col="darkgray", grid.lty="dotted", grid.lwd=1,
                         debug=getOption("oceDebug"),
                         ...)
 {
     ocex <- par("cex")
     #par(cex=cex)
     debug <- min(debug, 4)
-    oceDebug(debug, "\boce.plot.ts(...,debug=", debug, ", type=\"", type, "\", mar=c(", paste(mar, collapse=", "), "), ...) {\n",sep="")
-    oceDebug(debug, "mgp=",mgp,"\n")
+    oceDebug(debug, "\boce.plot.ts(..., debug=", debug, ", type=\"", type, "\", \n", sep="")
+    oceDebug(debug, "  mar=c(", paste(mar, collapse=", "), "),\n", sep="")
+    oceDebug(debug, "  mai.palette=c(", paste(mar, collapse=", "), "),\n", sep="")
+    oceDebug(debug, "  mgp=c(",paste(mgp, collapse=", "),"),\n", sep="")
+    oceDebug(debug, "  ...) {\n", sep="")
     oceDebug(debug, "length(x)", length(x), "; length(y)", length(y), "\n")
     oceDebug(debug, "cex=",cex," cex.axis=", cex.axis, " cex.main=", cex.main, "\n")
     oceDebug(debug, "mar=c(",paste(mar, collapse=","), ")\n")
+    oceDebug(debug, "marginsAsImage=",marginsAsImage, ")\n")
     oceDebug(debug, "x has timezone", attr(x[1], "tzone"), "\n")
+    pc <- paletteCalculations(mai=mai.palette)
     par(mgp=mgp, mar=mar)
     args <- list(...)
     xlimGiven <- !missing(xlim)
@@ -224,37 +230,60 @@ oce.plot.ts <- function(x, y, type="l", xlim, ylim, xlab="", ylab="",
         y <- rep(y, length(x))
     if (despike)
         y <- despike(y)
+    if (marginsAsImage) {
+        ## FIXME: obey their mar?
+        the.mai <- c(pc$omai[1],
+                     pc$maiLHS,
+                     pc$omai[3],
+                     pc$paletteSeparation + pc$paletteWidth + pc$maiRHS)
+        the.mai <- clipmin(the.mai, 0)         # just in case
+        par(mai=the.mai, cex=cex)
+        drawPalette(mai=mai.palette)
+    }
     if (fill) {
         xx <- c(x[1], x, x[length(x)])
         yy <- c(0, y, 0)
         plot(x, y, axes=FALSE, xaxs=xaxs, xlab=xlab,
+             xlim=if (xlimGiven) xlim else range(x, na.rm=TRUE),
              ylab=ylab,
              type=type, cex=cex, ...)
         fillcol <- if ("col" %in% names(args)) args$col else "lightgray" # FIXME: should be a formal argument
         do.call(polygon, list(x=xx, y=yy, col=fillcol))
     } else {
-        plot(x, y, axes=FALSE, xaxs=xaxs, xlab=xlab,
-             ylab=ylab,
+        plot(x, y, axes=FALSE, xaxs=xaxs,
+             xlim=if (missing(xlim)) NULL else xlim,
              ylim=if (missing(ylim)) NULL else ylim,
+             xlab=xlab, ylab=ylab,
              type=type, cex=cex, ...)
     }
     if (axes) {
-        xlabs <- oce.axis.POSIXct(1, x=x, drawTimeRange=drawTimeRange, main=main,
-                                  mgp=mgp,
-                                  cex=cex.axis, cex.axis=cex.axis, cex.main=cex.main,
-                                  debug=debug-1)#, ...)
+        xaxt <- list(...)["xaxt"]
+        drawxaxis <- !is.null(xaxt) && xaxt != 'n'
+        yaxt <- list(...)["yaxt"]
+        drawyaxis <- !is.null(yaxt) && yaxt != 'n'
+        if (drawxaxis) {
+            xlabs <- oce.axis.POSIXct(1, x=x, drawTimeRange=drawTimeRange, main=main,
+                                      mgp=mgp,
+                                      xlim=if(missing(xlim)) range(x) else xlim,
+                                      cex=cex, cex.axis=cex.axis, cex.main=cex.main,
+                                      debug=debug-1)#, ...)
+        }
         if (grid) {
             lwd <- par("lwd")
-            abline(v=xlabs, col="lightgray", lty="dotted", lwd=lwd)
+            if (drawxaxis)
+                abline(v=xlabs, col="lightgray", lty="dotted", lwd=lwd)
             yaxp <- par("yaxp")
             abline(h=seq(yaxp[1], yaxp[2], length.out=1+yaxp[3]),
                    col="lightgray", lty="dotted", lwd=lwd)
         }
         box()
         ##cat("cex.axis=",cex.axis,"; par('cex.axis') is", par('cex.axis'), "; par('cex') is", par('cex'), "\n")
-        axis(2, cex.axis=cex.axis)
+        if (drawyaxis)
+            axis(2, cex.axis=cex.axis, cex=cex.axis)
         axis(4, labels=FALSE)
     }
+    if (grid)
+        grid(col=grid.col, lty=grid.lty, lwd=grid.lwd)
     if (!is.null(adorn)) {
         t <- try(eval(adorn, enclos=parent.frame()), silent=TRUE)
         if (class(t) == "try-error")
@@ -300,7 +329,7 @@ oce.as.POSIXlt <- function (x, tz = "")
     if (inherits(x, "POSIXlt"))
         return(x)
     if (inherits(x, "Date"))
-        return(.Internal(Date2POSIXlt(x)))
+        return(as.POSIXlt(x))
     tzone <- attr(x, "tzone")
     if (inherits(x, "date") || inherits(x, "dates"))
         x <- as.POSIXct(x)
@@ -314,7 +343,7 @@ oce.as.POSIXlt <- function (x, tz = "")
         stop(gettextf("do not know how to convert '%s' to class \"POSIXlt\"", deparse(substitute(x))))
     if (missing(tz) && !is.null(tzone))
         tz <- tzone[1]
-    .Internal(as.POSIXlt(x, tz))
+    as.POSIXlt(x, tz)
 }
 
 oceEdit <- function(x, item, value, action, reason="", person="",
@@ -494,6 +523,23 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
                         rval@data[[name]] <- x@data[[name]][,keep,]
                     }
                 }
+            } else if (length(grep("pressure", subsetString))) {
+                keep <- eval(substitute(subset), x@data, parent.frame())
+                rval <- x
+                rval@data$v <- rval@data$v[keep,,]
+                rval@data$a <- rval@data$a[keep,,]
+                rval@data$q <- rval@data$q[keep,,]
+                rval@data$time <- rval@data$time[keep]
+                ## the items below may not be in the dataset
+                names <- names(rval@data)
+                if ("bottomRange" %in% names) rval@data$bottomRange <- rval@data$bottomRange[keep,]
+                if ("pressure" %in% names) rval@data$pressure <- rval@data$pressure[keep]
+                if ("temperature" %in% names) rval@data$temperature <- rval@data$temperature[keep]
+                if ("salinity" %in% names) rval@data$salinity <- rval@data$salinity[keep]
+                if ("depth" %in% names) rval@data$depth <- rval@data$depth[keep]
+                if ("heading" %in% names) rval@data$heading <- rval@data$heading[keep]
+                if ("pitch" %in% names) rval@data$pitch <- rval@data$pitch[keep]
+                if ("roll" %in% names) rval@data$roll <- rval@data$roll[keep]
             } else {
                 stop("should express the subset in terms of distance or time")
             }
@@ -692,6 +738,7 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
         }
         names(rval@data) <- names(x@data)
     }
+    ## fix up metadata
     if (inherits(x, "adp") || inherits(x, "adv")) {
         rval@metadata$numberOfSamples <- dim(rval@data$v)[1]
         rval@metadata$numberOfCells <- dim(rval@data$v)[2]
@@ -856,7 +903,7 @@ read.oce <- function(file, ...)
     type <- magic(file)
     processingLog <- paste(deparse(match.call()), sep="", collapse="")
     if (type == "shapefile")
-        stop("cannot read shapefiles")
+        return(read.coastline.shapefile(file, ...))
     if (type == "echosounder")
         return(read.echosounder(file, ...))
     if (type == "adp/rdi")
@@ -1050,12 +1097,12 @@ oce.axis.POSIXct <- function (side, x, at, format, labels = TRUE,
     } else if (d <= 60 * 60 * 24 * 3) {        # under 3 days: label day; show 1-hour subticks
         t.start <- trunc(rr[1], "day")
         t.end <- trunc(rr[2] + 86400, "day")
-        z <- seq(t.start, t.end, by="day")
+        z <- seq(t.start, t.end, by="hour")
         z.sub <- seq(t.start, t.end, by="hour")
         oceDebug(debug, vectorShow(z, "Time range is under 3 days; z="))
         oceDebug(debug, vectorShow(z.sub, "Time range is under 3 days; z.sub="))
         if (missing(format))
-            format <- "%b %d"
+            format <- "%H"             #b %d"
     } else if (d <= 60 * 60 * 24 * 5) {        # under 5 days: label day; show 2-h subticks
         t.start <- trunc(rr[1], "day")
         t.end <- trunc(rr[2] + 86400, "day")
@@ -1134,7 +1181,6 @@ oce.axis.POSIXct <- function (side, x, at, format, labels = TRUE,
     }
     if (!mat)
         z <- x[is.finite(x)]
-
     ##
     ## FIXME: I was twiddling the numbers, to get more labels, but xaxs="r" fixes that.
     twiddle <- 0.04 * diff(as.numeric(range))  # FIXME: do I need this anymore?
@@ -1208,11 +1254,13 @@ oce.axis.POSIXct <- function (side, x, at, format, labels = TRUE,
     ocex.axis <- par('cex.axis')
     ocex.main <- par('cex.main')
     omgp <- par('mgp')
-    par(cex=cex, cex.axis=cex.axis, cex.main=cex.main, mgp=mgp, tcl=-0.5)
+    par(cex.axis=cex.axis, cex.main=cex.main, mgp=mgp, tcl=-0.5)
     ##axis(side, at=z, line=0, labels=labels, cex=cex, cex.axis=cex.axis, cex.main=cex.main, mar=mar, mgp=mgp)
-    axis(side, at=z, line=0, labels=labels, mgp=mgp, cex=cex, cex.main=cex.main, cex.axis=cex.axis, ...)
-    par(cex=ocex, cex.axis=ocex.axis, cex.main=cex.main, mgp=omgp)
+    axis(side, at=z, line=0, labels=labels, mgp=mgp, cex.main=cex.main, cex.axis=cex.axis, ...)
+    par(cex.axis=ocex.axis, cex.main=cex.main, mgp=omgp)
     oceDebug(debug, "\b\b} # oce.axis.ts()\n")
+    zzz <- as.numeric(z)
+    par(xaxp=c(min(zzz), max(zzz), -1+length(zzz)))
     invisible()
 }
 
@@ -1284,5 +1332,110 @@ numberAsPOSIXct <- function(t, type=c("unix", "matlab", "gps", "argos"), tz="UTC
     } else {
         stop("type must be \"unix\", \"matlab\" or \"GPS\"")
     }
+}
+
+plotInset <- function(xleft, ybottom, xright, ytop, expr,
+                      bg="white", fg="black", mar=c(2, 2, 1, 1),
+                      debug=getOption("oceDebug"))
+{
+    xLog <- par('xlog')
+    yLog <- par('ylog')
+    x2in <- function(x) {
+        if (xLog)
+            mai[2] + (log10(x) - usr[1]) * (fin[1]-mai[2]-mai[4]) / (usr[2]-usr[1])
+        else
+            mai[2] + (x-usr[1]) * (fin[1]-mai[2]-mai[4]) / (usr[2]-usr[1])
+    }
+    y2in <- function(y) {
+        if (yLog)
+            mai[1] + (log10(y) - usr[3]) * (fin[2]-mai[1]-mai[3]) / (usr[4]-usr[3])
+        else
+            mai[1] + (y-usr[3]) * (fin[2]-mai[1]-mai[3]) / (usr[4]-usr[3])
+    }
+ 
+    usr <- par('usr')                  # xmin xmax ymin ymax
+    if (is.character(xleft)) {
+        if (xleft != "bottomleft")
+            stop("only named position is \"bottomleft\"")
+        f1 <- 0.02
+        f2 <- 1/3
+        if (xLog) {
+            stop("cannot handle xlog yet")
+        } else {
+            xleft <- usr[1] + f1 * (usr[2] - usr[1])
+            xright <- usr[1] + f2 * (usr[2] - usr[1])
+        }
+        if (yLog) {
+            stop("cannot handle ylog yet")
+        } else {
+            ybottom <- usr[3] + f1 * (usr[4] - usr[3])
+            ytop <- usr[3] + f2 * (usr[4] - usr[3])
+        }
+    } else {
+        oceDebug(debug, "\bplotInset(xleft=", xleft, ", ybottom=", ybottom,
+                 ", xright=", xright, ", ytop=", ytop, ",  ...) {\n",
+                 sep="")
+    }
+    oceDebug(debug, "TOP: par('mfg')=", par('mfg'), "\n")
+    opar <- par(no.readonly=TRUE)
+    rect(xleft, ybottom, xright, ytop, col=bg, border=fg)
+    mai <- par('mai')                  # bottom left top right
+    oceDebug(debug, "par('mai')=", par('mai'), '\n')
+    oceDebug(debug, "par('usr')=", par('usr'), '\n')
+    ##din <- dev.size(units='in')        # width height
+    fin <- par('fin') # figure width height
+    oceDebug(debug, "figure width and height=", fin, '\n')
+    nmai <- c(y2in(ybottom), x2in(xleft), fin[2]-y2in(ytop), fin[1]-x2in(xright))
+    oceDebug(debug, "nmai:", nmai, "\n")
+    if (any(nmai < 0)) {
+        warning("part of inset is of the page")
+    }
+    nmai[nmai<0] <- 0
+    if (nmai[1] < 0) nmai[1] <- {cat("**1**\n");fin[1]}
+    if (nmai[2] < 0) nmai[2] <- {cat("**2**\n");fin[1]}
+    if (nmai[3] > fin[2] - 0.2) {cat("**3**\n");nmai[3] <- fin[2] - 0.2}
+    if (nmai[4] > fin[1] - 0.2) {cat("**4**\n");nmai[4] <- fin[1] - 0.2}
+    oceDebug(debug, "nmai:", nmai, "(after trimming negatives)\n")
+    oceDebug(debug, "after setting margins, mfg=", par('mfg'), "(contrast orig", opar$mfg, ")\n")
+    mfg2 <- par('mfg')
+    par(new=TRUE, mai=nmai)
+    thismar <- par('mar')
+    par(mar=thismar+mar)
+    if (debug > 1) {
+        cat("\n\nBEFORE expr, PAR IS:\n");
+        print(par())
+    }
+    mfg <- par('mfg')
+    oceDebug(debug, "BEFORE expr, mfg=", mfg, "\n")
+    expr
+    ## adjust 'new' to permit the use of par(mfrow)
+    if (mfg[1] == mfg[3] && mfg[2] == mfg[4]) {
+        ## finished filling in the plot region
+        oceDebug(debug, "setting new=FALSE; mfg=", mfg, "... ")
+        ## par(new=FALSE)
+    } else {
+        oceDebug(debug, "setting new=TRUE; mfg=", mfg, "... ")
+        ## par(new=FALSE)
+    }
+    ## reset some things that could have been set in the inset
+    par(mai=opar$mai, cex=opar$cex, lwd=opar$lwd, bg=opar$bg)
+    if (debug > 1) {
+        cat("par('mfg')=", par('mfg'), "opar$mfg=", opar$mfg, "; mfg2=", mfg2, "\n")
+        cat("\n\nAFTER expr, PAR IS RESET TO IC:\n");
+        print(opar)
+    }
+    oceDebug(debug, "\b\b} # plotInset()\n")
+    invisible()
+}
+
+decodeTime <- function(time, time.formats=c("%b %d %Y %H:%M:%s", "%Y%m%d"), tz="UTC")
+{
+    rval <- NA
+    for (format in time.formats) {
+        if (!is.na(rval <-  as.POSIXct(time, format=format, tz=tz))) {
+            break
+        }
+    }
+    rval
 }
 

@@ -19,6 +19,7 @@
      col.land,
      lty.land,
      lwd.land,
+     geographical=FALSE,
      location="topright", 
      mgp=getOption("oceMgp"),
      mar=c(mgp[1]+1,mgp[1]+1,1,1),
@@ -67,6 +68,8 @@
     \code{\link{oceColorsGebco}}.}
   \item{lty.land}{line type(s) for land contours}
   \item{lwd.land}{line width(s) for land contours}
+  \item{geographical}{set to \code{TRUE} to get latitudes and longitudes
+      without minus signs.}
   \item{location}{location for a legend (or FALSE, for no legend).}
   \item{mgp}{3-element numerical vector to use for \code{par(mgp)}, and
     also for \code{par(mar)}, computed from this.  The default is
@@ -96,7 +99,7 @@
 library(oce)
 data(topoWorld)
 plot(topoWorld)
-plot(topoWorld, clatitude=44.6, clongitude=-63.6, span=1000)
+plot(topoWorld, clatitude=45, clongitude=300, span=10000)
 }
 
 \author{Dan Kelley}

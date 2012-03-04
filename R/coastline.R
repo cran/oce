@@ -13,6 +13,13 @@ setMethod(f="initialize",
 
 as.coastline <- function(latitude, longitude, fillable=FALSE)
 {
+    if (class(latitude) == "data.frame") {
+        names <- names(latitude)
+        if (!("longitude" %in% names)) stop("list must contain a column named 'longitude'")
+        if (!("latitude" %in% names)) stop("list must contain a column named 'latitude'")
+        longitude <- latitude$longitude
+        latitude <- latitude$latitude
+    }
     n <- length(latitude)
     if (n != length(longitude))
         stop("Lengths of longitude and latitude must be equal")
@@ -33,15 +40,20 @@ setMethod(f="plot",
                                mar=c(mgp[1]+1,mgp[1]+1,1,1),
                                bg,
                                fill='lightgray',
-                               axes=TRUE,
-                               add=FALSE,
+                               axes=TRUE, cex.axis=par('cex.axis'),
+                               add=FALSE, inset=FALSE,
+                               geographical=FALSE,
                                debug=getOption("oceDebug"),
                                ...)
           {
-              oceDebug(debug, "\b\bplot.coastline(...,",
-                       "clatitude=", if(missing(clatitude)) "(missing)" else paste("c(", paste(clatitude, collapse=","), ")"),
-                       "clongitude=", if(missing(clongitude)) "(missing)" else paste("c(", paste(clongitude, collapse=","), ")"),
-                       ", span=", if(missing(span)) "(missing)" else span, ", ...) {\n", sep="")
+              oceDebug(debug, "\bplot.coastline(...",
+                       ", clatitude=", if(missing(clatitude)) "(missing)" else clatitude, 
+                       ", clongitude=", if(missing(clongitude)) "(missing)" else clongitude,
+                       ", span=", if(missing(span)) "(missing)" else span,
+                       ", cex.axis=", cex.axis, 
+                       ", inset=", inset, 
+                       ", ...) {\n", sep="")
+              ##cat("top of plot(ctd, which=", which, "...)   mai=", par('mai'), "\n") # FIXME
               if (is.list(x) && "latitude" %in% names(x)) {
                   if (!("longitude" %in% names(x)))
                       stop("list must contain item named 'longitude'")
@@ -59,7 +71,9 @@ setMethod(f="plot",
                   stop("please use 'clatitude' and 'clongitude' instead of 'center'")
               if ("xlim" %in% dotsNames) stop("cannot supply 'xlim'; please use 'center' and 'span' instead")
               if ("ylim" %in% dotsNames) stop("cannot supply 'ylim'; please use 'center' and 'span' instead")
-              par(mgp=mgp, mar=mar)
+              if (!inset)
+                  par(mar=mar)
+              par(mgp=mgp)
               if (add) {
                   if (!is.null(fill) && !is.null(x@metadata$fillable) && x@metadata$fillable) {
                       polygon(longitude, latitude, col=fill, ...)
@@ -103,6 +117,8 @@ setMethod(f="plot",
                   oceDebug(debug, "par('pin')=", par('pin'), "\n")
                   oceDebug(debug, "asp=", asp, "\n")
                   oceDebug(debug, "asp.page=", asp.page, "\n")
+                  if (!is.finite(asp))
+                      asp <- 1 / cos(clatitude * atan2(1, 1) / 45)
                   if (asp < asp.page) {
                       oceDebug(debug, "type 1 (will narrow x range)\n")
                       d <- asp.page / asp * diff(xr)
@@ -152,13 +168,19 @@ setMethod(f="plot",
                       usrTrimmed[4] <- min(  90, usrTrimmed[4])
                       oceDebug(debug, "par('usr')", par('usr'), "\n")
                       oceDebug(debug, "usrTrimmed", usrTrimmed, "\n")
-                      axis(1, at=xr.pretty, pos=usrTrimmed[3])
+                      xlabels <- format(xr.pretty)
+                      ylabels <- format(yr.pretty)
+                      if (geographical) {
+                          xlabels <- sub("-", "", xlabels)
+                          ylabels <- sub("-", "", ylabels)
+                      }
+                      axis(1, at=xr.pretty, labels=xlabels, pos=usrTrimmed[3], cex.axis=cex.axis)
                       oceDebug(debug, "putting bottom y axis at", usrTrimmed[3], "\n")
-                      axis(2, at=yr.pretty, pos=usrTrimmed[1])
+                      axis(2, at=yr.pretty, labels=ylabels, pos=usrTrimmed[1], cex.axis=cex.axis, cex=cex.axis)
                       oceDebug(debug, "putting left x axis at", usrTrimmed[1], "\n")
-                      axis(3, at=xr.pretty, pos=usrTrimmed[4], labels=FALSE)
-                      oceDebug(debug, "putting top x axis at", usrTrimmed[4], "\n")
-                      axis(4, at=yr.pretty, pos=usrTrimmed[2], labels=FALSE)
+                      ##axis(3, at=xr.pretty, pos=usrTrimmed[4], labels=FALSE)
+                      ##oceDebug(debug, "putting top x axis at", usrTrimmed[4], "\n")
+                      axis(4, at=yr.pretty, pos=usrTrimmed[2], labels=FALSE, cex.axis=cex.axis)
                       oceDebug(debug, "putting right y axis at", usrTrimmed[2], "\n")
                   }
                   yaxp <- par("yaxp")
@@ -318,8 +340,15 @@ read.coastline.shapefile <- function(file, lonlim=c(-180,180), latlim=c(-90,90),
         warning("file size is ", file.size, " but the header suggests it to be ", file.size.header, "; using the former")
     shape.type.file <- readBin(buf[33:36], "integer", n=1, size=4, endian="little")
     oceDebug(debug, "shape.type.file=", shape.type.file, "\n")
-    if (shape.type.file != 5)
-        stop("can only deal with shape-type 5 (polygon) in this version of the software\n")
+    if (shape.type.file != 5 && shape.type.file != 3)
+        stop("can only deal with shape-type 3 (polyline) and 5 (polygon) in this version of the software\n")
+    if (shape.type.file == 3) {
+        oceDebug(debug, "shape.type.file == 3, so assuming a depth-contour file\n")
+        warning("shapefile of type 3 (polyline) requires library(foreign) to work")
+        dbfName <- paste(gsub(".shp$", "", filename), ".dbf", sep="")
+        oceDebug(debug, "reading DBF file '", dbfName, "'\n", sep="")
+        depths <- foreign::read.dbf(dbfName)[[1]]
+    }
     xmin <- readBin(buf[37+0:7], "double", n=1, size=8, endian="little")
     ymin <- readBin(buf[45+0:7], "double", n=1, size=8, endian="little")
     xmax <- readBin(buf[53+0:7], "double", n=1, size=8, endian="little")
@@ -383,8 +412,11 @@ read.coastline.shapefile <- function(file, lonlim=c(-180,180), latlim=c(-90,90),
         }
         o <- o + 53 + 4 * number.parts + 2 * number.points * 8 - 1
     }
-    res <- new("coastline", latitude=latitude, longitude=longitude, fillable=TRUE)
+    res <- new("coastline", latitude=latitude, longitude=longitude, fillable=shape.type.file==5)
     res@metadata <- metadata
+    if (shape.type.file == 3) {
+        res@metadata$depths <- depths
+    }
     if (missing(processingLog))
         processingLog <- paste(deparse(match.call()), sep="", collapse="")
     res@processingLog <- processingLog(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))

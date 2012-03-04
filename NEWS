@@ -1,3 +1,15 @@
+0.8-6
+- imagep(): permit POSIXt type for zlim
+
+0.8-5
+- reconstruct data(ctd) so plot will focus maps better
+- plotInset() added
+- grid() works for oce-based time axes
+- imagep(..., filledContours): obey ylab argument
+- subset(): permit subsetting ADP by pressure
+- oce.plot.ts(): obey arguments xaxt and yaxt
+- improve support for shapefile coastlines
+
 0.8-4
 - replace 'center' argument for plotting topography and coastline with
   clatitude and clongitude

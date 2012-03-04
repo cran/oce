@@ -8,33 +8,23 @@
 
 \description{Plot CTD data}
 
-\usage{\S4method{plot}{ctd}(x,
-     which=1:4, 
-     ref.lat=NaN,
-     ref.lon=NaN, 
-     grid=TRUE,
-     col.grid="lightgray",
-     lty.grid="dotted",
+\usage{\S4method{plot}{ctd}(x, which=1:4, 
+     ref.lat=NaN, ref.lon=NaN, 
+     grid=TRUE, col.grid="lightgray", lty.grid="dotted",
      coastline="coastlineWorld",
-     Slim, 
-     Tlim, 
-     plim,
-     densitylim, 
-     dpdtlim,
-     timelim,
-     lonlim,
-     latlim,
-     latlon.pch=20,
-     latlon.cex=1.5,
-     latlon.col="red",
-     cex=1,
+     Slim, Tlim, plim, densitylim, N2lim,
+     dpdtlim, timelim,
+     lonlim, latlim, span,
+     latlon.pch=20, latlon.cex=1.5, latlon.col="red",
+     cex=1, cex.axis=par('cex.axis'),
      pch=1,
      useSmoothScatter=FALSE,
      keepNA=FALSE,
      type='l',
      adorn=NULL,
      mgp=getOption("oceMgp"),
-     mar=c(mgp[1]+1,mgp[1]+1,mgp[1]+1,mgp[1]+1),
+     mar=c(mgp[1]+1.5,mgp[1]+1.5,mgp[1]+1.5,mgp[1]+1),
+     inset=FALSE,
      debug=getOption("oceDebug"),
      \dots)
 }
@@ -93,16 +83,19 @@
   \item{Tlim}{optional limits of temperature axes}
   \item{plim}{optional limits of pressure axes}
   \item{densitylim}{optional limits of density axis}
+  \item{N2lim}{optional limits of \eqn{N^2}{N^2} axis}
   \item{dpdtlim}{optional limits of dP/dt axis}
   \item{timelim}{optional limits of delta-time axis}
   \item{lonlim}{optional limits of longitude axis of map (ignored if no
     map plotted)} 
   \item{latlim}{optional limits of latitude axis of map (ignored if no
     map plotted)} 
+  \item{span}{optional span of map, in km (ignored unless a map is being drawn)}
   \item{latlon.pch}{pch for sample location (ignored if no map plotted)}
   \item{latlon.cex}{cex for sample location (ignored if no map plotted)}
   \item{latlon.col}{col for sample location (ignored if no map plotted)}
   \item{cex}{size to be used for plot symbols (see \code{\link{par}})}
+  \item{cex.axis}{size factor for axis labels (see \code{\link{par}})}
   \item{pch}{code for plotting symbol (see \code{\link{par}}).}
   \item{useSmoothScatter}{boolean, set to \code{TRUE} to use 
     \code{\link{smoothScatter}} instead of \code{\link{plot}} to draw
@@ -121,7 +114,11 @@
     tighter than the R default, in order to use more space for the data
     and less for the axes.}
   \item{mar}{value to be used with \code{\link{par}("mar")}.}
-  \item{debug}{set to \code{TRUE} to get debugging information during processing.}
+  \item{inset}{set to \code{TRUE} for use within \code{\link{plotInset}}.  The
+      effect is to prevent the present function from adjusting margins, which
+      is necessary because margin adjustment is the basis for the method
+      used by \code{\link{plotInset}}.}
+  \item{debug}{set to a positive value to get debugging information during processing.}
   \item{\dots}{optional arguments passed to plotting functions. A common
     example is to set \code{df}, for use in \link{swN2} calculations.} 
 }

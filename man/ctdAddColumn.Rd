@@ -5,9 +5,7 @@
 
 \description{Add a column to a \code{ctd} file, updating the header as appropriate.}
 
-\usage{
-ctdAddColumn(x, column, name, label, debug=FALSE)
-}
+\usage{ctdAddColumn(x, column, name, label, unit, debug=getOption("oceDebug"))}
 
 \arguments{
   \item{x}{A \code{ctd} object, e.g. as read by \code{\link{read.ctd}}.}
@@ -15,26 +13,18 @@ ctdAddColumn(x, column, name, label, debug=FALSE)
     numeric vector, whose length matches that of columns in the
     objecct.}
   \item{name}{Character string indicating the name this column is to
-    have in the \code{data} dataframe.  For example, using
-    \code{name="hello"} in the creation of \code{d} would mean
-    that the data could be accessed as \code{d@data$hello} or
-    \code{d@data[["hello"]]}.}
+    have in the \code{data} slot of \code{x}.}
   \item{label}{Optional character string or expression indicating the
     name of the column, as it will appear in plot labels.  (If not
     given, \code{name} will be used.)}
-  \item{debug}{Set \code{TRUE} to see information about the processing.}
+  \item{unit}{Optional character string indicating unit.}
+  \item{debug}{set to a positive value to get debugging information during processing.}
 }
 
 \details{
-  These functions add the column to the the data frame in the the object.
+  This function adds a column to the object's \code{data} slot.
 }
 
-\note{
-  Note that the arguments to this function were changed in version
-  0.1.77 of the package, in order to remove confusion about their
-  function, and in order to make the function better able to deal with a
-  wider range of CTD devices.
-}
 
 \value{An object of \code{\link[base]{class}} \code{"ctd"}, with a new column.}
 
@@ -44,7 +34,7 @@ ctdAddColumn(x, column, name, label, debug=FALSE)
 \examples{
 library(oce)
 data(ctd) 
-SS <- ctd@data$salinity^2
+SS <- ctd[["salinity"]]^2
 ctdNew <- ctdAddColumn(ctd, SS, "ss", 
                         expression(paste(S^2, " [", PSU^2, " ]")))
 plotProfile(ctdNew, "ss")

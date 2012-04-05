@@ -1,10 +1,10 @@
 Package: oce
-Version: 0.8-6
-Date: 2012-03-03
+Version: 0.8-7
+Date: 2012-04-05
 Title: Analysis of Oceanographic data
 Author: Dan Kelley <Dan.Kelley@Dal.Ca>
 Maintainer: Dan Kelley <Dan.Kelley@Dal.Ca>
-Depends: R (>= 2.10), utils, methods
+Depends: R (>= 2.15), utils, methods
 Suggests: ncdf, foreign
 BugReports:
         https://github.com/dankelley/oce/issues?sort=created&direction=desc&state=open
@@ -17,6 +17,6 @@ Description: Supports the analysis of Oceanographic data, including ADP
 License: GPL (>= 2)
 URL: http://dankelley.github.com/oce/
 LazyLoad: yes
-Packaged: 2012-03-03 22:52:04.054 UTC; kelley
+Packaged: 2012-04-05 18:46:48.743 UTC; kelley
 Repository: CRAN
-Date/Publication: 2012-03-04 07:01:10
+Date/Publication: 2012-04-05 20:46:20

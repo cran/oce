@@ -3,7 +3,6 @@ a03
 adp
 adv
 airHalifax
-argo
 coastlineHalifax
 coastlineMaritimes
 coastlineSLE
@@ -11,11 +10,12 @@ coastlineWorld
 ctd
 ctdRaw
 drag
+drifter
+echosounder
 geosecs235
 lobo
 met
 munk
-ptr
 redfieldNC
 redfieldNP
 redfieldPlankton
@@ -25,6 +25,7 @@ sealevelHalifax
 sealevelTuktoyaktuk
 section
 soi
+tdr
 tidedata
 topoMaritimes
 topoWorld

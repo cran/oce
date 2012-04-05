@@ -14,7 +14,7 @@
      col.grid="lightgray",
      lty.grid="dotted",
      rho1000=FALSE,
-     cex=par("cex"), col=par("col"), pch=par("pch"),
+     cex=par("cex"), col=par("col"), pch=par("pch"), bg,
      col.rho="darkgray",
      cex.rho=3/4*par("cex"),
      rotateRhoLabels=FALSE,
@@ -27,7 +27,7 @@
      mgp=getOption("oceMgp"),
      mar=c(mgp[1]+1,mgp[1]+1,mgp[1],mgp[1]),
      lwd.rho=par("lwd"), lty.rho=par("lty"),
-     add=FALSE,
+     add=FALSE, inset=FALSE,
      debug=getOption("oceDebug"),
      \dots)
 }
@@ -49,6 +49,8 @@
   \item{rho1000}{if TRUE, label isopycnals as e.g. 1024; if FALSE, label as e.g. 24}
   \item{cex}{character-expansion factor for symbols, as in \code{\link{par}("cex")}.}
   \item{pch}{symbol type, as in \code{\link{par}("pch")}.}
+  \item{bg}{optional colour to be painted under plotting area, before plotting.
+      (This is useful for cases in which \code{inset=TRUE}.)}
   \item{col}{colour for symbols.}
   \item{col.rho}{colour for isopycnal lines.}
   \item{cex.rho}{size of isopycnal labels.}
@@ -72,6 +74,10 @@
   \item{add}{a flag that controls whether to add to an existing plot.  (It
       makes sense to use \code{add=TRUE} in the \code{panel} argument of a
       \code{\link{coplot}}, for example.)}
+  \item{inset}{set to \code{TRUE} for use within \code{\link{plotInset}}.  The
+      effect is to prevent the present function from adjusting margins, which
+      is necessary because margin adjustment is the basis for the method
+      used by \code{\link{plotInset}}.}
   \item{debug}{a flag that turns on debugging.  Set to 1 to get a
       moderate amount of debugging information, or to 2 to get more.}
   \item{\dots}{optional arguments passed to plotting functions.}

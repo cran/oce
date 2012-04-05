@@ -698,13 +698,37 @@ subset.oce <- function (x, subset, indices=NULL, debug=getOption("oceDebug"), ..
         if (length(grep("time", subsetString))) {
             oceDebug(debug, "subsetting an echosounder object by time\n")
             keep <- eval(substitute(subset), x@data, parent.frame())
+            oceDebug(debug, "keeping", 100 * sum(keep)/length(keep), "% of the fast-sampled data\n")
             rval <- x
-            rval[["time"]] <- rval[["time"]][keep]
-            rval[["latitude"]] <- rval[["latitude"]][keep]
-            rval[["longitude"]] <- rval[["longitude"]][keep]
-            rval[["time"]] <- rval[["time"]][keep]
-            rval[["a"]] <- rval[["a"]][keep,]
-            warning("only subsetting ping-based data, not timeSlow, latitudeSlow or longitudeSlow")
+            ## trim fast variables, handling matrix 'a' differently, and skipping 'distance'
+            rval@data$a <- x@data$a[keep,]
+            dataNames <- names(x@data)
+            ## lots of debugging in here, in case other data types have other variable names
+            oceDebug(debug, "dataNames (orig):", dataNames, "\n")
+            if (length(grep('^a$', dataNames)))
+                dataNames <- dataNames[-grep('^a$', dataNames)]
+            oceDebug(debug, "dataNames (step 2):", dataNames, "\n")
+            if (length(grep('^depth$', dataNames)))
+                dataNames <- dataNames[-grep('^depth$', dataNames)]
+            oceDebug(debug, "dataNames (step 3):", dataNames, "\n")
+            if (length(grep('Slow', dataNames)))
+                dataNames <- dataNames[-grep('Slow', dataNames)]
+            oceDebug(debug, "dataNames (final), i.e. fast dataNames to be trimmed by time:", dataNames, "\n")
+            for (dataName in dataNames) {
+                oceDebug(debug, "fast variable:", dataName, "orig length", length(x@data[[dataName]]), "\n")
+                rval@data[[dataName]] <- x@data[[dataName]][keep]
+                oceDebug(debug, "fast variable:", dataName, "new length", length(rval@data[[dataName]]), "\n")
+            }
+            ## trim slow variables
+            subsetStringSlow <- gsub("time", "timeSlow", subsetString)
+            oceDebug(debug, "subsetting slow variables with string:", subsetStringSlow, "\n")
+            keepSlow <-eval(parse(text=subsetStringSlow), x@data, parent.frame())
+            oceDebug(debug, "keeping", 100 * sum(keepSlow)/length(keepSlow), "% of the slow-sampled data\n")
+            for (slowName in names(x@data)[grep("Slow", names(x@data))]) {
+                oceDebug(debug, "slow variable:", slowName, "orig length", length(x@data[[slowName]]), "\n")
+                rval@data[[slowName]] <- x@data[[slowName]][keepSlow]
+                oceDebug(debug, "slow variable:", slowName, "new length", length(rval@data[[slowName]]), "\n")
+            }
         } else if (length(grep("depth", subsetString))) {
             oceDebug(debug, "subsetting an echosounder object by depth\n")
             keep <- eval(substitute(subset), x@data, parent.frame())
@@ -784,8 +808,12 @@ magic <- function(file, debug=getOption("oceDebug"))
             subtype <- gsub("^\\s*", "", subtype)
             subtype <- gsub("\\s*$", "", subtype)
             return(paste("odf", subtype, sep="/"))
+        } else if (length(grep(".nc$", filename, ignore.case=TRUE))) { # argo drifter?
+            library(ncdf)
+            f <- open.ncdf(filename)
+            if ("DATA_TYPE" %in% names(f$var) && grep("argo", get.var.ncdf(open.ncdf(filename), "DATA_TYPE"), ignore.case=TRUE))
+                return("drifter/argo")
         }
-        oceDebug(debug, " no, so not adv/sontek/adr.\n")
         file <- file(file, "r")
     }
     if (!inherits(file, "connection"))
@@ -887,8 +915,8 @@ magic <- function(file, debug=getOption("oceDebug"))
         return("topo")
     }
     if ("RBR TDR" == substr(line, 1, 7))  {
-        oceDebug(debug, "this is pt\n")
-        return("pt")
+        oceDebug(debug, "this is tdr\n")
+        return("tdr")
     }
     if ("BOTTLE"  == substr(line, 1, 6))  {
         oceDebug(debug, "this is section\n")
@@ -923,17 +951,20 @@ read.oce <- function(file, ...)
         return(read.cm.s4(file, processingLog=processingLog, ...))
     if (type == "ctd/sbe/19")
         return(read.ctd.sbe(file, processingLog=processingLog, ...))
-    if (type == "ctd/woce/exchange")      return(read.ctd.woce(file, processingLog=processingLog, ...))
+    if (type == "ctd/woce/exchange")
+        return(read.ctd.woce(file, processingLog=processingLog, ...))
     if (type == "coastline")
         return(read.coastline(file, type="mapgen", processingLog=processingLog, ...))
+    if (type == "drifter/argo")
+        return(read.drifter(file))
     if (type == "sealevel")
         return(read.sealevel(file, processingLog=processingLog, ...))
     if (type == "topo")
         return(read.topo(file, processingLog=processingLog, ...))
-    if (type == "pt")
-        return(read.pt(file, processingLog=processingLog, ...))
+    if (type == "tdr")
+        return(read.tdr(file, processingLog=processingLog, ...))
     if (type == "RBR/rsk")
-        return(read.pt(file, processingLog=processingLog, type='rsk'))
+        return(read.tdr(file, processingLog=processingLog, type='rsk'))
     if (type == "section")
         return(read.section(file, processingLog=processingLog, ...))
     if (type == "odf/ctd")
@@ -972,6 +1003,23 @@ oceColorsJet <- function(n)
     }
 }
 
+oceColors9A <- function(n)
+{
+    oceColorsJet(n)
+}
+
+oceColors9B <- function(n)
+{
+    if (missing(n) || n <= 0)
+        colorRampPalette(c("#00007F", "blue", "#007FFF", "#22e4e7",
+                           "white", "#ffe45e", "#FF7F00", "red", "#7F0000"))
+    else {
+        colorRampPalette(c("#00007F", "blue", "#007FFF", "#22e4e7",
+                           "white", "#ffe45e", "#FF7F00", "red", "#7F0000"))(n)
+    }
+}
+
+
 oceColorsPalette <- function(n, which=1)
 {
     if ((n <- as.integer(n[1])) > 0) {
@@ -1008,6 +1056,10 @@ oceColorsPalette <- function(n, which=1)
             rev(rgb(approx(i, r, xout, rule=1)$y,
                     approx(i, g, xout, rule=1)$y,
                     approx(i, b, xout, rule=1)$y))
+        } else if (which == 9.01 || which == "9A" || which == "jet") { # jet, also known as 9A or 9.01
+            oceColorsJet(n)
+        } else if (which == 9.02 || which == "9B") {
+            oceColors9B(n)
         } else stop("unknown which")
     }
     else character(0)
@@ -1335,9 +1387,10 @@ numberAsPOSIXct <- function(t, type=c("unix", "matlab", "gps", "argos"), tz="UTC
 }
 
 plotInset <- function(xleft, ybottom, xright, ytop, expr,
-                      bg="white", fg="black", mar=c(2, 2, 1, 1),
+                      mar=c(2, 2, 1, 1),
                       debug=getOption("oceDebug"))
 {
+    omfg <- par('mfg')                 # original mfg
     xLog <- par('xlog')
     yLog <- par('ylog')
     x2in <- function(x) {
@@ -1373,57 +1426,50 @@ plotInset <- function(xleft, ybottom, xright, ytop, expr,
         }
     } else {
         oceDebug(debug, "\bplotInset(xleft=", xleft, ", ybottom=", ybottom,
-                 ", xright=", xright, ", ytop=", ytop, ",  ...) {\n",
+                 ", xright=", xright, ", ytop=", ytop,
+                 ",  ...) {\n",
                  sep="")
     }
-    oceDebug(debug, "TOP: par('mfg')=", par('mfg'), "\n")
+    oceDebug(debug, "par('mfg')=", par('mfg'), "\n")
     opar <- par(no.readonly=TRUE)
-    rect(xleft, ybottom, xright, ytop, col=bg, border=fg)
     mai <- par('mai')                  # bottom left top right
     oceDebug(debug, "par('mai')=", par('mai'), '\n')
     oceDebug(debug, "par('usr')=", par('usr'), '\n')
-    ##din <- dev.size(units='in')        # width height
     fin <- par('fin') # figure width height
-    oceDebug(debug, "figure width and height=", fin, '\n')
+    oceDebug(debug, "par('fin')=", fin, "(figure width and height)\n")
     nmai <- c(y2in(ybottom), x2in(xleft), fin[2]-y2in(ytop), fin[1]-x2in(xright))
     oceDebug(debug, "nmai:", nmai, "\n")
     if (any(nmai < 0)) {
-        warning("part of inset is of the page")
+        warning("part of the inset is off the page")
     }
     nmai[nmai<0] <- 0
-    if (nmai[1] < 0) nmai[1] <- {cat("**1**\n");fin[1]}
-    if (nmai[2] < 0) nmai[2] <- {cat("**2**\n");fin[1]}
-    if (nmai[3] > fin[2] - 0.2) {cat("**3**\n");nmai[3] <- fin[2] - 0.2}
-    if (nmai[4] > fin[1] - 0.2) {cat("**4**\n");nmai[4] <- fin[1] - 0.2}
+    if (nmai[1] < 0) nmai[1] <- {fin[1]}
+    if (nmai[2] < 0) nmai[2] <- {fin[1]}
+    if (nmai[3] > fin[2] - 0.2) {nmai[3] <- fin[2] - 0.2}
+    if (nmai[4] > fin[1] - 0.2) {nmai[4] <- fin[1] - 0.2}
     oceDebug(debug, "nmai:", nmai, "(after trimming negatives)\n")
-    oceDebug(debug, "after setting margins, mfg=", par('mfg'), "(contrast orig", opar$mfg, ")\n")
     mfg2 <- par('mfg')
     par(new=TRUE, mai=nmai)
     thismar <- par('mar')
     par(mar=thismar+mar)
     if (debug > 1) {
         cat("\n\nBEFORE expr, PAR IS:\n");
-        print(par())
+        str(par())
     }
     mfg <- par('mfg')
     oceDebug(debug, "BEFORE expr, mfg=", mfg, "\n")
+    ## Draw the inset plot (or perform any action, actually)
     expr
-    ## adjust 'new' to permit the use of par(mfrow)
     if (mfg[1] == mfg[3] && mfg[2] == mfg[4]) {
-        ## finished filling in the plot region
-        oceDebug(debug, "setting new=FALSE; mfg=", mfg, "... ")
-        ## par(new=FALSE)
+        oceDebug(debug, "setting new=FALSE; mfg=", mfg, "\n")
+        par(new=FALSE)
     } else {
-        oceDebug(debug, "setting new=TRUE; mfg=", mfg, "... ")
-        ## par(new=FALSE)
+        oceDebug(debug, "setting new=TRUE; mfg=", mfg, "\n")
+        par(new=TRUE)
     }
-    ## reset some things that could have been set in the inset
-    par(mai=opar$mai, cex=opar$cex, lwd=opar$lwd, bg=opar$bg)
-    if (debug > 1) {
-        cat("par('mfg')=", par('mfg'), "opar$mfg=", opar$mfg, "; mfg2=", mfg2, "\n")
-        cat("\n\nAFTER expr, PAR IS RESET TO IC:\n");
-        print(opar)
-    }
+    ## Reset some things that could have been set in the inset, and
+    ## then adjust 'new' appropriately.
+    par(usr=opar$usr, mai=opar$mai, cex=opar$cex, lwd=opar$lwd, lty=opar$lty, bg=opar$bg)
     oceDebug(debug, "\b\b} # plotInset()\n")
     invisible()
 }
@@ -1439,3 +1485,42 @@ decodeTime <- function(time, time.formats=c("%b %d %Y %H:%M:%s", "%Y%m%d"), tz="
     rval
 }
 
+drawDirectionField <- function(x, y, u, v, scalex, scaley, add=FALSE,
+                               type=1,
+                               debug=getOption("oceDebug"), ...)
+{
+    oceDebug(debug, "\b\bdrawDirectionField(...) {\n")
+    if (missing(x) || missing(y) || missing(u) || missing(v))
+        stop("must supply x, y, u, and v")
+    if ((missing(scalex) && missing(scaley)) || (!missing(scalex) && !missing(scaley)))
+        stop("either 'scalex' or 'scaley' must be specified (but not both)")
+    usr <- par('usr')
+    pin <- par('pin')
+    mai <- par('mai')
+    xPerInch <- diff(usr[1:2]) / pin[1]
+    yPerInch <- diff(usr[3:4]) / pin[2]
+    oceDebug(debug, 'pin=', pin, 'usr=', usr, 'xPerInch=', xPerInch, 'yPerInch=', yPerInch, '\n')
+    if (missing(scaley)) {
+        oceDebug(debug, "scaling for x\n")
+        uPerX <- 1 / scalex
+        vPerY <- uPerX * xPerInch / yPerInch
+    } else {
+        oceDebug(debug, "scaling for y\n")
+    }
+    oceDebug(debug, 'uPerX=', uPerX, '\n')
+    oceDebug(debug, 'vPerY=', vPerY, '\n')
+    if (type == 1) {
+        if (add)
+            points(x, y, ...)
+        else 
+            plot(x, y, ...) 
+        segments(x, y, x + u / uPerX, y + v / vPerY, ...)
+    } else if (type == 2) {
+        if (!add)
+            plot(x, y, ...)
+        arrows(x, y, x + u / uPerX, y + v / vPerY, ...)
+    } else {
+        stop("unknown value of type ", type)
+    }
+    oceDebug(debug, "\b\b} # drawDirectionField\n")
+}

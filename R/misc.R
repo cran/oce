@@ -27,6 +27,60 @@ filterSomething <- function(x, filter)
     res
 }
 
+plotTaylor <- function(x, y, scale, pch, col)
+{
+    if (missing(x)) stop("must supply 'x'")
+    if (missing(y)) stop("must supply 'y'")
+    if (is.vector(y))
+        y <- matrix(y)
+    ncol <- ncol(y)
+    if (missing(pch))
+        pch <- 1:ncol
+    if (missing(col))
+        col <- 1:ncol
+    xSD <- sd(x, na.rm=TRUE)
+    ySD <- sd(as.vector(y), na.rm=TRUE)
+    if (missing(y)) stop("must supply 'y'")
+    halfArc <- seq(0, pi, length.out=200)
+    ## FIXME: use figure geometry, to avoid axis cutoff
+    if (missing(scale))
+        scale <- max(1.1 * pretty(c(xSD, ySD)))
+    plot.new()
+    plot.window(c(-1.04, 1.04) * scale, c(0, 1.04) * scale, asp=1)
+    sdPretty <- pretty(c(0, scale))
+    for (radius in sdPretty)
+        lines(radius * cos(halfArc), radius * sin(halfArc))
+    ## spokes
+    for (rr in seq(-1, 1, 0.1))
+        lines(c(0, max(sdPretty)*cos(pi/2 + rr * pi / 2)), c(0, max(sdPretty)*sin(pi/2 + rr * pi / 2)), col='gray')
+    for (rr in seq(-1, 1, 0.2))
+        lines(c(0, max(sdPretty)*cos(pi/2 + rr * pi / 2)), c(0, max(sdPretty)*sin(pi/2 + rr * pi / 2)))
+    labels <- format(sdPretty)
+    labels[1] <- paste(0)
+    axis(1, pos=0, at=sdPretty, labels=labels)
+    ## temporarily permit labels outside the platting zone
+    xpdOld <- par('xpd')
+    par(xpd=NA)
+    m <- max(sdPretty)
+    text(m, 0, "R=1", pos=4)
+    text(0, m, "R=0", pos=3)
+    text(-m, 0, "R=-1", pos=2)
+    par(xpd=xpdOld)
+    points(xSD, 0, pch=20, cex=1.5)
+    for (column in 1:ncol(y)) {
+        ySD <- sd(y[,column], na.rm=TRUE)
+        R <- cor(x, y[,column])^2
+        ##cat("ySD=", ySD, "R2=", R2, "col=", col[column], "pch=", pch[column], "\n")
+        ## FIXME: the angle is wrong
+        points(ySD * cos((1 - R) * pi / 2),
+               ySD * sin((1 - R) * pi / 2), pch=pch[column],
+               lwd=2,
+               col=col[column], cex=2)
+        ##cat("x=", ySD * cos(pi/2+R2 * pi / 180/2), "\n")
+        ##cat("y=", ySD * sin(pi/2+R2 * pi / 180/2), "\n")
+    }
+}
+
 prettyPosition <- function(x)
 {
     debug <- FALSE
@@ -1553,3 +1607,19 @@ grad <- function(h, x, y)
     if (length(y) != ncol(h)) stop("length of y (%d) must equal number of cols in h (%d)", length(y), ncol(h))
     .Call("gradient", h, as.double(x), as.double(y))
 }
+
+oce.as.raw <- function(x)
+{       # prevent warnings from out-of-range with as.raw()
+    na <- is.na(x)
+    x[na] <- 0                 # FIXME: what to do here?
+    x <- ifelse(x < 0, 0, x)
+    x <- ifelse(x > 255, 255, x)
+    x <- as.raw(x)
+    x
+}
+
+oceConvolve <- function(x, f, end=2)
+{
+    .Call("oce_convolve", x, f, end)
+}
+

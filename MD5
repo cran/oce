@@ -1,6 +1,6 @@
-ee361874dff3b4638148988abe940e31 *DESCRIPTION
+3c38b58be7562184d7406c7d38630c7c *DESCRIPTION
 b4079eedf131a6008273710ceac17c7f *NAMESPACE
-4d55c6c93e7e0a3b099771af9dcafe1e *NEWS
+346e43f675e8979e48c5d41c78cbd244 *NEWS
 1605518f2aa55ba8feb3f1f676efebad *R/AllClass.R
 0609af80ebc4eb94d4f864c45a5e9111 *R/accessors.R
 dbb8789655e6711435dce3f1b846c574 *R/ad.R
@@ -14,13 +14,13 @@ cc5d90116b2c2290a82433531265ad28 *R/adv.sontek.R
 b44c927308b4b76c4ac8b43729ee1c55 *R/air.R
 2011f9410b837a3d900a1c42b122702e *R/cm.R
 8d1b0bc96435e417d386bfec5d5917fb *R/coastline.R
-25ee10387ee174944c5ff38a57372670 *R/ctd.R
+73ab71da970f701ce753d53a4bdc7bcd *R/ctd.R
 7858d0de9bf9881f560a4c3b43a35ff7 *R/drifter.R
 315d5c8b416b58009921e4cc21ce09bc *R/echosounder.R
 7114fa71222986f49a11feb18a77dc6e *R/imagep.R
 35910b74db1dc870b398857e1f87cf07 *R/lisst.R
 d672ef1dc00381d1dd2747bd479db435 *R/lobo.R
-f956a8518980e001ce8ca0381eb39e22 *R/map.R
+6bbf55b4232471bd7111f402b019f338 *R/map.R
 42f1735474d7e95d56b15a04da117356 *R/met.R
 6057e4ce34608d49cc50057ec5174878 *R/misc.R
 6627eaee6d3891101526257d2c0af472 *R/moon.R
@@ -93,7 +93,7 @@ ea58f21607c6e76e387282a5e2fb0c04 *demo/tide.R
 17e0ae7cd16203635d1ad80cb5e8f6ab *inst/doc/ctd-object.pdf
 687863610a39d79381d6991d8158f1a8 *inst/doc/oce.R
 80cb4e4952fbac0615f7b787eccdfbeb *inst/doc/oce.Rnw
-8f3d2b609aca2a0144aad6811ace2213 *inst/doc/oce.pdf
+7fdf7f06e110968f18295529a092da2f *inst/doc/oce.pdf
 68bba92665315a39b36e540d547abcba *inst/extdata/ctd.cnv
 cf08fad220449d0a28c46fcca555033a *inst/extdata/h275a96.dat
 a86a2e1a70bac3f32a728386c1e10889 *man/GMTOffsetFromTz.Rd
@@ -120,7 +120,7 @@ cb427a6af0cb88fed636382faf23c671 *man/as.lobo.Rd
 c4f012b69e3b18d247b6b5a11195614c *man/as.met.Rd
 600cbb6ed9169ea8ed25feaf498bc5eb *man/as.sealevel.Rd
 3360115614b4c5545351c55737ecc15e *man/as.section.Rd
-a0a1c9403522fb379c5e8527f20f28f0 *man/as.tdr.Rd
+91a2782b2990d8caac23172a9792c61f *man/as.tdr.Rd
 6608e32151471097ba485f6bfe9e0903 *man/as.topo.Rd
 44cf91f8d0543b56f39a337e94626b83 *man/as.windrose.Rd
 8f34aaa0e22f4ba59720e4b4c3e98a07 *man/bcdToInteger.Rd
@@ -130,7 +130,7 @@ ea332e359314443767f06f09ecc7ad03 *man/beamToXyz.Rd
 b17affe32dbcadb5a0954f4f1302b747 *man/beamToXyzAdv.Rd
 2706757d7404ea4c80c33e2dbda7bc55 *man/beamUnspreadAdp.Rd
 7b31af7bc239b4b3be02f396aea4ff4d *man/binAverage.Rd
-f0cd463cc26d65142ef802f45e360522 *man/binmapAdp.Rd
+0c9506e03139744c17fb174a20e22956 *man/binmapAdp.Rd
 9501919100854a2adfbe5648dba7fe00 *man/byteToBinary.Rd
 f934136869df25df7b9cb488384cf4e6 *man/cm-class.Rd
 6e03297defa01d2180df67f809248d0a *man/cm.Rd
@@ -143,7 +143,7 @@ f61143b2abe2b92b44f61c290ecda7ce *man/coriolis.Rd
 31fa7637b7e422bb7248dd33e91eb687 *man/ctd-class.Rd
 4e21accfdbf57909eb60af63960025ff *man/ctd.Rd
 f5191106f2c71f2ce205369456fa2212 *man/ctdAddColumn.Rd
-415d35f42c4e674958cd55e9952c9198 *man/ctdDecimate.Rd
+c67a8e83e8eb9eaf140a37400fbc5585 *man/ctdDecimate.Rd
 e0cc2a9dcdb6e94c8604ef87f2c9d79a *man/ctdRaw.Rd
 7a2416639d42d8f3c9d34cc980a96e8c *man/ctdTrim.Rd
 1587027527e1527b83eb1317de98a056 *man/ctdUpdateHeader.Rd
@@ -152,9 +152,9 @@ e0cc2a9dcdb6e94c8604ef87f2c9d79a *man/ctdRaw.Rd
 6cc63d5b27409c1bd6f3c258fa58d9d9 *man/despike.Rd
 a6a6f6bb362e9a5963fdc12554c4853a *man/detrend.Rd
 ca582a86c9b37e1e187057d79ea0a3d2 *man/drag.Rd
-62c4fb93946df37173c4423fa0963629 *man/drawDirectionField.Rd
+ae56473bfb2f7209cbd2a2de27f49ee1 *man/drawDirectionField.Rd
 df9a1833b4027d07144285e6cbb6c7db *man/drawIsopycnals.Rd
-713ea4e56a1f166ca02bcb7180ced64c *man/drawPalette.Rd
+42aeecc8d2e50e6016dfbe02a51d8b77 *man/drawPalette.Rd
 8e57d799fb013f25f2e677726194964a *man/drifter-class.Rd
 771bd077ee9abe6f8713118f2be6cbc6 *man/drifter.Rd
 f79fe8a4d189c7592d1cd17b92edba82 *man/echosounder-class.Rd
@@ -199,7 +199,7 @@ d8128febfec5398e477d4e1482026b5f *man/interpBarnes.Rd
 ea92779fe10d4d0e672d794c82794117 *man/julianDay.Rd
 585e5e64eb5ddfb02cf36bcaffc84111 *man/latFormat.Rd
 d43f4b92db6dc99e3cba97b10c41ad55 *man/latlonFormat.Rd
-0d189c3a8c22d4b85359c0c6862c6fc3 *man/levitus.Rd
+25b8743cbff2c548baa2d312c1a8cb68 *man/levitus.Rd
 a2adb0eac1c04b50d638fa548ef531f8 *man/lisst-class.Rd
 0fc19dd849ca23cf5ed1e6b2b5b36275 *man/lisst.Rd
 405b33b6a8157553b262558aab29d033 *man/lobo-class.Rd
@@ -207,7 +207,7 @@ a2adb0eac1c04b50d638fa548ef531f8 *man/lisst-class.Rd
 0eeb53428dd5fec3922ba313a9295dc1 *man/loggerToc.Rd
 ab32427ec25c2bfa078341efb80ea39a *man/lonFormat.Rd
 b56f8f9f9460f8a62774265c1ef19a5e *man/magneticDeclination.Rd
-57c04b1c0c736cd6e99b24f10172f472 *man/makeFilter.Rd
+7f57718906f62759dfabb541a5890efe *man/makeFilter.Rd
 f0b64ed93d8cf20133551462182af5c7 *man/makeSection.Rd
 277b23d16cf1c4c75dd1537b6ba9fb6b *man/map2lonlat.Rd
 176b0b2c97fab4794130bd55e92cdc87 *man/mapContour.Rd
@@ -264,12 +264,12 @@ edde113785f95b49bed21b5e1bd445e3 *man/plot.tdr.Rd
 e8b011ee47d5a65d050d7b5134ef4c04 *man/plot.tidem.Rd
 72ddfc749815a188a45217155cc0edfb *man/plot.topo.Rd
 61103ab2ff75ebcfa887f2c730bda21a *man/plot.windrose.Rd
-8bca38fbf0dabd67fbf80ba810cf4bd6 *man/plotInset.Rd
+8f5ca78dabf79ac855cdb963ac1edd29 *man/plotInset.Rd
 674a1523e3d3532a1d0e20c519adf8bd *man/plotPolar.Rd
 d1b3a1bdaff8a10d32703caa09969b1c *man/plotProfile.Rd
 490f6f229558587cd42759e9baed4e65 *man/plotScan.Rd
 da114cc8318f0b3a903f8be18e594ec1 *man/plotSticks.Rd
-2963977a5b68686532fa177c775b027f *man/plotTS.Rd
+22afc4c2ff43e0ce0732541d26a72e0c *man/plotTS.Rd
 e0d987737f6e6257fc901c757423bb8a *man/plotTaylor.Rd
 e3b140e15dd4be9880b3d7e44cd0391d *man/predict.tidem.Rd
 7727870937b648083064ca2a07ab3b0d *man/prettyPosition.Rd
@@ -278,7 +278,7 @@ d7448db97fc16992b71b1606dc73971d *man/pwelch.Rd
 306bff1e6f97ea2879e5100fd89381c5 *man/rangeLimit.Rd
 82b52750aa31011c6c86d5714315b56d *man/read.adp.Rd
 a6207ddf552dcf7eaa9ac903bcdc4c9e *man/read.adv.Rd
-ae3c0ae99df1b0f2115383f02dfde28f *man/read.cm.Rd
+cee72708ec8bb6038f7a780e5545d9c3 *man/read.cm.Rd
 3fb6524d92d7205df34c7415d0edf893 *man/read.coastline.Rd
 077815533476d744d6a8b58e2c59ec70 *man/read.ctd.Rd
 3ac9ef33a7c0fd978878c4e301c1b1f4 *man/read.drifter.Rd
@@ -295,7 +295,7 @@ e73cafcdddc91974c3655b7bebab0eff *man/read.tdr.Rd
 54afa3e319da7d6d4e964c28f83b5636 *man/redfieldNP.Rd
 daa434ad0ad997295bad1db27341f300 *man/redfieldPlankton.Rd
 d8c4e011a706e1f92c1e80d197bf33f5 *man/rescale.Rd
-fe59787b84527b16ca61b11e8e00430a *man/resizableLabel.Rd
+815754c6a586e94b29ead3a45188312b *man/resizableLabel.Rd
 a23a901e0c81a1d643ddbdc5476e80c8 *man/retime.Rd
 6f82a0fceffeaa8cda460a2efa446430 *man/riley.Rd
 b8e9dc1471124f7ed06a3f2697f018fb *man/schmitt.Rd
@@ -340,7 +340,7 @@ a12a4705690d8afbd2c7756e74f99756 *man/swConductivity.Rd
 6d568aa1ef879d67159c8de805d1f4d8 *man/swDynamicHeight.Rd
 a3544e00693b15971668105f90346a01 *man/swLapseRate.Rd
 84c0c3a4e85d9bb640539dbd5527d8b1 *man/swN2.Rd
-5800a0ecc6294ad0da864278d133a516 *man/swRho.Rd
+040b332b413666d1a1cf113e4067cd65 *man/swRho.Rd
 e37710e2dcb2b0ef39ed85731fc71b31 *man/swSCTp.Rd
 6a5f9d1dea6d3f8052a39deaeed4a629 *man/swSTrho.Rd
 740e933e2baa42663a1806193544dd7c *man/swSigma.Rd

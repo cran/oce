@@ -6,7 +6,7 @@
 
 \description{ Compute geodesic distance on surface of earth.}
 
-\usage{geodDist(lat1, lon1, lat2, lon2, alongPath=FALSE)}
+\usage{geodDist(lat1, lon1=NULL, lat2=NULL, lon2=NULL, alongPath=FALSE)}
 
 \arguments{
 

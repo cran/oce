@@ -417,11 +417,11 @@ jpeg("a03.jpg", quality=75, width=600, height=700, pointsize=12)
 <<>>=
 # File source -- http://cchdo.ucsd.edu/data_access?ExpoCode=90CT40_1
 # a03 <- read.section("a03_hy1.csv")
+library(oce)
 data(a03)
 GS <- subset.oce(a03, indices=124:102)
 GSg <- sectionGrid(GS, p=seq(0, 1600, 25))
-data(coastlineWorld)
-plot(GSg, coastline=coastlineWorld, map.xlim=c(-85,-(64+13/60)))
+plot(GSg)
 @
 <<fig=FALSE, eval=TRUE, echo=FALSE, results=hide>>=
 dev.off()
@@ -581,7 +581,7 @@ version.  (The problems involve phase, and the inference of satellite nodes.)
 \section{Temperature-Depth Recorder data}
 The commands
 <<fig=FALSE, eval=TRUE, echo=FALSE>>=
-png("tdr.png", width=600, height=300, pointsize=13)
+jpeg("tdr.jpg", width=600, height=300, pointsize=13)
 @
 <<>>=
 library(oce)
@@ -620,7 +620,7 @@ then remove the atmospheric pressure from the signal.}
 \index{ADP}
 The commands
 <<fig=FALSE, eval=TRUE, echo=FALSE>>=
-png("adp.png", width=800, height=400, pointsize=18)
+jpeg("adp.jpg", width=800, height=400, pointsize=18)
 @
 <<label=adpplot>>=
 library(oce)

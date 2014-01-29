@@ -12,7 +12,7 @@ matlab.res <- c(0.2000,0.4400,0.7200,1.0400,1.4000,1.6000,1.8000,2.0000,2.2000,2
 stopifnot(all.equal.numeric(matlab.res, oceFilter(x, a, b)))
 
 ## Magnetic declination
-stopifnot(all.equal.numeric(-16.80410, magneticDeclination(44+55/60,-(69+46/60),2008),1e-3))
+stopifnot(all.equal.numeric(-16.80410, magneticDeclination(44+55/60,-(69+46/60),2008),tolerance=1e-3))
 
 ## GPS time
 stopifnot(numberAsPOSIXct(cbind(604,134351), type="gps") == as.POSIXct("2011-03-21 13:18:56",tz="UTC"))

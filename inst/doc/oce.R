@@ -30,7 +30,7 @@ options(keep.source=TRUE, width=60, prompt=' ', continue=' ')
 ###################################################
 ### code chunk number 5: ctdnames (eval = FALSE)
 ###################################################
-## names(ctd)
+## names(ctd@metadata)
 
 
 ###################################################
@@ -73,7 +73,7 @@ plotScan(ctdRaw)
 ###################################################
 ### code chunk number 11: ctddectrim (eval = FALSE)
 ###################################################
-## plot(ctd.decimate(ctdTrim(read.ctd("stn123.cnv"))))
+## plot(ctdDecimate(ctdTrim(read.ctd("stn123.cnv"))))
 
 
 ###################################################
@@ -125,85 +125,79 @@ plotScan(ctdRaw)
 ### code chunk number 17: sectionplot (eval = FALSE)
 ###################################################
 ## data(section)
-## data(coastlineHalifax)
-## plot(section, coastline=coastlineHalifax)
+## plot(section, which=c(1, 2, 3, 99))
 
 
 ###################################################
-### code chunk number 18: oce.Rnw:414-415
+### code chunk number 18: oce.Rnw:413-414
 ###################################################
-jpeg("a03.jpg", quality=75, width=600, height=700, pointsize=12)
+jpeg("section.jpg", quality=75, width=600, height=700, pointsize=12)
 
 
 ###################################################
-### code chunk number 19: oce.Rnw:417-424
+### code chunk number 19: oce.Rnw:416-420
 ###################################################
-# File source -- http://cchdo.ucsd.edu/data_access?ExpoCode=90CT40_1
-# a03 <- read.section("a03_hy1.csv")
-data(a03)
-GS <- subset.oce(a03, indices=124:102)
+data(section)
+GS <- subset(section, 102<=stationId&stationId<=124)
 GSg <- sectionGrid(GS, p=seq(0, 1600, 25))
-data(coastlineWorld)
-plot(GSg, coastline=coastlineWorld, map.xlim=c(-85,-(64+13/60)))
+plot(GSg, which=c(1,99), map.xlim=c(-85,-(64+13/60)))
 
 
 ###################################################
-### code chunk number 20: oce.Rnw:426-427
+### code chunk number 20: oce.Rnw:422-423
 ###################################################
 dev.off()
 
 
 ###################################################
-### code chunk number 21: oce.Rnw:467-468
+### code chunk number 21: oce.Rnw:463-464
 ###################################################
 jpeg("topo.jpg", quality=70, width=800, height=400, pointsize=13)
 
 
 ###################################################
-### code chunk number 22: oce.Rnw:470-475
+### code chunk number 22: oce.Rnw:466-469
 ###################################################
 library(oce)
-data(topoMaritimes)
-plot(topoMaritimes, clatitude=46, clongitude=-62, span=800,
-    water.z=c(  -50, -100, -150, -200, -300, -400, -500, -1000, -2000),
-    lwd.water=c(  1,    1,    1,    1,    1,   1,   1.5,   1.5,   1.5))
+data(topoWorld)
+plot(topoWorld, clatitude=30, clongitude=370, span=9000)
 
 
 ###################################################
-### code chunk number 23: oce.Rnw:477-478
+### code chunk number 23: oce.Rnw:471-472
 ###################################################
 dev.off()
 
 
 ###################################################
-### code chunk number 24: oce.Rnw:496-497
+### code chunk number 24: oce.Rnw:490-491
 ###################################################
 jpeg("sealevel.jpg", quality=70, width=800, height=600, pointsize=20)
 
 
 ###################################################
-### code chunk number 25: oce.Rnw:499-503
+### code chunk number 25: oce.Rnw:493-497
 ###################################################
 library(oce)
 #sealevel <- read.oce("../../tests/h275a96.dat")
-data(sealevelHalifax)
-plot(sealevelHalifax)
+data(sealevel)
+plot(sealevel)
 
 
 ###################################################
-### code chunk number 26: oce.Rnw:505-506
+### code chunk number 26: oce.Rnw:499-500
 ###################################################
 dev.off()
 
 
 ###################################################
-### code chunk number 27: oce.Rnw:583-584
+### code chunk number 27: oce.Rnw:577-578
 ###################################################
 png("tdr.png", width=600, height=300, pointsize=13)
 
 
 ###################################################
-### code chunk number 28: oce.Rnw:586-589
+### code chunk number 28: oce.Rnw:580-583
 ###################################################
 library(oce)
 data(tdr)
@@ -211,13 +205,13 @@ plot(tdr, useSmoothScatter=TRUE)
 
 
 ###################################################
-### code chunk number 29: oce.Rnw:591-592
+### code chunk number 29: oce.Rnw:585-586
 ###################################################
 dev.off()
 
 
 ###################################################
-### code chunk number 30: oce.Rnw:622-623
+### code chunk number 30: oce.Rnw:616-617
 ###################################################
 png("adp.png", width=800, height=400, pointsize=18)
 
@@ -231,13 +225,22 @@ plot(adp, which=1, adorn=expression({lines(x[["time"]], x[["pressure"]])}))
 
 
 ###################################################
-### code chunk number 32: oce.Rnw:630-631
+### code chunk number 32: oce.Rnw:624-625
 ###################################################
 dev.off()
 
 
 ###################################################
-### code chunk number 33: oce.Rnw:699-705
+### code chunk number 33: oce.Rnw:650-654
+###################################################
+library(oce)
+Sys.setenv(LANGUAGE="fr")
+data(ctd)
+plot(ctd)
+
+
+###################################################
+### code chunk number 34: oce.Rnw:715-721
 ###################################################
 library(oce)
 swRho(34, 10, 100)
@@ -248,7 +251,7 @@ plotTS(as.ctd(c(30,40),c(-2,20),rep(0,2)), grid=TRUE, col="white")
 
 
 ###################################################
-### code chunk number 34: oce.Rnw:710-715
+### code chunk number 35: oce.Rnw:726-731
 ###################################################
 library(oce)
 data(ctd)
@@ -258,45 +261,44 @@ plotProfile(pycnocline, which="density+N2")
 
 
 ###################################################
-### code chunk number 35: oce.Rnw:719-723
+### code chunk number 36: oce.Rnw:735-739
 ###################################################
 library(oce)
 data(ctd)
-pycnocline <- subset.oce(ctd, 5<=pressure & pressure<=12)
+pycnocline <- subset(ctd, 5<=pressure & pressure<=12)
 plotProfile(pycnocline, which="density+N2")
 
 
 ###################################################
-### code chunk number 36: oce.Rnw:729-733
+### code chunk number 37: oce.Rnw:745-749
 ###################################################
 library(oce)
 data(section)
-ctd <- as.ctd(salinity(section), temperature(section), pressure(section))
+ctd <- as.ctd(section[["salinity"]], section[["temperature"]], section[["pressure"]])
 plotTS(ctd)
 
 
 ###################################################
-### code chunk number 37: oce.Rnw:737-748
+### code chunk number 38: oce.Rnw:753-764
 ###################################################
 library(oce)
 data(section)
 SS <- TT <- pp <- id <- NULL
 n <- length(section@data$station)
 for (stn in section@data$station) {
-    SS <- c(SS, stn@data$salinity)
-    TT <- c(TT, stn@data$temperature)
-    pp <- c(pp, stn@data$pressure)
+    SS <- c(SS, stn[["salinity"]])
+    TT <- c(TT, stn[["temperature"]])
+    pp <- c(pp, stn[["pressure"]])
 }
 ctd <- as.ctd(SS, TT, pp)
 plotTS(ctd)
 
 
 ###################################################
-### code chunk number 38: oce.Rnw:756-770
+### code chunk number 39: oce.Rnw:772-785
 ###################################################
 library(oce)
-data(a03)
-GS <- subset.oce(a03, indices=124:102)
+GS <- subset(section, 102<=stationId&stationId<=124)
 dh <- swDynamicHeight(GS)
 par(mfrow=c(2,1))
 plot(dh$distance, dh$height, type="b", xlab="", ylab="Dyn. Height [m]")
@@ -311,31 +313,31 @@ abline(h=0)
 
 
 ###################################################
-### code chunk number 39: oce.Rnw:778-784
+### code chunk number 40: oce.Rnw:793-799
 ###################################################
 library(oce)
-data(sealevelHalifax)
+data(sealevel)
 # Focus on 2003-Sep-28 to 29th, the time when Hurricane Juan caused flooding
-plot(sealevelHalifax,which=1,xlim=as.POSIXct(c("2003-09-24","2003-10-05"), tz="UTC"))
+plot(sealevel,which=1,xlim=as.POSIXct(c("2003-09-24","2003-10-05"), tz="UTC"))
 abline(v=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
 mtext("Hurricane\nJuan", at=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
 
 
 ###################################################
-### code chunk number 40: oce.Rnw:790-792
+### code chunk number 41: oce.Rnw:805-807
 ###################################################
 library(oce)
-data(sealevelHalifax)
+data(sealevel)
 
 
 ###################################################
-### code chunk number 41: oce.Rnw:795-796
+### code chunk number 42: oce.Rnw:810-811
 ###################################################
-elevation <- sealevelHalifax[["elevation"]]
+elevation <- sealevel[["elevation"]]
 
 
 ###################################################
-### code chunk number 42: oce.Rnw:800-803
+### code chunk number 43: oce.Rnw:815-818
 ###################################################
 spectrum(elevation, spans=c(3,7))
 abline(v=1/12.42)
@@ -343,7 +345,7 @@ mtext("M2",at=1/12.42,side=3)
 
 
 ###################################################
-### code chunk number 43: oce.Rnw:821-822
+### code chunk number 44: oce.Rnw:836-837
 ###################################################
 abline(v=as.POSIXct("2008-06-25 00:00:00"),col="red")
 

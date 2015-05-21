@@ -9,7 +9,7 @@
 \usage{plotProfile(x,
     xtype="salinity+temperature", 
     ytype=c("pressure", "z", "depth", "sigmaTheta"),
-    eos=getOption("eos", default='unesco'),
+    eos=getOption("oceEOS", default="gsw"),
     xlab=NULL, ylab=NULL,
     col="black",
     col.salinity="darkgreen",
@@ -22,7 +22,7 @@
     grid=TRUE,
     col.grid="lightgray",
     lty.grid="dotted",
-    Slim, Tlim, densitylim, N2lim, Rrholim, dpdtlim, timelim, ylim,
+    Slim, Clim, Tlim, densitylim, N2lim, Rrholim, dpdtlim, timelim, ylim,
     lwd=par("lwd"),
     xaxs="r", yaxs="r",
     cex=1, pch=1,
@@ -31,18 +31,20 @@
     keepNA=FALSE,
     type='l',
     mgp=getOption("oceMgp"),
-    mar=c(1 + if (length(grep('\\\\+', xtype))) mgp[1] else 0, mgp[1]+2, mgp[1] + 2, 2),
+    mar=c(1 + if (length(grep('\\\\+', xtype))) mgp[1] else 0,
+          mgp[1]+1.5, mgp[1]+1.5, mgp[1]),
     add=FALSE, inset=FALSE,
     debug=getOption("oceDebug"),
     \dots)
 }
 
 \arguments{
-    \item{x}{A \code{cdt} object, e.g. as read by \code{\link{read.ctd}}.}
+    \item{x}{A \code{ctd} object, e.g. as read by \code{\link{read.ctd}}.}
     \item{xtype}{Item(s) plotted on the x axis, either a vector of length equal
         to that of \code{x@data$pressure} or a text code from the list below.
         \describe{
             \item{\code{"salinity"}}{Profile of salinity.}
+            \item{\code{"conductivity"}}{Profile of conductivity.}
             \item{\code{"temperature"}}{Profile of \emph{in-situ} temperature.}
             \item{\code{"theta"}}{Profile of \emph{potential} temperature.}
             \item{\code{"density"}}{Profile of density (expressed as
@@ -75,9 +77,8 @@
     }
     \item{ytype}{variable to use on y axis; note that \code{z} is the negative
         of \code{depth}.}
-    \item{eos}{name of equation of state to be used, either \code{"unesco"} or
-        \code{"teos"}.  If the latter, then the computer must have the TEOS
-        library installed; see \code{\link{teos}}.}
+    \item{eos}{equation of state to be used, either \code{"unesco"} or
+        \code{"gsw"}.}
     \item{xlab}{optional label for x axis (at top of plot).}
     \item{ylab}{optional label for y axis.  Set to \code{""} to prevent labelling
     the axis.}
@@ -93,6 +94,7 @@
     \item{col.grid}{colour for grid.}
     \item{lty.grid}{line type for grid.}
     \item{Slim}{Optional limit for S axis}
+    \item{Clim}{Optional limit for conductivity axis}
     \item{Tlim}{Optional limit for T axis}
     \item{densitylim}{Optional limit for density axis}
     \item{N2lim}{Optional limit for N2 axis}

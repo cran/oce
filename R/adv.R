@@ -63,7 +63,7 @@ setMethod(f="summary",
           })
 
 setMethod(f="[[",
-          signature="adv",
+          signature(x="adv", i="ANY", j="ANY"),
           definition=function(x, i, j, drop) {
               if (i == "filename") {
                   return(x@metadata$filename)
@@ -79,26 +79,26 @@ setMethod(f="[[",
                   return(x@data$v[,2])
               } else if (i == "u3") {
                   return(x@data$v[,3])
-              } else if (i == "heading") {
-                  if ("heading" %in% names(x@data)) return(x@data$heading)
-                  else if ("headingSlow" %in% names(x@data)) return(x@data$headingSlow)
-                  else return(NULL)
-              } else if (i == "headingSlow") {
-                  return(x@data$headingSlow)
-              } else if (i == "pitch") {
-                   if ("pitch" %in% names(x@data)) return(x@data$pitch)
-                  else if ("pitchSlow" %in% names(x@data)) return(x@data$pitchSlow)
-                  else return(NULL)
-              } else if (i == "pitchSlow") {
-                  return(x@data$pitchSlow)
-              } else if (i == "roll") {
-                  if ("roll" %in% names(x@data)) return(x@data$roll)
-                  else if ("rollSlow" %in% names(x@data)) return(x@data$rollSlow)
-                  else return(NULL)
-              } else if (i == "rollSlow") {
-                  return(x@data$rollSlow)
-              } else if (i == "temperature") {
-                  return(x@data$temperature)
+              #} else if (i == "heading") {
+              #    if ("heading" %in% names(x@data)) return(x@data$heading)
+              #    else if ("headingSlow" %in% names(x@data)) return(x@data$headingSlow)
+              #    else return(NULL)
+              #} else if (i == "headingSlow") {
+              #    return(x@data$headingSlow)
+              #} else if (i == "pitch") {
+              #     if ("pitch" %in% names(x@data)) return(x@data$pitch)
+              #    else if ("pitchSlow" %in% names(x@data)) return(x@data$pitchSlow)
+              #    else return(NULL)
+              #} else if (i == "pitchSlow") {
+              #    return(x@data$pitchSlow)
+              #} else if (i == "roll") {
+              #    if ("roll" %in% names(x@data)) return(x@data$roll)
+              #    else if ("rollSlow" %in% names(x@data)) return(x@data$rollSlow)
+              #    else return(NULL)
+              #} else if (i == "rollSlow") {
+              #    return(x@data$rollSlow)
+              #} else if (i == "temperature") {
+              #    return(x@data$temperature)
               } else if (i == "a") {
                   if (!missing(j) && j == "numeric") {
                       rval <- x@data$a
@@ -120,8 +120,10 @@ setMethod(f="[[",
                   }
                   return(rval)
               } else {
-                  ##return(as(x, "oce")[[i, j, drop]])
-                  return(as(x, "oce")[[i]])
+                  rval <- as(x, "oce")[[i]]
+                  ## if (missing(j) || j != "nowarn")
+                  ##     warning("adv[[\"", i, "\"]]: there is no item of that name\n", call.=FALSE)
+                  rval
               }
           })
 
@@ -161,7 +163,7 @@ setMethod(f="subset",
                   stop("must specify a 'subset'")
               if (length(grep("time", subsetString))) {
                   oceDebug(debug, "subsetting an adv object by time\n")
-                  keep <- eval(substitute(subset), x@data, parent.frame()) # used for $ts and $ma, but $tsSlow gets another
+                  keep <- eval(substitute(subset), x@data, parent.frame(2)) # used for $ts and $ma, but $tsSlow gets another
                   sum.keep <- sum(keep)
                   if (sum.keep < 2)
                       stop("must keep at least 2 profiles")
@@ -170,14 +172,14 @@ setMethod(f="subset",
                   rval <- x
                   names <- names(x@data)
                   haveSlow <- "timeSlow" %in% names
-                  keep <- eval(substitute(subset), x@data, parent.frame()) # used for $ts and $ma, but $tsSlow gets another
+                  keep <- eval(substitute(subset), x@data, parent.frame(2)) # used for $ts and $ma, but $tsSlow gets another
                   if (haveSlow) {
                       subsetStringSlow <- gsub("time", "timeSlow", subsetString)
-                      keepSlow <-eval(parse(text=subsetStringSlow), x@data, parent.frame())
+                      keepSlow <-eval(parse(text=subsetStringSlow), x@data, parent.frame(2))
                   }
                   if ("timeBurst" %in% names) {
                       subsetStringBurst <- gsub("time", "timeBurst", subsetString)
-                      keepBurst <-eval(parse(text=subsetStringBurst), x@data, parent.frame())
+                      keepBurst <-eval(parse(text=subsetStringBurst), x@data, parent.frame(2))
                   }
                   for (name in names(x@data)) {
                       if ("distance" == name)
@@ -205,7 +207,7 @@ setMethod(f="subset",
               }
               rval@metadata$numberOfSamples <- dim(rval@data$v)[1]
               rval@metadata$numberOfCells <- dim(rval@data$v)[2]
-              rval@processingLog <- processingLog(rval@processingLog, paste("subset(x, subset=", subsetString, ")", sep=""))
+              rval@processingLog <- processingLogAppend(rval@processingLog, paste("subset(x, subset=", subsetString, ")", sep=""))
               rval
           })
 
@@ -882,7 +884,7 @@ beamToXyzAdv <- function(x, debug=getOption("oceDebug"))
     x@data$v[,2] <- v
     x@data$v[,3] <- w
     x@metadata$oceCoordinate <- "xyz"
-    x@processingLog <- processingLog(x@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    x@processingLog <- processingLogAppend(x@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     oceDebug(debug, "} # beamToXyzAdv()\n", unindent=1)
     x
 }
@@ -1035,12 +1037,12 @@ xyzToEnuAdv <- function(x, declination=0,
     x@data$v[,2] <- enu$north
     x@data$v[,3] <- enu$up
     x@metadata$oceCoordinate <- "enu"
-    x@processingLog <- processingLog(x@processingLog,
-                                     paste("xyzToEnu(x",
-                                           ", declination=", declination, 
-                                           ", horizontalCase=", if (missing(horizontalCase)) "(missing)" else horizontalCase,
-                                           ", sensorOrientiation=", if (missing(sensorOrientation)) "(missing)" else sensorOrientation,
-                                           ", debug=", debug, ")", sep=""))
+    x@processingLog <- processingLogAppend(x@processingLog,
+                                           paste("xyzToEnu(x",
+                                                 ", declination=", declination, 
+                                                 ", horizontalCase=", if (missing(horizontalCase)) "(missing)" else horizontalCase,
+                                                 ", sensorOrientiation=", if (missing(sensorOrientation)) "(missing)" else sensorOrientation,
+                                                 ", debug=", debug, ")", sep=""))
     oceDebug(debug, "} # xyzToEnuAdv()\n", unindent=1)
     x
 }
@@ -1072,7 +1074,7 @@ enuToOtherAdv <- function(x, heading=0, pitch=0, roll=0, debug=getOption("oceDeb
     x@data$v[,2] <- other$v2new
     x@data$v[,3] <- other$v3new
     x@metadata$oceCoordinate <- "other"
-    x@processingLog <- processingLog(x@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    x@processingLog <- processingLogAppend(x@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     oceDebug(debug, "} # enuToOtherAdv()\n", unindent=1)
     x
 }

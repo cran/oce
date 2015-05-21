@@ -6,16 +6,19 @@
 
 \description{Plot points on an existing map}
 
-\usage{mapPoints(longitude, latitude, \dots)}
+\usage{mapPoints(longitude, latitude, debug=getOption("oceDebug"), \dots)}
 
 \arguments{
 
     \item{longitude}{longitudes of points to be plotted, or an object from
-        which longitude and latitude can be inferred (e.g. a coastline file, or
-        the return value from \code{\link{mapLocator}}), in which case the
-        following two arguments are ignored.}
+        which longitude and latitude can be inferred in which case the
+        following two arguments are ignored.  This objects that are possible
+        include those of type \code{coastline}.}
     
     \item{latitude}{latitudes of points to be plotted}
+
+    \item{debug}{a flag that turns on debugging.  Set to 1 to get a moderate
+        amount of debugging information, or to 2 to get more.} 
 
     \item{\dots}{optional arguments passed to \code{\link{points}}.}
 }
@@ -30,15 +33,15 @@
 library(oce)
 data(coastlineWorld)
 mapPlot(coastlineWorld, type='l', grid=TRUE,
-longitudelim=c(-80,0), latitudelim=c(20,50),
-projection="mercator", orientation=c(90,-40,0))
-lon <- section[["longitude", 'byStation']]
-lat <- section[["latitude", 'byStation']]
-mapPoints(lon, lat, pch=20, col='red')
+        longitudelim=c(-80,0), latitudelim=c(20,50),
+        projection="+proj=merc", orientation=c(90,0,0))
+data(section)
+mapPoints(section)
 }
 }
 
-\author{Dan Kelley}
+\author{Dan Kelley (see \code{\link{lonlat2map}} for a note on the authors of
+    PROJ.4).}
 
 \keyword{hplot}
 

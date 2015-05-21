@@ -20,11 +20,11 @@ setMethod(f="subset",
               ###   subsetString <- paste(deparse(substitute(subset)), collapse=" ")
               ###   if (!length(grep("latitude", subsetString)) && !length(grep("longitude", subsetString)))
               ###       stop("can only subset a coastline by 'latitude' or 'longitude'")
-              keep <- eval(substitute(subset), x@data, parent.frame())
+              keep <- eval(substitute(subset), x@data, parent.frame(2))
               rval <- x
               rval@data$latitude[!keep] <- NA
               rval@data$longitude[!keep] <- NA
-              rval@processingLog <- processingLog(rval@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+              rval@processingLog <- processingLogAppend(rval@processingLog, paste(deparse(match.call()), sep="", collapse=""))
               rval
           })
 
@@ -60,7 +60,7 @@ as.coastline <- function(longitude, latitude, fillable=FALSE)
     if (n != length(longitude))
         stop("Lengths of longitude and latitude must be equal")
     rval <- new("coastline", longitude=longitude, latitude=latitude, fillable=fillable)
-    rval@processingLog <- processingLog(rval@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    rval@processingLog <- processingLogAppend(rval@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     rval
 }
 
@@ -70,13 +70,11 @@ setMethod(f="plot",
                                xlab="", ylab="", showHemi=TRUE,
                                asp,
                                clongitude, clatitude, span,
+                               lonlabel=NULL, latlabel=NULL, sides=NULL,
                                projection=NULL, parameters=NULL, orientation=NULL,
-                               ## center, span,
                                expand=1,
-                               mgp=getOption("oceMgp"),
-                               mar=c(mgp[1]+1,mgp[1]+1,1,1),
-                               bg,
-                               fill='lightgray',
+                               mgp=getOption("oceMgp"), mar=c(mgp[1]+1,mgp[1]+1,1,1),
+                               bg, fill='lightgray',
                                axes=TRUE, cex.axis=par('cex.axis'),
                                add=FALSE, inset=FALSE,
                                geographical=0,
@@ -88,6 +86,7 @@ setMethod(f="plot",
                        ", clatitude=", if(missing(clatitude)) "(missing)" else clatitude, 
                        ", span=", if(missing(span)) "(missing)" else span,
                        ", geographical=", geographical,
+                       ", projection=", if (is.null(projection)) "NULL" else projection,
                        ", cex.axis=", cex.axis, 
                        ", inset=", inset, 
                        ", ...) {\n", sep="", unindent=1)
@@ -102,12 +101,16 @@ setMethod(f="plot",
                       latitudelim <- c(-90, 90)
                   else
                       latitudelim <- clatitude + c(-1, 1) * span / 111 / 2
-                  return(mapPlot(x[['longitude']], x[['latitude']], longitudelim, latitudelim,
-                                 showHemi=showHemi,
-                                 mgp=mgp, mar=mar,
-                                 bg="white", fill=fill, type='l', axes=TRUE,
-                                 projection=projection, parameters=parameters, orientation=orientation,
-                                 debug=debug, ...))
+                  mapPlot(x[['longitude']], x[['latitude']], longitudelim, latitudelim,
+                          showHemi=showHemi,
+                          mgp=mgp, mar=mar,
+                          bg="white", fill=fill, type='l', axes=TRUE,
+                          lonlabel=lonlabel, latlabel=latlabel, sides=sides,
+                          projection=projection, parameters=parameters, orientation=orientation,
+                          debug=debug-1, ...)
+
+                  oceDebug(debug, "} # plot.coastline()\n", unindent=1)
+                  return(invisible())
               }
               geographical <- round(geographical)
               if (geographical < 0 || geographical > 2)
@@ -375,7 +378,7 @@ read.coastline <- function(file,
     }
     if (missing(processingLog))
         processingLog <- paste(deparse(match.call()), sep="", collapse="")
-    res@processingLog <- processingLog(res@processingLog, processingLog)
+    res@processingLog <- processingLogAppend(res@processingLog, processingLog)
     oceDebug(debug, "} # read.coastline()\n", unindent=1)
     res
 }
@@ -466,7 +469,7 @@ read.coastline.shapefile <- function(file, lonlim=c(-180,180), latlim=c(-90,90),
         oceDebug(debug, "shapeTypeFile == 3, so assuming a depth-contour file\n")
         dbfName <- paste(gsub(".shp$", "", filename), ".dbf", sep="")
         oceDebug(debug, " reading DBF file '", dbfName, "'\n", sep="")
-        if (require("foreign")) {
+        if (requireNamespace("foreign", quietly=TRUE)) {
             depths <- foreign::read.dbf(dbfName)[[1]]
         } else {
             stop("cannot read shapeFile element of type 3 without the 'foreign' package being installed")
@@ -549,7 +552,7 @@ read.coastline.shapefile <- function(file, lonlim=c(-180,180), latlim=c(-90,90),
     }
     if (missing(processingLog))
         processingLog <- paste(deparse(match.call()), sep="", collapse="")
-    res@processingLog <- processingLog(res@processingLog, processingLog)
+    res@processingLog <- processingLogAppend(res@processingLog, processingLog)
     oceDebug(debug, "} # read.coastline.shapefile()\n", unindent=1)
     res
 }
@@ -610,7 +613,7 @@ read.coastline.openstreetmap <- function(file, lonlim=c(-180,180), latlim=c(-90,
     res@data$longitude <- longitude
     if (missing(processingLog))
         processingLog <- paste(deparse(match.call()), sep="", collapse="")
-    res@processingLog <- processingLog(res@processingLog, processingLog)
+    res@processingLog <- processingLogAppend(res@processingLog, processingLog)
     oceDebug(debug, "} # read.coastline.openstreetmap()\n", unindent=1)
     res
 }
@@ -619,7 +622,8 @@ coastlineBest <- function(lonRange, latRange, span, debug=getOption("oceDebug"))
 {
     oceDebug(debug, "coastlineBest(lonRange=c(", paste(round(lonRange, 2), collapse=","),
              "), latRange=c(", paste(round(latRange, 2), collapse=","),
-             "), span=", span, ", debug=", debug, ") {\n", sep="", unindent=1)
+             "), span=", if (missing(span)) "(missing)" else span,
+             ", debug=", debug, ") {\n", sep="", unindent=1)
     if (missing(span)) {
         if (any(lonRange > 180)) {
             lonRange <- lonRange - 360 # FIXME: does this always work?

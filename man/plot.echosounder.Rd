@@ -13,10 +13,10 @@
      newx,
      xlab, ylab,
      xlim, ylim, zlim,
-     type="l", col=oceColorsJet, lwd=2,
+     type="l", col=oce.colorsJet, lwd=2,
      despike=FALSE,
      drawBottom, ignore=5,
-     drawTimeRange=FALSE,
+     drawTimeRange=FALSE, drawPalette=TRUE,
      radius, coastline,
      adorn=NULL,
      mgp=getOption("oceMgp"),
@@ -97,6 +97,8 @@
 
   \item{drawTimeRange}{if \code{TRUE}, the time range will be drawn at the top.
       Ignored except for \code{which=2}, i.e. distance-depth plots.}
+
+  \item{drawPalette}{if \code{TRUE}, the palette will be drawn.}
  
   \item{radius}{radius to use for maps; ignored unless \code{which=3} or
       \code{which="map"}.}
@@ -130,6 +132,10 @@
 \seealso{The documentation for \code{\link{echosounder-class}} explains the
     structure of echosounder objects, and also outlines the other functions
     dealing with them.}
+
+\value{A list is silently returned, containing \code{xat} and \code{yat},
+    values that can be used by \code{\link{oce.grid}} to add a grid to the
+    plot.}
 
 \examples{
 library(oce)

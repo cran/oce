@@ -2,9 +2,10 @@
 
 \alias{mapMeridians}
 
-\title{Plot meridians on an existing map}
+\title{Plot meridians on an existing map [DEPRECATED]}
 
-\description{Plot meridians (lines of constant latitude) on a existing map}
+\description{Plot meridians (lines of constant latitude) on a existing map.
+    \emph{DEPRECATED--will be removed by end Sept 2014}}
 
 \usage{mapMeridians(latitude, lty='solid', lwd=0.5*par('lwd'), col='darkgray', \dots)}
 
@@ -42,7 +43,9 @@ mapMeridians()
 }
 }
 
-\author{Dan Kelley}
+\author{Dan Kelley (see \code{\link{lonlat2map}} for a note on the authors of
+    PROJ.4).}
+
 
 \keyword{hplot}
 

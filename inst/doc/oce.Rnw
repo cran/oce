@@ -7,13 +7,25 @@
 % \VignetteKeyword{oceanography}
 
 \usepackage{url}
-\usepackage{fullpage}
+%\usepackage{fullpage}
 \usepackage{boxedminipage}
 \usepackage{hyperref}
 \usepackage{makeidx}
 \usepackage{titlesec}
 \usepackage{color}
 \makeindex
+
+% CRAN checks don't always have fullpage.sty so simulate it (any
+% rough approximation is fine)
+\topmargin 0pt
+\advance \topmargin by -\headheight
+\advance \topmargin by -\headsep
+\textheight 8.9in
+\oddsidemargin 0pt
+\evensidemargin \oddsidemargin
+\marginparwidth 0.5in
+\textwidth 6.5in
+     
 
 \parskip=1.5ex plus 1.5ex minus 1.25ex
 
@@ -116,9 +128,40 @@ programming, e.g. for over a dozen types of oceanographic data files, the
 following general code produces a summary plot:
 <<eval=false>>=
 library(oce)
-plot(read.oce(filename))
+d <- read.oce(filename)
+plot(d)
 @
 where \verb@filename@ is the name of a file containing the data.
+
+\textbf{Some notes on oce function names.}
+\begin{enumerate}
+
+    \item The function used above to read a dataset ends in \verb@.oce@, which
+        is a signal that the returned object is of class \verb@oce@.  Depending
+        on the file contents, \verb@d@ will also have an additional class, e.g.
+        if \verb@filename@ contains CTD data, then the object would have two
+        classes: \verb@oce@ and \verb@ctd@, and the second of these is used in
+        plotting, meaning that R will call a function named \verb@read.ctd@ for
+        the plot.
+
+    \item \index{function naming convention in oce}\index{convention on oce
+        function names} Generally, \verb@oce@ functions employ a ``camel case''
+        naming convention, in which a function that is described by several
+        words is named by stringing the words together, capitalizing the second
+        and subsequent words. For example, \verb@ctdAddColumn@ takes a
+        \verb@ctd@ object, and adds a column.
+
+    \item Function names begin with ``\verb@oce.@'' in cases where the most
+        natural function name would otherwise be in conflict with a function in
+        the base R system or a package commonly used by Oceanographers.  For
+        example, \verb@oce.approx@ is used for a function that is analogous to
+        \verb@approx@ in the \verb@stats@ package.  The reason for not naming
+        the function as \verb@oceApprox@ is a desire to provide a clear hint
+        about the similarity of the functions. The reason for avoiding a naming
+        conflict (by calling it \verb@approx@) is to avoid the necessity of
+        writing \verb@oce::approx@, a notation that can be confusing to users.
+
+\end{enumerate}
 
 
 \section{Calculations of seawater properties}
@@ -225,14 +268,13 @@ this in action with \verb@?section@.)
 
 \begin{figure}
 \begin{center}
-\setkeys{Gin}{width=\textwidth}
+\setkeys{Gin}{width=.9\textwidth}
 <<label=ctdfig, width=9, height=6, fig=TRUE, echo=FALSE>>=
 <<ctdplot>>
 @
 \end{center}
-\caption{Overview graph of the sample CTD dataset \texttt{ctd}, acquired in
-Halifax Harbour by students in the author's Physical Oceanography class
-at Dalhousie University.}
+\caption{Overview graph of the dataset \texttt{ctd}, acquired by
+the author's class at Dalhousie University.}
 \label{fig:ctd}
 \end{figure}
 
@@ -241,8 +283,8 @@ at Dalhousie University.}
 \subsection{Example with raw data}
 
 Practicing Oceanographers may be wondering how the CTD cast used in the
-preceding section was trimmed of equilibration-phase and upcast-phase data. Data
-from these sections are spurious and must be trimmed as a first step in
+preceding section was trimmed of equilibration-phase and upcast-phase data. 
+Spurious data from these phases must be trimmed as a first step in
 processing. For example, consider the following code.
 <<label=ctdrawplot,eval=FALSE>>=
 data(ctdRaw)
@@ -251,14 +293,13 @@ plotScan(ctdRaw)
 \begin{figure}
 \begin{center}
 \setkeys{Gin}{width=0.55\textwidth}
-<<label=ctdrawfig,fig=TRUE,width=6, height=4, echo=FALSE>>=
+<<label=ctdrawfig, fig=TRUE,width=6, height=6, echo=FALSE>>=
 <<ctdrawplot>>
 @
 \end{center}
-\caption{Scanwise plot of the \texttt{ctdRaw} sample data set.  Note the wild
+\caption{Scanwise plot of the \texttt{ctdRaw} sample data set.  Note the 
 spike at the start, the equilibration phase before the downcast, and the
-spurious freshening signal near the start of the upcast.  See the text for a
-discussion of how inspection of such graphs can help in trimming CTD data.}
+spurious freshening signal near the start of the upcast.}
 \label{fig:ctdraw}
 \end{figure}
 
@@ -336,16 +377,16 @@ and a better idea to write
 \index{oce object changelog}
 \index{logged changes to oce objects}
 \index{editing oce objects}
-\index{oceEdit}
+\index{oce.edit}
 <<ctdfix2,eval=false>>=
 x <- read.ctd("nnsa_00934_00001_ct1.csv", type="WOCE")
-x <- oceEdit(x, "institute", "SIO") # better way
+x <- oce.edit(x, "institute", "SIO") # better way
 @
 Even better, provide a reason for the change, and sign the change with your
 name:
 <<ctdfix3,eval=false>>=
 x <- read.ctd("nnsa_00934_00001_ct1.csv", type="WOCE")
-x <- oceEdit(x, "institute", "SIO", "human-parsed", "Dan Kelley")
+x <- oce.edit(x, "institute", "SIO", "human-parsed", "Dan Kelley")
 @
 
 For a real-world example (with warts!), visit
@@ -447,17 +488,16 @@ right angles.
 \index{data!coastline}
 \index{data!topography}
 
-Coastline data are available from a variety of sources. The NOAA site
-\url{http://www.ngdc.noaa.gov/mgg_coastline/} is particularly popular, and it
-has the advantage of providing data in Splus format.  The function
+Coastline data are available from a variety of sources. In years past, the
+former NOAA site \verb@http://www.ngdc.noaa.gov/mgg_coastline/@ was particularly
+popular, having the advantage of providing data in Splus format.  The function
 \verb@read.coastline@ can handle reading that format (plus some other formats),
 and \verb@plot@ on the resulting object will produce a simple coastline map.
 The only real advantage over plotting things yourself is that latitude and
-longitude are scaled to give natural shapes near the centre of the
-plot.  (All \verb@oce@ functions that have arguments for latitude and
-longitude place latitude first, in accordance with convention as documented in
-the ISO standard 6709 ``Standard representation of geographic point location by
-coordinates.'')
+longitude are scaled to give natural shapes near the centre of the plot.  (All
+\verb@oce@ functions that have arguments for latitude and longitude place
+latitude first, in accordance with convention as documented in the ISO standard
+6709 ``Standard representation of geographic point location by coordinates.'')
 
 Bathymetric charts, or more generally topographic maps, can be produced easily, e.g. (Figure~\ref{fig:topo})
 <<fig=FALSE, eval=TRUE, echo=FALSE>>=
@@ -575,17 +615,17 @@ version.  (The problems involve phase, and the inference of satellite nodes.)
 \section{Temperature-Depth Recorder data}
 The commands
 <<fig=FALSE, eval=TRUE, echo=FALSE>>=
-png("tdr.png", width=600, height=300, pointsize=13)
+png("logger.png", width=600, height=300, pointsize=13)
 @
 <<>>=
 library(oce)
-data(tdr)
-plot(tdr, useSmoothScatter=TRUE)
+data(logger)
+plot(logger, useSmoothScatter=TRUE)
 @
 <<fig=FALSE, eval=TRUE, echo=FALSE, results=hide>>=
 dev.off()
 @
-produce a plot (Figure~\ref{fig:pt}) of temperature-depth recorder (tdr)
+produce a plot (Figure~\ref{fig:pt}) of temperature-depth logger
 measurements made during St Lawrence Estuary Internal Wave Experiment, an
 CFCAS/NSERC-funded research program in which the \texttt{oce} author was a principal
 investigator.  The device was mounted on a mooring that tilted significantly
@@ -594,7 +634,7 @@ thus providing a rough indication of the temperature profile.  Note that this
 graph contains in-air as well as in-water data.
 \begin{figure}
 \begin{center}
-\includegraphics[width=\hsize]{tdr}
+\includegraphics[width=\hsize]{logger}
 \end{center}
 \caption{Measurements made with a pressure-temperature recorder in the
   St Lawrence Estuary.  Note that the record contains in-air
@@ -606,7 +646,7 @@ graph contains in-air as well as in-water data.
 \label{fig:pt}
 \end{figure}
 
-\workedexercise{7}{Trim the in-air measurements from this \texttt{tdr} record, and
+\workedexercise{7}{Trim the in-air measurements from this \texttt{logger} record, and
 then remove the atmospheric pressure from the signal.}
 
 
@@ -633,7 +673,7 @@ in the St Lawrence Estuary Internal Wave Experiment.
 \end{center}
 \caption{Measurements made with an ADP in the
   St Lawrence Estuary.  The data were recorded in beam format, so a two-step
-  process is used to convert to enu coordinates.  The green curve indicates
+  process is used to convert to enu coordinates.  The black curve indicates
   the water surface, inferred from the pressure measured by the ADP.}
 \label{fig:adp}
 \end{figure}
@@ -819,11 +859,11 @@ mtext("M2",at=1/12.42,side=3)
 @
 
 \workedanswer{7}{Pressure-temperature Recorder plot}
-\index{subset!using with tdr data}
-\index{data!tdr}
+\index{subset!using with logger data}
+\index{data!logger}
 
 The accuracy of automatic removal of the atmospheric component done
-with \verb@tdr.trim()@ can be quite good if the instrument has recorded
+with \verb@logger.trim()@ can be quite good if the instrument has recorded
 in the air at the start and end of the record.  Even so, it always
 makes sense to investigate the data by eye, in order to select a time
 window.  Manual selection of a time window is also important when a

@@ -55,7 +55,7 @@ setMethod(f="summary",
 
 
 setMethod(f="[[",
-          signature="echosounder",
+          signature(x="echosounder", i="ANY", j="ANY"),
           definition=function(x, i, j, drop) {
               if (i %in% c("Sv", "TS")) {
                   range <- rev(x@data$depth)
@@ -123,7 +123,7 @@ setMethod(f="subset",
                   stop("must give 'subset'")
               if (length(grep("time", subsetString))) {
                   oceDebug(debug, "subsetting an echosounder object by time\n")
-                  keep <- eval(substitute(subset), x@data, parent.frame())
+                  keep <- eval(substitute(subset), x@data, parent.frame(2))
                   oceDebug(debug, "keeping", 100 * sum(keep)/length(keep), "% of the fast-sampled data\n")
                   rval <- x
                   ## trim fast variables, handling matrix 'a' differently, and skipping 'distance'
@@ -156,7 +156,7 @@ setMethod(f="subset",
                   ## trim slow variables
                   subsetStringSlow <- gsub("time", "timeSlow", subsetString)
                   oceDebug(debug, "subsetting slow variables with string:", subsetStringSlow, "\n")
-                  keepSlow <-eval(parse(text=subsetStringSlow), x@data, parent.frame())
+                  keepSlow <-eval(parse(text=subsetStringSlow), x@data, parent.frame(2))
                   oceDebug(debug, "keeping", 100 * sum(keepSlow)/length(keepSlow), "% of the slow-sampled data\n")
                   for (slowName in names(x@data)[grep("Slow", names(x@data))]) {
                       oceDebug(debug, "slow variable:", slowName, "orig length", length(x@data[[slowName]]), "\n")
@@ -165,7 +165,7 @@ setMethod(f="subset",
                   }
               } else if (length(grep("depth", subsetString))) {
                   oceDebug(debug, "subsetting an echosounder object by depth\n")
-                  keep <- eval(substitute(subset), x@data, parent.frame())
+                  keep <- eval(substitute(subset), x@data, parent.frame(2))
                   rval <- x
                   rval[["depth"]] <- rval[["depth"]][keep]
                   dataNames <- names(rval@data)
@@ -177,7 +177,7 @@ setMethod(f="subset",
               } else {
                   stop("can only subset an echosounder object by 'time' or 'depth'")
               }
-              rval@processingLog <- processingLog(rval@processingLog, paste("subset.adp(x, subset=", subsetString, ")", sep=""))
+              rval@processingLog <- processingLogAppend(rval@processingLog, paste("subset.adp(x, subset=", subsetString, ")", sep=""))
               rval
           })
 
@@ -213,7 +213,7 @@ as.echosounder <- function(time, depth, a, src="",
     res@data$time <- time
     res@data$depth <- depth
     res@data$a<- a
-    res@processingLog <- processingLog(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     res
 }
 
@@ -233,10 +233,10 @@ setMethod(f="plot",
                               newx,
                               xlab, ylab,
                               xlim, ylim, zlim,
-                              type="l", col=oceColorsJet, lwd=2,
+                              type="l", col=oce.colorsJet, lwd=2,
                               despike=FALSE,
                               drawBottom, ignore=5,
-                              drawTimeRange=FALSE,
+                              drawTimeRange=FALSE, drawPalette=TRUE,
                               radius, coastline,
                               adorn=NULL,
                               mgp=getOption("oceMgp"),
@@ -247,6 +247,7 @@ setMethod(f="plot",
                               ...)
           {
               dots <- list(...)
+              rval <- list(xat=NULL, yat=NULL)
               dotsNames <- names(dots)
               oceDebug(debug, "plot() { # for echosounder\n", unindent=1)
               opar <- par(no.readonly = TRUE)
@@ -269,7 +270,7 @@ setMethod(f="plot",
               }
 
               oceDebug(debug, "which:", which, "\n")
-              which <- ocePmatch(which, list("zt image"=1, "zx image"=2, map=3))
+              which <- oce.pmatch(which, list("zt image"=1, "zx image"=2, map=3))
               oceDebug(debug, "which:", which, "\n")
               for (w in 1:length(which)) {
                   oceDebug(debug, "this which:", which[w], "\n")
@@ -300,16 +301,17 @@ setMethod(f="plot",
                           waterDepth <- findBottom(x, ignore=ignore)$depth
                           axisBottom <- par('usr')[3]
                           deepestWater <- max(abs(waterDepth))
-                          imagep(xInImage, y=-x[["depth"]], z=z,
-                                 xlab=if (missing(xlab)) "" else xlab, # time
-                                 ylab=if (missing(ylab)) "z [m]" else ylab, # depth
-                                 xlim=xlim,
-                                 ylim=if (missing(ylim)) c(-deepestWater,0) else ylim,
-                                 zlim=if (missing(zlim)) c(if (beam[w] %in% c("Sv", "TS")) min(z, na.rm=TRUE) else 0, max(z, na.rm=TRUE)) else zlim,
-                                 col=col,
-                                 mgp=mgp, mar=mar,
-                                 tformat=tformat,
-                                 debug=debug-1, ...)
+                          ats <- imagep(xInImage, y=-x[["depth"]], z=z,
+                                        xlab=if (missing(xlab)) "" else xlab, # time
+                                        ylab=if (missing(ylab)) "z [m]" else ylab, # depth
+                                        xlim=xlim,
+                                        ylim=if (missing(ylim)) c(-deepestWater,0) else ylim,
+                                        zlim=if (missing(zlim)) c(if (beam[w] %in% c("Sv", "TS")) min(z, na.rm=TRUE) else 0, max(z, na.rm=TRUE)) else zlim,
+                                        col=col,
+                                        mgp=mgp, mar=mar,
+                                        tformat=tformat,
+                                        drawPalette=drawPalette,
+                                        debug=debug-1, ...)
                           axisBottom <- par('usr')[3]
                           waterDepth <- c(axisBottom, -waterDepth, axisBottom)
                           time <-  x[["time"]]
@@ -322,19 +324,22 @@ setMethod(f="plot",
                               polygon(time2, waterDepth, col=drawBottom)
                           }
                       } else {
-                          imagep(xInImage, y=-x[["depth"]], z=z,
-                                 xlab=if (missing(xlab)) "" else xlab, # time
-                                 ylab=if (missing(ylab)) "z [m]" else ylab, # depth
-                                 xlim=xlim,
-                                 ylim=if (missing(ylim)) c(-max(abs(x[["depth"]])), 0) else ylim,
-                                 zlim=if (missing(zlim)) c(if (beam[w] %in% c("Sv", "TS")) min(z, na.rm=TRUE) else 0, max(z, na.rm=TRUE)) else zlim,
-                                 col=col,
-                                 mgp=mgp, mar=mar,
-                                 tformat=tformat,
-                                 debug=debug-1,
-                                 zlab=beam[w],
-                                 ...)
+                          ats <- imagep(xInImage, y=-x[["depth"]], z=z,
+                                        xlab=if (missing(xlab)) "" else xlab, # time
+                                        ylab=if (missing(ylab)) "z [m]" else ylab, # depth
+                                        xlim=xlim,
+                                        ylim=if (missing(ylim)) c(-max(abs(x[["depth"]])), 0) else ylim,
+                                        zlim=if (missing(zlim)) c(if (beam[w] %in% c("Sv", "TS")) min(z, na.rm=TRUE) else 0, max(z, na.rm=TRUE)) else zlim,
+                                        col=col,
+                                        mgp=mgp, mar=mar,
+                                        tformat=tformat,
+                                        drawPalette=drawPalette,
+                                        debug=debug-1,
+                                        zlab=beam[w],
+                                        ...)
                       }
+                      rval$xat <- ats$xat
+                      rval$yat <- ats$yat
                       if (newxGiven) {
                           if (!missing(atTop)) {
                               at <- approx(as.numeric(x[["time"]]), newx, as.numeric(atTop))$y
@@ -366,15 +371,16 @@ setMethod(f="plot",
                           axisBottom <- par('usr')[3]
                           deepestWater <- max(abs(waterDepth$depth))
                       }
-                      imagep(distance, -depth, z,
-                             xlab=if (missing(xlab)) "Distance [km]" else xlab,
-                             ylab=if (missing(ylab)) "z [m]" else ylab,
-                             ylim=if (missing(ylim)) c(-deepestWater,0) else ylim,
-                             zlim=if (missing(zlim)) c(if (beam[w] %in% c("Sv", "TS")) min(z, na.rm=TRUE) else 0, max(z, na.rm=TRUE)) else zlim,
-                             mgp=mgp, mar=mar,
-                             tformat=tformat,
-                             col=col,
-                             debug=debug-1)
+                      ats <- imagep(distance, -depth, z,
+                                    xlab=if (missing(xlab)) "Distance [km]" else xlab,
+                                    ylab=if (missing(ylab)) "z [m]" else ylab,
+                                    ylim=if (missing(ylim)) c(-deepestWater,0) else ylim,
+                                    zlim=if (missing(zlim)) c(if (beam[w] %in% c("Sv", "TS")) min(z, na.rm=TRUE) else 0, max(z, na.rm=TRUE)) else zlim,
+                                    mgp=mgp, mar=mar,
+                                    tformat=tformat,
+                                    col=col,
+                                    drawPalette=drawPalette,
+                                    debug=debug-1)
                       if (!missing(drawBottom)) {
                           if (is.logical(drawBottom) && drawBottom)
                               drawBottom <- "white"
@@ -395,6 +401,8 @@ setMethod(f="plot",
                           label <- paste(timeRange[1], timeRange[2], sep=" to ")
                           mtext(label, side=3, cex=0.9*par('cex'), adj=0)
                       }
+                      rval$xat <- ats$xat
+                      rval$yat <- ats$yat
                   } else if (which[w] == 3) {
                       lat <- x[["latitude"]]
                       lon <- x[["longitude"]]
@@ -412,6 +420,12 @@ setMethod(f="plot",
                       plot(lonr, latr, asp=asp, type='n',
                            xlab=if (missing(xlab)) "Longitude" else xlab,
                            ylab=if (missing(ylab)) "Latitude" else ylab)
+                      xaxp <- par("xaxp")
+                      xat <- seq(xaxp[1], xaxp[2], length.out=1+xaxp[3])
+                      yaxp <- par("yaxp")
+                      yat <- seq(yaxp[1], yaxp[2], length.out=1+yaxp[3])
+                      ats <- list(xat=xat, yat=yat)
+
                       if (!missing(coastline)) {
                           coastline <- coastline
                           if (!is.null(coastline@metadata$fillable) && coastline@metadata$fillable) {
@@ -432,7 +446,7 @@ setMethod(f="plot",
                   }
               }
               oceDebug(debug, "} # plot.echosounder()\n", unindent=1)
-              invisible()
+              invisible(rval)
           })
 
 read.echosounder <- function(file, channel=1, soundSpeed=swSoundSpeed(35, 10, 50),
@@ -616,9 +630,9 @@ read.echosounder <- function(file, channel=1, soundSpeed=swSoundSpeed(35, 10, 50
             if (debug > 1) cat('corr: ', corr, ' user-defined calibration correction in dB (expect 0 for 01-Fish.dt4)\n', sep='')
 
             if (1 == length(channelNumber)) { # get space
-                a <- matrix(NA, nrow=pingsInFile, ncol=samplesPerPing)
-                b <- matrix(NA, nrow=pingsInFile, ncol=samplesPerPing)
-                c <- matrix(NA, nrow=pingsInFile, ncol=samplesPerPing)
+                a <- matrix(NA_real_, nrow=pingsInFile, ncol=samplesPerPing)
+                b <- matrix(NA_real_, nrow=pingsInFile, ncol=samplesPerPing)
+                c <- matrix(NA_real_, nrow=pingsInFile, ncol=samplesPerPing)
             }
             if (debug > 3) cat(" channel descriptor ",
                            " number=", tail(channelNumber, 1),
@@ -784,7 +798,7 @@ read.echosounder <- function(file, channel=1, soundSpeed=swSoundSpeed(35, 10, 50
         res@data$b <- NULL
         res@data$c <- NULL
     }
-    res@processingLog <- processingLog(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     .C("biosonics_free_storage", package="oce") # clear temporary storage space
     res
 }

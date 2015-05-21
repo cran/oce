@@ -17,8 +17,9 @@ setClass("gps", contains="oce")
 setClass("landsat", contains="oce")
 setClass("lisst", contains="oce")
 setClass("lobo", contains="oce")
+setClass("logger", contains="oce")
 setClass("met", contains="oce")
-setClass("tdr", contains="oce")
+setClass("odf", contains="oce")
 setClass("sealevel", contains="oce")
 setClass("section", contains="oce")
 setClass("tidem", contains="oce")
@@ -35,13 +36,11 @@ setMethod(f="subset",
               rval <- x
               for (i in seq_along(x@data))
                   rval@data[[i]] <- rval@data[[i]][keep]
-              rval@processingLog <- processingLog(rval@processingLog,
-                                                  paste(deparse(match.call(call=sys.call(sys.parent(1)))),
-                                                                sep="", collapse=""))
+              rval@processingLog <- processingLogAppend(rval@processingLog,
+                                                        paste(deparse(match.call(call=sys.call(sys.parent(1)))),
+                                                              sep="", collapse=""))
               rval
           })
-
-
 
 setMethod(f="[[",
           signature(x="oce", i="ANY", j="ANY"),
@@ -52,32 +51,40 @@ setMethod(f="[[",
                   return(x@data)
               } else if (i == "processingLog") {
                   return(x@processingLog)
-              } else if (i %in% names(x@metadata)) {
-                  return(x@metadata[[i]])
-              } else if (i %in% names(x@data)) {
-                  return(x@data[[i]])
               } else {
-                  warning("there is no item named \"", i, "\" in this ", class(x), " object")
-                  return(NULL)
+                  ## metadata must match exactly but data can be partially matched
+                  if (i %in% names(x@metadata))
+                      return(x@metadata[[i]])
+                  index <- pmatch(i, names(x@data))
+                  if (!is.na(index[1]))
+                      return(x@data[[index]])
+                  else
+                      return(NULL)
+                  ## if (missing(j) || j != "nowarn")
+                  ##     warning("there is no item named \"", i, "\" in this ", class(x), " object", call.=FALSE)
               }
           })
 
 setMethod(f="[[<-",
           signature(x="oce", i="ANY", j="ANY"),
           function(x, i, j, ..., value) { # FIXME: use j for e.g. times
+              ## metadata must match exactly but data can be partially matched
               if (i %in% names(x@metadata)) {
                   x@metadata[[i]] <- value
-              } else if (i %in% names(x@data)) {
-                  x@data[[i]] <- value
-              } else if (i == "processingLog") {
-                  if (0 == length(x@processingLog)) {
-                      x@processingLog <- list(time=as.POSIXct(Sys.time(), tz="UTC"), value=value)
-                  } else {
-                      x@processingLog$time <- c(x@processingLog$time, as.POSIXct(Sys.time(), tz="UTC"))
-                      x@processingLog$value <- c(x@processingLog$value, value)
-                  }
               } else {
-                  warning("there is no item named \"", i, "\" in this ", class(x), " object")
+                  index <- pmatch(i, names(x@data))
+                  if (!is.na(index[1])) {
+                      x@data[[index]] <- value
+                  } else if (i == "processingLog") {
+                      if (0 == length(x@processingLog)) {
+                          x@processingLog <- list(time=as.POSIXct(Sys.time(), tz="UTC"), value=value)
+                      } else {
+                          x@processingLog$time <- c(x@processingLog$time, as.POSIXct(Sys.time(), tz="UTC"))
+                          x@processingLog$value <- c(x@processingLog$value, value)
+                      }
+                  } else {
+                      warning("there is no item named \"", i, "\" in this ", class(x), " object", call.=FALSE)
+                  }
               }
               validObject(x)
               invisible(x)

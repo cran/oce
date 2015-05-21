@@ -8,11 +8,10 @@
 
 \usage{imagep(x, y, z, 
     xlim, ylim, zlim, 
-    zclip=FALSE,
-    flipy=FALSE,
+    zclip=FALSE, flipy=FALSE,
     xlab="", ylab="", zlab="", zlabPosition=c("top", "side"),
-    breaks, col, colormap,
-    labels=NULL, at=NULL,
+    decimate=TRUE,
+    breaks, col, colormap, labels=NULL, at=NULL,
     drawContours=FALSE,
     drawPalette=TRUE,
     drawTriangles=FALSE,
@@ -58,9 +57,22 @@
     \item{zlim}{either a pair of numbers giving the limits for the colorscale,
         or \code{"histogram"} to have a flattened histogram (i.e. to maximally
         increase contrast throughout the domain.)}
+
+    \item{decimate}{value indicating whether to decimate the image.  If
+        \code{decimate=FALSE}, no decimation is done, i.e. all data are shown.
+        If \code{decimate=TRUE}, then the image is decimated to display at most
+        800 pixels in width or height.  If \code{decimate} is an integer, then
+        its value sets the decimation interval, e.g. \code{decimate=20} plots
+        every twentith point (suitable, for example, for landsat images that
+        typicaly have 16000 pixels on a side).}
+
     \item{zclip}{logical, indicating whether to clip the colors to those
-        corresponding to \code{zlim}, if the latter is provided.  Clipped
-        regions will be colored with \code{missingColor}.}
+        corresponding to \code{zlim}. This only works if \code{zlim} is
+        provided. Clipped regions will be colored with \code{missingColor}.
+        Thus, clipping an image is somewhat analogous to clipping in an xy
+        plot, with clipped data being ignored, which in an image means to be be
+        colored with \code{missingColor}.}
+
     \item{flipy}{logical, with \code{TRUE} indicating that the image
         should be flipped top to bottom (e.g. to produce a profile image
         for a downward-looking acoustic-doppler profile).}
@@ -73,9 +85,11 @@
         supplied to \code{\link{pretty}}, in determining clean break points.}
     \item{col}{either a vector of colors corresponding to the breaks, of length
         1 plus the number of breaks, or a function specifying colors,
-        e.g. \code{\link{oceColorsJet}} for a rainbow.}
+        e.g. \code{\link{oce.colorsJet}} for a rainbow.}
     \item{colormap}{a color map as created by \code{\link{colormap}}.  If
-        provided, this takes precedence over \code{breaks} and \code{col}.}
+        provided, then \code{colormap$breaks} and \code{colormap$col} take
+        precedence over the present arguments \code{breaks} and \code{col}.
+        (All of the other contents of \code{colormap} are ignored, though.)}
     \item{labels}{optional vector of labels for ticks on palette axis (must
         correspond with \code{at})}
     \item{at}{optional vector of positions for the \code{label}s}
@@ -154,7 +168,9 @@
 
 }
 
-\value{None.}
+\value{A list is silently returned, containing \code{xat} and \code{yat},
+    values that can be used by \code{\link{oce.grid}} to add a grid to the
+    plot.}
 
 \seealso{This uses \code{\link{drawPalette}}.}
 

@@ -1,6 +1,6 @@
 Package: oce
-Version: 0.9-16
-Date: 2015-05-19
+Version: 0.9-17
+Date: 2015-05-21
 Title: Analysis of Oceanographic Data
 Authors@R: c(person("Dan", "Kelley", email="Dan.Kelley@Dal.Ca", role=c("aut", "cre")),
  person("Clark", "Richards", email="clark.richards@gmail.com", role=c("aut")),
@@ -34,7 +34,7 @@ License: GPL (>= 2)
 URL: http://dankelley.github.com/oce/
 LazyLoad: yes
 LazyData: no
-Packaged: 2015-05-20 15:16:32.980 UTC; kelley
+Packaged: 2015-05-21 16:02:45.424 UTC; kelley
 NeedsCompilation: yes
 Author: Dan Kelley [aut, cre],
   Clark Richards [aut],
@@ -54,4 +54,4 @@ Author: Dan Kelley [aut, cre],
     binmapAdp()),
   Ross Ihaka [ctb, cph] (author of approx() code, used in binmapAdp())
 Repository: CRAN
-Date/Publication: 2015-05-21 01:06:41
+Date/Publication: 2015-05-22 07:54:10

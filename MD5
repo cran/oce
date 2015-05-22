@@ -1,6 +1,6 @@
-64858327f721158b77264bed469c0d89 *DESCRIPTION
+fa559a239d0f823b1000c7f467a134b0 *DESCRIPTION
 1555e5f2cbdea8f0da601a4f921b134b *NAMESPACE
-1264c700b0d673ef5752deba1e290b5c *NEWS
+363d4674aca6e61c757d3c1abc658583 *NEWS
 5de681b20afa44602943e9798a4c7d8a *R/AllClass.R
 0e7458a26fc600679092ade158cae880 *R/accessors.R
 dbb8789655e6711435dce3f1b846c574 *R/ad.R
@@ -76,7 +76,7 @@ f617de1e0ad170dc8cbc1f5107b8f319 *demo/lobo.R
 bf54618db9bda259b033b52a81893062 *demo/tide.R
 d558719537e818ee6f7ce7d580f246b8 *inst/doc/oce.R
 505d6a3d91e2c12d46c9ce004cfa1407 *inst/doc/oce.Rnw
-a35ae2e130d41f227e337ecd8f846469 *inst/doc/oce.pdf
+4cb83c1bf3f06546ea48de3cdb28d407 *inst/doc/oce.pdf
 14cf2e121f15356a57044550e16b0f21 *inst/extdata/CTD_BCD2010666_01_01_DN.ODF
 68bba92665315a39b36e540d547abcba *inst/extdata/ctd.cnv
 a4a20af5c8cdc85bfcfd5f9b942654f0 *inst/extdata/d200321-001.ctd
@@ -192,7 +192,7 @@ c0b5be0759d6012bc77536d75b6305d0 *man/imagep.Rd
 4612631c5f60daa33812558ff7922e70 *man/is.beam.Rd
 99ef30ee0d72569b90754d9c89950dae *man/julianCenturyAnomaly.Rd
 ea92779fe10d4d0e672d794c82794117 *man/julianDay.Rd
-40cf967f633ed74a3d66a01796fb4ed1 *man/landsat-class.Rd
+1bfb4f738152d4dd5f53ec4f02593297 *man/landsat-class.Rd
 586e466051f640e626ff8e39f29f6f3a *man/landsat.Rd
 72baaf420bba0b5d7e0d3510e203a22a *man/landsatAdd.Rd
 81ce297cd0ff3ad97bf151d94306f066 *man/landsatTrim.Rd
@@ -583,7 +583,7 @@ b78d6126d252dc0b60bf7230ab85146c *src/pj_log.c
 9335099b7ed24242cf009b08f0bc7291 *src/pj_msfn.c
 413d5d76cbc57a0b9ddf22e8fae44f2b *src/pj_mutex.c
 a014698824e6b813068c043e632ee234 *src/pj_open_lib.c
-e83e3c4b80c10e1ee66c80c239891e6b *src/pj_param.c
+8f0ee6b971373dd4e2fbeb0f6df0bfeb *src/pj_param.c
 030c44fa1e33b06ef24f8d70aefa0b97 *src/pj_phi2.c
 9a85270199ebbd0afa31b082d490c7ef *src/pj_pr_list.c
 dc22136e27bcadbb8fa56fce2cfbb35d *src/pj_qsfn.c

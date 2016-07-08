@@ -1,6 +1,6 @@
 Package: oce
-Version: 0.9-18
-Date: 2016-02-11
+Version: 0.9-19
+Date: 2016-07-06
 Title: Analysis of Oceanographic Data
 Authors@R: c(person(given="Dan", family="Kelley", email="Dan.Kelley@Dal.Ca", role=c("aut", "cre")),
  person(given="Clark", family="Richards", email="clark.richards@gmail.com", role=c("aut")),
@@ -8,21 +8,21 @@ Authors@R: c(person(given="Dan", family="Kelley", email="Dan.Kelley@Dal.Ca", rol
  person(given="British Geological Survey", role=c("ctb","cph"), comment="magnetic-field fortran subroutine"))
 Maintainer: Dan Kelley <Dan.Kelley@Dal.Ca>
 Depends: R (>= 2.15), utils, methods, gsw
-Suggests: ocedata, foreign, mapproj, ncdf4, tiff, akima, RSQLite, DBI,
-        rgdal, R.utils, testthat, knitr
-BugReports: https://github.com/dankelley/oce/issues?
-        sort=created&direction=desc&state=open
+Suggests: ocedata, foreign, ncdf4, tiff, akima, RSQLite, DBI, rgdal (>=
+        1.1-9), R.utils, testthat, knitr
+BugReports: https://github.com/dankelley/oce/issues
 Description: Supports the analysis of Oceanographic data, including 'ADCP'
-    measurements, measurements made with 'argo' floats, 'CTD' measurements, sectional
-    data, sea-level time series, coastline and topographic data, etc. Provides
-    specialized functions for calculating seawater properties such as potential
-    temperature in either the 'UNESCO' or 'TEOS-10' equation of state. Produces
-    graphical displays that conform to the conventions of the Oceanographic literature.
+    measurements, measurements made with 'argo' floats, 'CTD' measurements,
+    sectional data, sea-level time series, coastline and topographic data, etc.
+    Provides specialized functions for calculating seawater properties such as
+    potential temperature in either the 'UNESCO' or 'TEOS-10' equation of state.
+    Produces graphical displays that conform to the conventions of the Oceanographic
+    literature.
 License: GPL (>= 2)
 URL: http://dankelley.github.com/oce/
 LazyLoad: yes
 LazyData: no
-Packaged: 2016-02-11 14:51:57.294 UTC; kelley
+Packaged: 2016-07-08 11:44:18.000 UTC; kelley
 Encoding: UTF-8
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
@@ -33,4 +33,4 @@ Author: Dan Kelley [aut, cre],
   British Geological Survey [ctb, cph] (magnetic-field fortran
     subroutine)
 Repository: CRAN
-Date/Publication: 2016-02-12 01:36:29
+Date/Publication: 2016-07-08 17:23:15

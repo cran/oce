@@ -12,7 +12,7 @@ download.topo(west, east, south, north, resolution, destdir, destfile, format,
 
 \item{south, north}{Latitudes of the southern and northern sides of the box.}
 
-\item{resolution}{Optional grid spacing, in minutes. If not supplied, 
+\item{resolution}{Optional grid spacing, in minutes. If not supplied,
 a default value of 4 (corresponding to 7.4km, or 4 nautical
 miles) is used. Note that (as of August 2016) the original data are on
 a 1-minute grid, which limits the possibilities for \code{resolution}.}
@@ -32,20 +32,22 @@ not supplied, this defaults to \code{"gmt"}. See \dQuote{Details}.}
 
 \item{server}{Optional string indicating the server from which to get the data.
 If not supplied, the humorously-named default
-\code{"http://maps.ngdc.noaa.gov/mapviewer-support/wcs-proxy/wcs.groovy"}
+\samp{"http://maps.ngdc.noaa.gov/mapviewer-support/wcs-proxy/wcs.groovy"}
 will be used.}
 
 \item{debug}{an integer specifying whether debugging information is
 to be printed during the processing. This is a general parameter that
 is used by many \code{oce} functions. Generally, setting \code{debug=0}
 turns off the printing, while higher values suggest that more information
-be printed.}
+be printed. If one function calls another, it usually reduces the value of
+\code{debug} first, so that a user can often obtain deeper debugging
+by specifying higher \code{debug} values.}
 }
 \value{
 String indicating the full pathname to the downloaded file.
 }
 \description{
-Data are downloaded (from \code{http://maps.ngdc.noaa.gov/viewers/wcs-client/}, by 
+Data are downloaded (from \samp{https://maps.ngdc.noaa.gov/viewers/wcs-client/}, by
 default) and a string containing the full path to the downloaded file is returned.
 Typically, this return value is used with \code{\link{read.topo}} to read the
 data. Subsequent calls to \code{download.topo}
@@ -76,10 +78,20 @@ recognized by \code{\link{read.topo}}.
 \code{\link{read.topo}} is extended to handle them, they will
 also be added here.)
 }
+\section{History}{
+
+When this function was created in August 2016, the default server was
+\samp{http://maps.ngdc.noaa.gov/mapviewer-support/wcs-proxy/wcs.groovy}
+but this was found to fail in December 2016, so the default was changed to
+\samp{http://mapserver.ngdc.noaa.gov/cgi-bin/public/wcs/etopo1.xyz}, which
+is what is used by \code{\link[marmap]{getNOAA.bathy}} in the
+\CRANpkg{marmap} package.
+}
+
 \section{Warning}{
 
 All of the \code{download.*} functions are subject to change through the
-autumn of 2016. The plan is to create individual functions
+year 2017. The plan is to create individual functions
 as needs arise in everyday work, thereby discovering patterns of 
 arguments that might make sense more generally. Therefore, it is likely
 that argument order (and even name) may change up until approximately
@@ -87,10 +99,11 @@ December 2016. Users are advised to refer to arguments by name,
 i.e. not to rely on their order, and they are asked for patience,
 because argument names and defaults may vary through the early development.
 }
+
 \examples{
 \dontrun{
 library(oce)
-topoFile <- download.topo(west=-64, east=-60, south=43, north=46, 
+topoFile <- download.topo(west=-64, east=-60, south=43, north=46,
                           resolution=1, destdir="~/data/topo")
 topo <- read.topo(topoFile)
 imagep(topo, zlim=c(-400, 400), drawTriangles=TRUE)
@@ -99,11 +112,8 @@ lines(coastlineWorldFine[["longitude"]], coastlineWorldFine[["latitude"]])
 }
 
 }
-\author{
-Dan Kelley
-}
 \references{
-1. \url{http://www.ngdc.noaa.gov/mgg/global/global.html}
+1. \samp{https://www.ngdc.noaa.gov/mgg/global/global.html}
 
 2. Amante, C. and B.W. Eakins, 2009. ETOPO1 1 Arc-Minute Global Relief
 Model: Procedures, Data Sources and Analysis. NOAA Technical Memorandum
@@ -114,7 +124,8 @@ NESDIS NGDC-24. National Geophysical Data Center, NOAA. doi:10.7289/V5C8276M
 The work is done with \code{\link[utils]{download.file}}.
 
 Other functions that download files: \code{\link{download.amsr}},
-  \code{\link{download.coastline}}
+  \code{\link{download.coastline}},
+  \code{\link{download.met}}
 
 Other things related to \code{topo} data: \code{\link{[[,topo-method}},
   \code{\link{[[<-,topo-method}}, \code{\link{as.topo}},
@@ -124,4 +135,6 @@ Other things related to \code{topo} data: \code{\link{[[,topo-method}},
   \code{\link{topo-class}}, \code{\link{topoInterpolate}},
   \code{\link{topoWorld}}
 }
-
+\author{
+Dan Kelley
+}

@@ -93,7 +93,7 @@ NULL
 #' The following are marked "defunct", so calling them in the
 #' the present version produces an error message that hints at a replacement
 #' function. Once a function is marked "defunct" on one CRAN release, it will
-#' be slated for outright deletion in the following release.
+#' be slated for outright deletion in a subsequent release.
 #'
 #' \tabular{lll}{
 #' \strong{Defunct}   \tab \strong{Replacement}     \tab \strong{Notes}\cr
@@ -105,6 +105,9 @@ NULL
 #' means they will be marked "defunct" in the next CRAN release. They are as follows.
 #'
 #' \itemize{
+#'
+#' \item The \code{endian} argument of \code{\link{byteToBinary}} will be removed sometime
+#' in the year 2017, and should be set to \code{"big"} in the meantime.
 #'
 #' \item The \code{parameters} argument of \code{\link{plot,ctd-method}}
 #' was deprecated on 2016-12-30.  It was once used by
@@ -531,7 +534,7 @@ plotPolar <- function(r, theta, debug=getOption("oceDebug"), ...)
 }
 
 
-#' Interpolate 1D Data with Unesco or Reiniger-Ross Algorithm
+#' Interpolate 1D Data with UNESCO or Reiniger-Ross Algorithm
 #'
 #' Interpolate one-dimensional data using schemes that permit curvature but
 #' tends minimize extrema that are not well-indicated by the data.
@@ -609,15 +612,14 @@ plotPolar <- function(r, theta, debug=getOption("oceDebug"), ...)
 #' library(oce)
 #' if (require(ocedata)) {
 #'     data(RRprofile)
-#'     zz <- seq(0, 2000, 5)
+#'     zz <- seq(0, 2000, 2)
 #'     plot(RRprofile$temperature, RRprofile$depth, ylim=c(500, 0), xlim=c(2, 11))
 #'     ## Contrast two methods
 #'     a1 <- oce.approx(RRprofile$depth, RRprofile$temperature, zz, "rr")
 #'     a2 <- oce.approx(RRprofile$depth, RRprofile$temperature, zz, "unesco")
 #'     lines(a1, zz)
 #'     lines(a2, zz, col='red')
-#'     legend("bottomright", lwd=1, col=1:2,
-#'     legend=c("Unesco", "Reiniger-Ross"), cex=3/4)
+#'     legend("bottomright",lwd=1,col=1:2, legend=c("rr","unesco"),cex=3/4)
 #' }
 oceApprox <- function(x, y, xout, method=c("rr", "unesco"))
 {
@@ -658,7 +660,7 @@ oce.approx <- oceApprox
 #' \code{yscale}, which has the unit of \code{v} divided by the unit of
 #' \code{y}.
 #' The interpretation of diagrams produced by \code{plotSticks} can be
-#' difficult, owing to overlap in the arrows.  For this reason, it It is often
+#' difficult, owing to overlap in the arrows.  For this reason, it is often
 #' a good idea to smooth \code{u} and \code{v} before using this function.
 #'
 #' @param x x coordinates of stick origins.
@@ -667,7 +669,7 @@ oce.approx <- oceApprox
 #' are ignored.
 #' @param u x component of stick length.
 #' @param v y component of stick length.
-#' @param yscale scale from u and v to y (see \dQuote{Details}).
+#' @param yscale scale from u and v to y (see \dQuote{Description}).
 #' @param add boolean, set \code{TRUE} to add to an existing plot.
 #' @param length value to be provided to \code{\link{arrows}}; here, we set a
 #' default that is smaller than normally used, because these plots tend to be
@@ -676,6 +678,7 @@ oce.approx <- oceApprox
 #' for \code{par(mar)}, computed from this.  The default is tighter than the R
 #' default, in order to use more space for the data and less for the axes.
 #' @param mar value to be used with \code{\link{par}("mar")}.
+#' @param xlab,ylab labels for the plot axes. The default is not to label them.
 #' @param \dots graphical parameters passed down to \code{\link{arrows}}.  It
 #' is common, for example, to use smaller arrow heads than \code{\link{arrows}}
 #' uses; see \dQuote{Examples}.
@@ -705,7 +708,7 @@ oce.approx <- oceApprox
 plotSticks <- function(x, y, u, v, yscale=1, add=FALSE, length=1/20,
                        mgp=getOption("oceMgp"),
                        mar=c(mgp[1]+1, mgp[1]+1, 1, 1+par("cex")),
-                       ...)
+                       xlab="", ylab="", ...)
 {
     pin <- par("pin")
     page.ratio <- pin[2]/pin[1]
@@ -729,7 +732,7 @@ plotSticks <- function(x, y, u, v, yscale=1, add=FALSE, length=1/20,
         stop("lenghts of x and v must match, but they are ", n, " and ", length(v))
     par(mar=mar, mgp=mgp)
     if (!add)
-        plot(range(x), range(y), type='n', ...)
+        plot(range(x), range(y), type='n', xlab=xlab, ylab=ylab, ...)
     usr <- par("usr")
     yrxr <- (usr[4] - usr[3]) / (usr[2] - usr[1])
     warn <- options("warn")$warn # FIXME: fails to quieten arrows()
@@ -1463,6 +1466,9 @@ oceMagic <- function(file, debug=getOption("oceDebug"))
         ##} else if (as.integer(bytes[1]) == 87) {
         ##    warning("possibly this file is a sontek ADV (first byte is 87)")
     }
+    if (bytes[1] == 0xa5 && bytes[4] == 0x10) {
+        return("adp/nortek/ad2cp")
+    }
     if (bytes[1] == 0x9b && bytes[2] == 0x00) {
         warning(paste("Possibly this is an RDI CTD file. Oce cannot read such files yet, because\n",
                       " the author has not located file-format documents.  If you get such documents\n",
@@ -1597,6 +1603,8 @@ read.oce <- function(file, ...)
         return(read.aquadoppProfiler(file, processingLog=processingLog, ...))
     if (type == "adp/nortek/aquadoppHR")
         return(read.aquadoppHR(file, processingLog=processingLog, ...))
+    if (type == "adp/nortek/ad2cp")
+        return(read.ad2cp(file, processingLog=processingLog, ...))
     if (type == "adv/nortek/vector")
         return(read.adv.nortek(file, processingLog=processingLog, ...))
     if (type == "adv/sontek/adr")
@@ -2922,28 +2930,45 @@ decodeTime <- function(time, timeFormats, tz="UTC")
 #' the line.
 #' }
 #'
-#' @param x,y coordinates at which velocities are specified.
-#' @param u,v velocity components in the x and y directions.
-#' @param scalex,scaley scale to be used for the velocity arrows.  Exactly one
-#'        of these must be specified.  Arrows that have \code{u^2+v^2=1} will
-#'        have length \code{scalex} along the x axis, or \code{scaley} along the
-#'        y axis, according to which argument is given.
-#' @param length indication of \strong{width} of arrowheads. The somewhat
-#'        confusing name of this argument is a consequence of the fact
-#'        that it is passed to \code{\link{arrows}} for drawing arrows.
-#'        Note that the present default is smaller than the default used
-#'        by \code{\link{arrows}}.
-#' @param add if \code{TRUE}, the arrows are added to an existing plot;
-#'        otherwise, a new plot is started by calling \code{\link{plot}} with
-#'        \code{x}, \code{y} and \code{type="n"}.  In other words, the plot
-#'        will be very basic. In most cases, the user will probably want to
-#'        draw a diagram first, and \code{add} the direction field later.
-#' @param type indication of the style of arrow-like indication of the direction.
+#' @param x,y coordinates at which velocities are specified. The
+#'     length of \code{x} and \code{y} depends on the form of \code{u}
+#'     and \code{v} (vectors or matrices).
+#' @param u,v velocity components in the x and y directions. Can be
+#'     either vectors with the same length as \code{x, y}, or
+#'     matrices, of dimension \code{length(x)} by \code{length(y)}.
+#' @param scalex,scaley scale to be used for the velocity arrows.
+#'     Exactly one of these must be specified.  Arrows that have
+#'     \code{u^2+v^2=1} will have length \code{scalex} along the x
+#'     axis, or \code{scaley} along the y axis, according to which
+#'     argument is given.
+#' @param skip either an integer, or a two-element vector indicating
+#'     the number of points to skip when plotting arrows (for the
+#'     matrix \code{u, v} case). If a single value, the same
+#'     \code{skip} is applied to both the \code{x} and \code{y}
+#'     directions. If a two-element vector, specifies different values
+#'     for the \code{x} and \code{y} directions.
+#' @param length indication of \strong{width} of arrowheads. The
+#'     somewhat confusing name of this argument is a consequence of
+#'     the fact that it is passed to \code{\link{arrows}} for drawing
+#'     arrows.  Note that the present default is smaller than the
+#'     default used by \code{\link{arrows}}.
+#' @param add if \code{TRUE}, the arrows are added to an existing
+#'     plot; otherwise, a new plot is started by calling
+#'     \code{\link{plot}} with \code{x}, \code{y} and \code{type="n"}.
+#'     In other words, the plot will be very basic. In most cases, the
+#'     user will probably want to draw a diagram first, and \code{add}
+#'     the direction field later.
+#' @param type indication of the style of arrow-like indication of the
+#'     direction.
 #' @param col colour of line segments or arrows
-#' @param pch,cex plot character and expansion factor, used for \code{type=1}
+#' @param pch,cex plot character and expansion factor, used for
+#'     \code{type=1}
 #' @param lwd,lty line width and type, used for \code{type=2}
-#' @param debug debugging value; set to a positive integer to get debugging
-#'        information.
+#' @param xlab,ylab \code{x} and \code{y} axis labels
+#' @param debug debugging value; set to a positive integer to get
+#'     debugging information.
+#' @param ... other arguments to be passed to plotting functions
+#'     (e.g. axis labels, etc).
 #'
 #' @return None.
 #'
@@ -2954,25 +2979,68 @@ decodeTime <- function(time, timeFormats, tz="UTC")
 #' plot(c(-1.5, 1.5), c(-1.5, 1.5), xlab="", ylab="", type='n')
 #' drawDirectionField(x=rep(0, 2), y=rep(0, 2), u=c(1, 1), v=c(1, -1), scalex=0.5, add=TRUE,
 #'                    type=2)
-#' @author Dan Kelley
-drawDirectionField <- function(x, y, u, v, scalex, scaley, length=0.05, add=FALSE,
+#'
+#' ## 2D example
+#' x <- seq(-2, 2, 0.1)
+#' y <- x
+#' xx <- expand.grid(x, y)[,1]
+#' yy <- expand.grid(x, y)[,2]
+#' z <- matrix(xx*exp(-xx^2 -yy^2), nrow=length(x))
+#' gz <- grad(z, x, y)
+#' drawDirectionField(x, y, gz$gx, gz$gy, scalex=0.5, type=2, len=0.02)
+#' oceContour(x, y, z, add=TRUE)
+#' @author Dan Kelley and Clark Richards
+drawDirectionField <- function(x, y, u, v, scalex, scaley, skip, length=0.05, add=FALSE,
                                type=1, col=par("fg"), pch=1, cex=par("cex"),
                                lwd=par("lwd"), lty=par("lty"),
-                               debug=getOption("oceDebug"))
+                               xlab='', ylab='',
+                               debug=getOption("oceDebug"),
+                               ...)
 {
     oceDebug(debug, "drawDirectionField(...) {\n", unindent=1)
     if (missing(x) || missing(y) || missing(u) || missing(v))
         stop("must supply x, y, u, and v")
     if ( (missing(scalex) && missing(scaley)) || (!missing(scalex) && !missing(scaley)) )
         stop("either 'scalex' or 'scaley' must be specified (but not both)")
-    if (length(x) != length(y))
-        stop("lengths of x and y must match")
-    if (length(x) != length(u))
-        stop("lengths of x and u must match")
-    if (length(x) != length(v))
-        stop("lengths of x and v must match")
+    if (is.matrix(u) && !is.matrix(v))
+        stop("if 'u' is a matrix, then 'v' must also be a matrix")
+    if (is.matrix(v) && !is.matrix(u))
+        stop("if 'v' is a matrix, then 'u' must also be a matrix")
+    if (is.matrix(u) && is.matrix(v)) {
+        oceDebug(debug, "u, v are matrices")
+        if ( (dim(u)[1] != dim(v)[1]) & (dim(u)[2] != dim(v)[2]) )
+            stop("dimensions of u and v must match")
+        dim <- dim(u)
+        if (length(x) != dim[1] | length(y) != dim[2])
+            stop("lengths of x, y must match dimensions of u, v")
+        if (missing(skip)) {
+            skip <- c(1, 1)
+        } else {
+            if (length(skip) == 1)
+                skip <- rep(skip, 2)
+        }
+        nx <- length(x)
+        ny <- length(y)
+        ix <- seq(1, nx, skip[1])
+        iy <- seq(1, ny, skip[2])
+        xx <- expand.grid(x[ix], y[iy])[,1]
+        yy <- expand.grid(x[ix], y[iy])[,2]
+        uu <- as.vector(u[ix, iy])
+        vv <- as.vector(v[ix, iy])
+    } else {
+        if (length(x) != length(y))
+            stop("lengths of x and y must match")
+        if (length(x) != length(u))
+            stop("lengths of x and u must match")
+        if (length(x) != length(v))
+            stop("lengths of x and v must match")
+        xx <- x
+        yy <- y
+        uu <- u
+        vv <- v
+    }
     if (!add) {
-        plot(x, y, type='n')
+        plot(xx, yy, type='n', xlab=xlab, ylab=ylab, ...)
     }
     usr <- par('usr')
     pin <- par('pin')
@@ -2993,15 +3061,15 @@ drawDirectionField <- function(x, y, u, v, scalex, scaley, length=0.05, add=FALS
     oceDebug(debug, 'vPerY=', vPerY, '\n')
     len <- sqrt( (u/uPerX)^2 + (v/vPerY)^2 )
     ok <- len > 0.0
-    x <- x[ok]
-    y <- y[ok]
-    u <- u[ok]
-    v <- v[ok]
+    xx <- xx[ok]
+    yy <- yy[ok]
+    uu <- uu[ok]
+    vv <- vv[ok]
     if (type == 1) {
-        points(x, y, col=col, pch=pch, cex=cex)
-        segments(x0=x, y0=y, x1=x+u/uPerX, y1=y+v/vPerY, col=col, lwd=lwd, lty=lty)
+        points(xx, yy, col=col, pch=pch, cex=cex)
+        segments(x0=xx, y0=yy, x1=xx+uu/uPerX, y1=yy+vv/vPerY, col=col, lwd=lwd, lty=lty)
     } else if (type == 2) {
-        arrows(x0=x, y0=y, x1=x+u/uPerX, y1=y+v/vPerY, length=length, col=col, lwd=lwd, lty=lty)
+        arrows(x0=xx, y0=yy, x1=xx+uu/uPerX, y1=yy+vv/vPerY, length=length, col=col, lwd=lwd, lty=lty)
     } else {
         stop("unknown value of type ", type)
     }

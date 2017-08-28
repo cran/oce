@@ -997,10 +997,14 @@ predict.tidem <- function(object, newdata, ...)
 #' \sQuote{Details}.
 #' @param longitude,latitude optional location at which prediction is required (ignored if
 #' \code{node} is given).
-#' @param node optional integer specifying which node to look up; if this is given,
-#' then neither \code{latitude} nor \code{longitude} may be given.
-#' @param time times at which prediction is to be made.  If not supplied, this
-#' will be the week starting at the present time, incrementing by 15 minutes.
+#' @param node optional integer relating to a node in the database. If \code{node}
+#' is given, then neither \code{latitude} nor \code{longitude} may be given.
+#' If \code{node} is positive, then specifies indicates the node. If it is negative,
+#' \code{\link{locator}} is called so that the user can click (once) on the map, after
+#' which the node is displayed on the map.
+#' @param time a vector of times at which prediction is to be made.
+#' If not supplied, this will be the week starting at the present time,
+#' incrementing by 15 minutes.
 #' @param basedir directory containing the \code{WebTide} application.
 #' @param region database region, given as a directory name in the WebTide
 #' directory.  For example, \code{h3o} is for Halifax Harbour, \code{nwatl} is
@@ -1026,10 +1030,14 @@ predict.tidem <- function(object, newdata, ...)
 #' If \code{plot} is \code{FALSE}, this value is returned invisibly.
 #'
 #' @source The WebTide software may be downloaded for free at the
-#' Department of Fisheries and Oceans (Canada) website, which in February 2016
-#' was
-#' \code{http://www.bio.gc.ca/science/research-recherche/ocean/webtide/index-en.php},
-#' although this site seems not to be particularly static.
+#' Department of Fisheries and Oceans (Canada) website at
+#' \code{http://www.bio.gc.ca/science/research-recherche/ocean/webtide/index-en.php}
+#' (checked February 2016 and May 2017).
+#'
+#' @return a list containing \code{node}, \code{longitude} and \code{latitude}. If
+#' no node was provided to \code{webtide} then this list will cover the whole
+#' set of nodes in the WebTide model; otherwise, it will be just the node that
+#' was requested.
 #'
 #' @section Caution:
 #' WebTide is not an open-source application, so the present function was
@@ -1037,11 +1045,15 @@ predict.tidem <- function(object, newdata, ...)
 #' Users should be on the lookout for odd results.
 #' @examples
 #' \dontrun{
+#' ## needs WebTide at the system level
 #' library(oce)
-#' lon <- -69.61
-#' lat <- 48.14
-#' prediction <- webtide("predict", longitude=lon, latitude=lat)
-#' mtext(sprintf("prediction at %fN %fE", lat, lon), line=0.75, side=3)
+#' ## 1. prediction at Halifax NS
+#' longitude <- -63.57
+#' latitude <- 44.65
+#' prediction <- webtide("predict", longitude=longitude, latitude=latitude)
+#' mtext(sprintf("prediction at %fN %fE", latitude, longitude), line=0.75, side=3)
+#' ## 2. map
+#' webtide(lon=-63.57,lat=44.65,xlim=c(-64,-63),ylim=c(43.0,46))
 #' }
 #' @author Dan Kelley
 webtide <- function(action=c("map", "predict"),
@@ -1051,6 +1063,9 @@ webtide <- function(action=c("map", "predict"),
                     plot=TRUE, tformat, debug=getOption("oceDebug"), ...)
 {
     action <- match.arg(action)
+    nodeGiven <- !missing(node)
+    longitudeGiven <- !missing(longitude)
+    latitudeGiven <- !missing(latitude)
     path <- paste(basedir, "/data/", region, sep="")
 
     ## 2016-02-03: it seems that there are several possibilities for this filename.
@@ -1081,20 +1096,32 @@ webtide <- function(action=c("map", "predict"),
             ##data(best, envir=environment(), debug=debug-1)
             ##coastline <- get(best)
             lines(coastlineWorld[['longitude']], coastlineWorld[['latitude']])
-            if (!missing(node) && node < 0 && interactive()) {
+            ## use lon and lat, if node not given
+            if (!nodeGiven && longitudeGiven && latitudeGiven) {
+                closest <- which.min(geodDist(triangles$longitude, triangles$latitude, longitude, latitude))
+                node <- triangles$triangle[closest]
+            }
+            if (nodeGiven && node < 0 && interactive()) {
                 point <- locator(1)
                 node <- which.min(geodDist(triangles$longitude, triangles$latitude, point$x, point$y))
             }
-            if (is.finite(node)) {
-                longitude <- triangles$longitude[node]
-                latitude <- triangles$latitude[node]
-                points(longitude, latitude, pch=20, cex=2, col='blue')
-                legend("topleft", pch=20, pt.cex=2, cex=3/4, col='blue', bg='white',
-                       legend=sprintf("node %.0f %.3fN %.3fE", node, latitude, longitude))
+            if (missing(node)) {
+                node <- triangles$number
+                longitude <- triangles$longitude
+                latitude <- triangles$latitude
+            } else {
+                if (is.finite(node)) {
+                    node <- triangles$triangle[node]
+                    longitude <- triangles$longitude[node]
+                    latitude <- triangles$latitude[node]
+                    points(longitude, latitude, pch=20, cex=2, col='blue')
+                    legend("topleft", pch=20, pt.cex=2, cex=3/4, col='blue', bg='white',
+                           legend=sprintf("node %.0f %.3fN %.3fE", node, latitude, longitude))
+                }
             }
             return(invisible(list(node=node, latitude=latitude, longitude=longitude)))
         } else  {
-            node <- seq_along(triangles$longitude)
+            node <- triangles$triangle
             longitude <- triangles$longitude
             latitude <- triangles$latitude
             return(list(node=node, latitude=latitude, longitude=longitude))

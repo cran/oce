@@ -16,7 +16,7 @@ sides 1 and 2 will be used (i.e. bottom and left-hand sides).}
 
 \item{longitude}{vector of longitudes to indicate.  If not provided, and if
 a grid has already been drawn, then the labels will be at the
-interesections of the grid lines with the plotting box.}
+intersections of the grid lines with the plotting box.}
 
 \item{latitude}{vector of latitudes to indicate.  If not provided, and if a
 grid has already been drawn, then the labels will be at the
@@ -95,7 +95,7 @@ Other functions related to maps: \code{\link{lonlat2map}},
   \code{\link{mapPolygon}}, \code{\link{mapScalebar}},
   \code{\link{mapText}}, \code{\link{mapTissot}},
   \code{\link{oceCRS}}, \code{\link{shiftLongitude}},
-  \code{\link{utm2lonlat}}
+  \code{\link{usrLonLat}}, \code{\link{utm2lonlat}}
 }
 \author{
 Dan Kelley

@@ -6,7 +6,7 @@
 \usage{
 read.adv.sontek.adr(file, from = 1, to, by = 1, tz = getOption("oceTz"),
   header = TRUE, longitude = NA, latitude = NA,
-  debug = getOption("oceDebug"), monitor = FALSE, processingLog)
+  debug = getOption("oceDebug"), monitor = FALSE, processingLog = NULL)
 }
 \arguments{
 \item{file}{a connection or a character string giving the name of the file
@@ -222,7 +222,7 @@ object returned by \code{read.adv.nortek}, these are stored in the
 \code{data} slot as \code{IMUdeltaAngleX}, \code{IMUdeltaAngleY},
 \code{IMUdeltaAngleZ}, \code{IMUdeltaVelocityX}, \code{IMUdeltaVelocityY},
 \code{IMUdeltaVelocityZ}, and \code{IMUrotation}, all vectors except the
-last, which is a 3D array. In adition to these, \code{IMUtimestamp} is a
+last, which is a 3D array. In addition to these, \code{IMUtimestamp} is a
 time-stamp, which is not defined in the Nortek documents but seems, from IMU
 documents [5], to be defined based on a clock that ticks once per 16
 microseconds. Caution may be required in dealing with this timestamp, since

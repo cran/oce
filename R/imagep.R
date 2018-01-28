@@ -602,7 +602,7 @@ drawPalette <- function(zlim, zlab="",
 #'         in the horizontal or vertical direction (or both) if the length of the
 #'         corresponding edge of the \code{z} matrix exceeds 800. (This also creates
 #'         a warning message.) The decimation
-#'         factor is computed as the integet just below the ratio of \code{z} dimension
+#'         factor is computed as the integer just below the ratio of \code{z} dimension
 #'         to 400. Thus, no decimation is done if the dimension is less than 800,
 #'         but if the dimension s between 800 and 1199, only every second grid
 #'         point is mapped to a pixel in the image.  \strong{Case 3.}
@@ -656,7 +656,7 @@ drawPalette <- function(zlim, zlab="",
 #' @param useRaster A logical value passed to \code{\link{image}}, in cases
 #'        where \code{filledContour} is \code{FALSE}. Setting \code{useRaster=TRUE}
 #'        can alleviate some anti-aliasing effects on some plot devices;
-#'        see the documentaiton for \code{\link{image}}.
+#'        see the documentation for \code{\link{image}}.
 #' @param  mgp A 3-element numerical vector to use for \code{par(mgp)}, and
 #'         also for \code{par(mar)}, computed from this.  The default is
 #'         tighter than the R default, in order to use more space for the
@@ -676,8 +676,6 @@ drawPalette <- function(zlim, zlab="",
 #'        mean latitude in \code{x}, as a way to reduce geographical distortion.
 #'        Otherwise, if \code{asp} is not \code{NA}, then it is used directly.
 #' @param  cex Size of labels on axes and palette; see \code{\link[graphics]{par}}("cex").
-#'
-#' @template adornTemplate
 #'
 #' @param  axes Logical, set \code{TRUE} to get axes on the main image.
 #' @param  main Title for plot.
@@ -776,7 +774,6 @@ imagep <- function(x, y, z,
                    xaxs="i", yaxs="i",
                    asp=NA,
                    cex=par("cex"),
-                   adorn=NULL,
                    axes=TRUE,
                    main="",
                    axisPalette,
@@ -784,7 +781,11 @@ imagep <- function(x, y, z,
                    debug=getOption("oceDebug"),
                    ...)
 {
+
+    if ("adorn" %in% names(list(...)))
+        warning("the 'adorn' argument was removed in November 2017")
     zlabPosition <- match.arg(zlabPosition)
+
     oceDebug(debug, "imagep(x, y, z, ",
              argShow(cex),
              argShow(flipy),
@@ -814,11 +815,27 @@ imagep <- function(x, y, z,
             } else {
                 breaks <- colormap$breaks
                 col <- colormap$col
+                zlim <- colormap$zlim
+                ## FIXME: need to check zclip here too
+                zclip <- colormap$zclip
+            }
+            if (!zclip) {
+                oceDebug(debug, "using zlim[1:2]=c(", zlim[1], ",", zlim[2], ") for out-of-range values\n")
+                z[z < zlim[1]] <- zlim[1]
+                z[z > zlim[2]] <- zlim[2]
+            } else {
+              oceDebug(debug, "using missingColour for out-of-range values")
+                z[z < zlim[1]] <- NA
+                z[z > zlim[2]] <- NA
             }
             oceDebug(debug, "decimate: ", paste(decimate, collapse=" "), " (before calculation)\n")
             if (is.logical(decimate)) {
-                decimate <- as.integer(dim(z) / 400)
-                decimate <- ifelse(decimate < 1, 1, decimate)
+                if (decimate) {
+                    decimate <- as.integer(dim(z) / 400)
+                    decimate <- ifelse(decimate < 1, 1, decimate)
+                } else {
+                    decimate <- c(1, 1)
+                }
             } else {
                 decimate <- rep(as.numeric(decimate), length.out=2)
             }
@@ -827,19 +844,22 @@ imagep <- function(x, y, z,
             iy <- seq(1L, length(y), by=decimate[2])
             if (is.function(col))
                 col <- col(n=length(breaks)-1)
-            image(x[ix], y[iy], z[ix, iy], breaks=breaks, col=col, add=TRUE, useRaster=useRaster)
+            image(x[ix], y[iy], z[ix, iy], breaks=breaks, col=col, useRaster=useRaster, #why useRaster?
+                  add=TRUE)
             return(invisible(list(xat=NULL, yat=NULL, decimate=decimate)))
         }
     } else {
         stop("'add' must be a logical value")
     }
 
-    if (!is.null(adorn))
-        warning("In imagep() : the 'adorn' argument is defunct, and will be removed soon", call.=FALSE)
     xlimGiven <- !missing(xlim)
     ylimGiven <- !missing(ylim)
     zlimGiven <- !missing(zlim) && !is.null(zlim) # latter is used by plot,adp-method
-    xlimGiven <- !missing(xlim)
+    ## Guard against poor setup
+    if (xlimGiven && length(xlim) != 2) stop("length of xlim must be 2")
+    if (ylimGiven && length(ylim) != 2) stop("length of ylim must be 2")
+    if (zlimGiven && length(zlim) != 2) stop("length of zlim must be 2")
+
     if (zlimGiven && is.character(zlim)) {
         if ("symmetric" == zlim) {
             zlim <- c(-1, 1) * max(abs(z), na.rm=TRUE)
@@ -1290,11 +1310,6 @@ imagep <- function(x, y, z,
     }
     if (zlabPosition == "top")
         mtext(zlab, side=3, cex=par("cex"), adj=1, line=1/8)
-    if (!missing(adorn)) {
-        t <- try(eval.parent(adorn), silent=!TRUE)
-        if (class(t) == "try-error")
-            warning("cannot evaluate adorn='", adorn, "'")
-    }
     par(cex=ocex)
     oceDebug(debug, "par('mai')=c(",
              paste(format(par('mai'), digits=2), collapse=","), "); par('mar')=c(",

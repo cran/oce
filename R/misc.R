@@ -1,5 +1,15 @@
 ## vim:textwidth=80:expandtab:shiftwidth=4:softtabstop=4
 
+abbreviateVector <- function(x)
+{
+    if (1 >= length(x)) {
+        return(x)
+    } else {
+        ud <- unique(diff(x))
+        if (1 == length(ud) && 1 == ud) return(paste(x[1], ":", tail(x, 1), sep="")) else return(x)
+    }
+}
+
 shortenTimeString <- function(t, debug=getOption("oceDebug"))
 {
     tc <- as.character(t)
@@ -1043,11 +1053,18 @@ errorbars <- function(x, y, xe, ye, percent=FALSE, style=0, length=0.025, ...)
 }
 
 
-#' Find indices of times in an ordered vector
+#' Find indices of times in an ordered vector [deprecated]
+#'
+#' \strong{WARNING:} This function will be removed soon;
+#' see \link{oce-deprecated}.  The replacement is trivial:
+#' just change a call like e.g. \code{findInOrdered(x,f)}
+#' to \code{\link{findInterval}(f,x)} (which is what the function
+#' started doing, on 2017-09-07, after a major bug was found).
 #'
 #' The indices point to the largest items in \code{x} that are less than or
-#' equal the values in \code{f}.  The method uses a bisection search, so the
-#' time taken is proportional to \code{length(f) * log2(length(x))}.
+#' equal the values in \code{f}.  This works by simply calling
+#' \code{\link{findInterval}(x=f, vec=x)}, and users are probably
+#' better off using \code{\link{findInterval}} directly.
 #'
 #' @param x a numeric vector, in increasing order by value.
 #' @param f a numeric vector of items whose indices are sought.
@@ -1058,11 +1075,9 @@ errorbars <- function(x, y, xe, ye, percent=FALSE, style=0, length=0.025, ...)
 #' findInOrdered(seq(0, 10, 1), c(1.2, 7.3))
 findInOrdered <- function(x, f)
 {
-    if (missing(x))
-        stop("'x' missing")
-    if (missing(f))
-        stop("'f' missing")
-    .Call("bisect", x, f)
+    .Deprecated("mapGrid",
+                msg="findInOrdered(f,x) will be removed soon; use findInterval(f,x) instead. See ?'oce-deprecated'.")
+    findInterval(f, x)
 }
 
 
@@ -2758,7 +2773,7 @@ oce.filter <- oceFilter
 #' @author Dan Kelley
 #' @seealso See \code{\link{wind}}.
 #' @references S. E.  Koch and M.  DesJardins and P. J. Kocin, 1983.  ``An
-#' interactive Barnes objective map anlaysis scheme for use with satellite and
+#' interactive Barnes objective map analysis scheme for use with satellite and
 #' conventional data,'' \emph{J.  Climate Appl.  Met.}, vol 22, p. 1487-1503.
 #' @examples
 #'
@@ -3099,7 +3114,7 @@ addColumn <- function (x, data, name)
 #' @param x an \code{oce} object containing a \code{data} element.
 #' @param by an indication of the subsampling.  If this is a single number,
 #' then it indicates the spacing between elements of \code{x} that are
-#' selected.  If it is two numbers (a condition only applicabile if \code{x} is
+#' selected.  If it is two numbers (a condition only applicable if \code{x} is
 #' an \code{echosounder} object, at present), then the first number indicates
 #' the time spacing and the second indicates the depth spacing.
 #' @param to Indices at which to subsample.  If given, this over-rides
@@ -3487,7 +3502,7 @@ byteToBinary <- function(x, endian)
 #' also recommending that the \eqn{\pm}{+/-} notation be avoided altogether.
 #'
 #' The \code{parentheses} notation is often called the compact notation.  In
-#' it, the digits in parenthese indicate the uncertainty in the corresponding
+#' it, the digits in parentheses indicate the uncertainty in the corresponding
 #' digits to their left, e.g. 12.34(3) means that the last digit (4) has an
 #' uncertainty of 3.  However, as with the \eqn{\pm}{+/-} notation, different
 #' authorities offer different advice on defining this uncertainty; Mills et
@@ -4079,14 +4094,14 @@ showMetadataItem <- function(object, name, label="", postlabel="", isdate=FALSE,
 #' \code{x*seq_along(y)}.
 #' @param type Flag indicating the desired return value (see \dQuote{Value}).
 #' @param xmin,xmax Optional numbers indicating the range of the integration.
-#' These values may be used to restrict the range of integration, or to 
+#' These values may be used to restrict the range of integration, or to
 #' extend it; in either case, \code{\link{approx}} with \code{rule=2}
 #' is used to create new x and y vectors.
 #'
 #' @return If \code{type="A"} (the default), a single value is returned,
 #' containing the estimate of the integral of \code{y=y(x)}.  If
 #' \code{type="dA"}, a numeric vector of the same length as \code{x}, of which
-#' the first element is zer0, the second element is the integral between
+#' the first element is zero, the second element is the integral between
 #' \code{x[1]} and \code{x[2]}, etc.  If \code{type="cA"}, the result is the
 #' cumulative sum (as in \code{\link{cumsum}}) of the values that would be
 #' returned for \code{type="dA"}.  See \dQuote{Examples}.
@@ -4190,7 +4205,13 @@ grad <- function(h, x, y)
     if (missing(y)) stop("must give y")
     if (length(x) != nrow(h)) stop("length of x (", length(x), ") must equal number of rows in h (", nrow(h), ")")
     if (length(y) != ncol(h)) stop("length of y (", length(y), ") must equal number of cols in h (", ncol(h), ")")
-    .Call("gradient", h, as.double(x), as.double(y))
+    ## ensure that all three args are double, so the C code won't misinterpret
+    dim <- dim(h)
+    h <- as.double(h)
+    dim(h) <- dim
+    x <- as.double(x)
+    y <- as.double(y)
+    .Call("gradient", h, x, y)
 }
 
 

@@ -3,6 +3,7 @@
 \docType{methods}
 \name{plot,coastline-method}
 \alias{plot,coastline-method}
+\alias{plot.coastline}
 \title{Plot a Coastline}
 \usage{
 \S4method{plot}{coastline}(x, xlab = "", ylab = "", showHemi = TRUE, asp,
@@ -68,7 +69,7 @@ coastline produces spurious horizontal lines owing to islands crossing the
 plot edges (a problem that plagues map projections).  If \code{projection}
 is not set, a Mercator projection is used for latitudes below about 70
 degrees, as if \code{projection="+proj=merc"} had been supplied, or a
-Stereopoloar one is used as if \code{projection="+proj=stere"}.  Otherwise,
+Stereopolar one is used as if \code{projection="+proj=stere"}.  Otherwise,
 \code{projection} must be a character string identifying a projection
 accepted by \code{\link{mapPlot}}.}
 
@@ -120,7 +121,10 @@ the unit, and negative signs indicating the southern and western
 hemispheres.  If \code{geographical=1}, the signs are dropped, with axis
 values being in decreasing order within the southern and western
 hemispheres.  If \code{geographical=2}, the signs are dropped and the axes
-are labelled with degrees, minutes and seconds, as appropriate.}
+are labelled with degrees, minutes and seconds, as appropriate, and
+hemispheres are indicated with letters. If \code{geographical=3}, things
+are the same as for \code{geographical=2}, but the hemisphere indication
+is omitted.}
 
 \item{longitudelim}{this and \code{latitudelim} provide a second way to
 suggest plot ranges. Note that these may not be supplied if

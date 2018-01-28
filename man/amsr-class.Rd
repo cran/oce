@@ -8,7 +8,7 @@
 The Advanced Microwave Scanning Radiometer (AMSR-2) is in current operation on
 the Japan Aerospace Exploration Agency (JAXA) GCOM-W1 space craft, launched in
 May 2012. Data are processed by Remote Sensing Systems. The satellite
-completes an ascending and descending pass during local daytime and nightime
+completes an ascending and descending pass during local daytime and nighttime
 hours respectively. Each daily file contains 7 daytime and 7 nighttime
 maps of variables named as follows within the \code{data}
 slot of amsr objects: \code{timeDay},
@@ -27,7 +27,7 @@ form or in physical units; \code{\link{plot,amsr-method}}, and
 }
 \references{
 1. Information on the satellite, how to cite the data, etc. is
-provided at \url{http://www.remss.com/missions/amsr}.
+provided at \url{http://www.remss.com/missions/amsr/}.
 
 2. A simple interface for viewing and downloading data is at
 \url{http://images.remss.com/amsr/amsr2_data_daily.html}.

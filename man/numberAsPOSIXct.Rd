@@ -36,7 +36,8 @@ MathWorks [1] calls ``January 0, 0000'' (i.e.  \code{ISOdatetime(0, 1, 1, 0,
 \item \code{"gps"} employs the GPS convention. For this, \code{t} is a
 two-column matrix, with the first column being the the GPS "week"
 (referenced to 1999-08-22) and the second being the GPS "second" (i.e. the
-second within the week).
+second within the week). Since the GPS satellites do not handle leap
+seconds, the R-defined \code{.leap.seconds} is used for corrections.
 
 \item \code{"argo"} employs Argo times, measured in days since the start of
 the year 1900.
@@ -66,7 +67,7 @@ convention used by Sea-Bird CTD software).
 
 numberAsPOSIXct(0)                     # unix time 0
 numberAsPOSIXct(1, type="matlab")      # matlab time 1
-numberAsPOSIXct(cbind(566, 345615), type="gps") # Canada Day
+numberAsPOSIXct(cbind(566, 345615), type="gps") # Canada Day, zero hour UTC
 numberAsPOSIXct(cbind(2013, 0), type="yearday") # start of 2013
 
 }
@@ -74,7 +75,7 @@ numberAsPOSIXct(cbind(2013, 0), type="yearday") # start of 2013
 [1] Matlab times:
 \url{http://www.mathworks.com/help/matlab/ref/datenum.html}
 
-[2] NCEP times: \url{http://www.esrl.noaa.gov/psd/data/gridded/faq.html#3}
+[2] NCEP times: \url{https://www.esrl.noaa.gov/psd/data/gridded/faq.html#3}
 
 [3] problem with NCEP times:
 \url{https://github.com/dankelley/oce/issues/738}

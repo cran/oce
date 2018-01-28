@@ -7,7 +7,7 @@
 shiftLongitude(longitudes)
 }
 \arguments{
-\item{longitudes}{a numericl vector of longitudes}
+\item{longitudes}{a numerical vector of longitudes}
 }
 \value{
 vector of longitudes, shifted to the desired range.
@@ -31,5 +31,6 @@ Other functions related to maps: \code{\link{lonlat2map}},
   \code{\link{mapPlot}}, \code{\link{mapPoints}},
   \code{\link{mapPolygon}}, \code{\link{mapScalebar}},
   \code{\link{mapText}}, \code{\link{mapTissot}},
-  \code{\link{oceCRS}}, \code{\link{utm2lonlat}}
+  \code{\link{oceCRS}}, \code{\link{usrLonLat}},
+  \code{\link{utm2lonlat}}
 }

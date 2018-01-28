@@ -11,8 +11,8 @@ imagep(x, y, z, xlim, ylim, zlim, zclip = FALSE, flipy = FALSE, xlab = "",
   tformat, drawTimeRange = getOption("oceDrawTimeRange"),
   filledContour = FALSE, missingColor = NULL, useRaster,
   mgp = getOption("oceMgp"), mar, mai.palette, xaxs = "i", yaxs = "i",
-  asp = NA, cex = par("cex"), adorn = NULL, axes = TRUE, main = "",
-  axisPalette, add = FALSE, debug = getOption("oceDebug"), ...)
+  asp = NA, cex = par("cex"), axes = TRUE, main = "", axisPalette,
+  add = FALSE, debug = getOption("oceDebug"), ...)
 }
 \arguments{
 \item{x, y}{These have different meanings in different modes of operation.
@@ -79,7 +79,7 @@ If \code{decimate=TRUE}, then decimation will be done
 in the horizontal or vertical direction (or both) if the length of the
 corresponding edge of the \code{z} matrix exceeds 800. (This also creates
 a warning message.) The decimation
-factor is computed as the integet just below the ratio of \code{z} dimension
+factor is computed as the integer just below the ratio of \code{z} dimension
 to 400. Thus, no decimation is done if the dimension is less than 800,
 but if the dimension s between 800 and 1199, only every second grid
 point is mapped to a pixel in the image.  \strong{Case 3.}
@@ -146,7 +146,7 @@ contours to plot the image.}
 \item{useRaster}{A logical value passed to \code{\link{image}}, in cases
 where \code{filledContour} is \code{FALSE}. Setting \code{useRaster=TRUE}
 can alleviate some anti-aliasing effects on some plot devices;
-see the documentaiton for \code{\link{image}}.}
+see the documentation for \code{\link{image}}.}
 
 \item{mgp}{A 3-element numerical vector to use for \code{par(mgp)}, and
 also for \code{par(mar)}, computed from this.  The default is
@@ -173,24 +173,6 @@ mean latitude in \code{x}, as a way to reduce geographical distortion.
 Otherwise, if \code{asp} is not \code{NA}, then it is used directly.}
 
 \item{cex}{Size of labels on axes and palette; see \code{\link[graphics]{par}}("cex").}
-
-\item{adorn}{(\strong{Defunct})
-An \code{\link{expression}} or vector of expressions that contain
-R code that is to be executed immediately after each panel of the plot.
-If the number of expressions matches the number of panels, then the 
-expressions are used for the corresponding panels; otherwise, the
-expression list is extended to match the number of panels (i.e.
-to obtain \code{length(which)} elements). Note that \code{adorn}
-is a dangerous argument, because if the expressions contained
-therein set up local storage, there is a chance of entirely
-disrupting the plotting. \strong{For this reason, \code{adorn} was
-marked as defunct in June 2016, and will be removed entirely 
-after the July CRAN release.} Users with existing code that uses
-\code{adorn} should simply plot the panels individually, and
-use conventional R functions, e.g. \code{\link{lines}} etc.,
-after each panel, to achieve the desired effect.  (See
-\code{\link{oce-defunct}} for notes on other deprecated or
-defunct \code{oce} features.)}
 
 \item{axes}{Logical, set \code{TRUE} to get axes on the main image.}
 

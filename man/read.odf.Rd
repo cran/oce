@@ -14,7 +14,7 @@ data names to resultant variable names.  For example,
 \code{columns=list(salinity=list(name="salt", unit=list(unit=expression(), scale="PSS-78"))}
 states that a short-name of \code{"salt"} represents salinity, and that the unit is
 as indicated. This is passed to \code{\link{cnvName2oceName}} or \code{\link{ODFNames2oceNames}},
-as appropriate, and takes precendence over the lookup table in that function.}
+as appropriate, and takes precedence over the lookup table in that function.}
 
 \item{debug}{an integer specifying whether debugging information is
 to be printed during the processing. This is a general parameter that
@@ -80,9 +80,12 @@ points(odf[['salinity']][bad],odf[['temperature']][bad],col='red',pch=20)
 
 }
 \references{
-Anthony W. Isenor and David Kellow, 2011. ODF Format Specification
+[1] Anthony W. Isenor and David Kellow, 2011. ODF Format Specification
 Version 2.0. (This is a .doc file downloaded from a now-forgotten URL by Dan Kelley,
 in June 2011.)
+
+[2] The St Lawrence Global Observatory website has information on ODF format at
+\url{https://slgo.ca/app-sgdo/en/docs_reference/format_odf.html}
 }
 \seealso{
 \code{\link{ODF2oce}} will be an alternative to this, once (or perhaps if) a \code{ODF}

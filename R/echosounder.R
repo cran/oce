@@ -53,7 +53,7 @@
 #'
 #' \emph{Accessing values.} Data may be accessed as e.g.
 #' \code{echosounder[["time"]]}, \code{echosounder[["depth"]]},
-#' \code{echosounder[["a"]]}, etc.  Items in \code{metadata} must be specifield
+#' \code{echosounder[["a"]]}, etc.  Items in \code{metadata} must be specified
 #' by full name, but those in \code{data} may be abbreviated, so long as the
 #' abbreviation is unique. In addition to the actual data, some derived fields
 #' are also available: \code{echosounder[["distance"]]} calls
@@ -88,7 +88,7 @@ setClass("echosounder", contains="oce")
 #'
 #' @description
 #' This is degraded subsample of measurements that were made with a Biosonics
-#' scientific echousounder, as part of the St Lawrence Internal Wave Experiment
+#' scientific echosounder, as part of the St Lawrence Internal Wave Experiment
 #' (SLEIWEX).
 #'
 #' @name echosounder
@@ -146,7 +146,7 @@ setMethod(f="summary",
               cat(sprintf("* Blanked samples:     %d\n", object[["blankedSamples"]]))
               cat(sprintf("* Pings in file:       %d\n", object[["pingsInFile"]]))
               cat(sprintf("* Samples per ping:    %d\n", object[["samplesPerPing"]]))
-              callNextMethod()         # summary
+              invisible(callNextMethod()) # summary
           })
 
 #' @title Extract Parts of an Echosounder Object
@@ -331,7 +331,7 @@ setMethod(f="subset",
 #' 0.1dB(counts/uPa)
 #' @param transmitPower transmit power reduction factor, in dB, denoted
 #' \code{tpow} in [1 p10], where it is in units 0.1 dB.
-#' @param pulseDuration duration of transmited pulse in us
+#' @param pulseDuration duration of transmitted pulse in us
 #' @param beamwidthX x-axis -3dB one-way beamwidth in deg, denoted \code{bwx}
 #' in [1 p16], where the unit is 0.2 deg
 #' @param beamwidthY y-axis -3dB one-way beamwidth in deg, denoted \code{bwx}
@@ -417,7 +417,7 @@ findBottom <- function(x, ignore=5, clean=despike)
 #'
 #' @description
 #' Plot echosounder data.
-#' Simple linear approximation is used when a \code{newx} value is specifie
+#' Simple linear approximation is used when a \code{newx} value is specified
 #' with the \code{which=2} method, but arguably a gridding method should be
 #' used, and this may be added in the future.
 #'
@@ -477,8 +477,6 @@ findBottom <- function(x, ignore=5, clean=despike)
 #' @param coastline coastline to use for maps; ignored unless \code{which=3} or
 #' \code{which="map"}.
 #'
-#' @template adornTemplate
-#'
 #' @param mgp 3-element numerical vector to use for \code{par(mgp)}, and also
 #' for \code{par(mar)}, computed from this.  The default is tighter than the R
 #' default, in order to use more space for the data and less for the axes.
@@ -499,6 +497,7 @@ findBottom <- function(x, ignore=5, clean=despike)
 #' plot(echosounder, which=c(1,2), drawBottom=TRUE)
 #' }
 #' @family things related to \code{echosounder} data
+#' @aliases plot.echosounder
 setMethod(f="plot",
           signature=signature("echosounder"),
           definition=function(x, which = 1, # 1=z-t section 2=dist-t section 3=map
@@ -511,7 +510,6 @@ setMethod(f="plot",
                               drawBottom, ignore=5,
                               drawTimeRange=FALSE, drawPalette=TRUE,
                               radius, coastline,
-                              adorn=NULL,
                               mgp=getOption("oceMgp"),
                               mar=c(mgp[1]+1, mgp[1]+1, mgp[1]+1, mgp[1]+1),
                               atTop, labelsTop,
@@ -523,17 +521,12 @@ setMethod(f="plot",
               res <- list(xat=NULL, yat=NULL)
               dotsNames <- names(dots)
               oceDebug(debug, "plot() { # for echosounder\n", unindent=1)
-              if (!is.null(adorn))
-                  warning("In plot() : the 'adorn' argument is defunct, and will be removed soon", call.=FALSE)
+              if ("adorn" %in% names(list(...)))
+                  warning("In plot,echosounder-method() : the 'adorn' argument was removed in November 2017", call.=FALSE)
               opar <- par(no.readonly = TRUE)
               lw <- length(which)
               if (length(beam) < lw)
                   beam <- rep(beam, lw)
-              adorn.length <- length(adorn)
-              if (adorn.length == 1) {
-                  adorn <- rep(adorn, lw)
-                  adorn.length <- lw
-              }
               opar <- par(no.readonly = TRUE)
               par(mgp=mgp, mar=mar)
               if (lw > 1) {
@@ -714,11 +707,6 @@ setMethod(f="plot",
                       }
                       lines(lon, lat, col=if (!is.function(col)) col else "black", lwd=lwd)
                   }
-                  if (w <= adorn.length && nchar(adorn[w]) > 0) {
-                      t <- try(eval(adorn[w]), silent=TRUE)
-                      if (class(t) == "try-error")
-                          warning("cannot evaluate adorn[", w, "]")
-                  }
               }
               oceDebug(debug, "} # plot.echosounder()\n", unindent=1)
               invisible(res)
@@ -750,7 +738,7 @@ setMethod(f="plot",
 #' are described in the documentation for the object
 #' \code{\link{echosounder-class}}.
 #' @section Bugs: Only the amplitude information (in counts) is determined.  A
-#' future version of this funciton may provide conversion to dB, etc.  The
+#' future version of this function may provide conversion to dB, etc.  The
 #' handling of dual-beam and split-beam files is limited.  In the dual-beam
 #' cse, only the wide beam signal is processed (I think ... it could be the
 #' narrow beam, actually, given the confusing endian tricks being played).  In
@@ -760,7 +748,7 @@ setMethod(f="plot",
 #' @seealso The documentation for \code{\link{echosounder-class}} explains the
 #' structure of \code{ctd} objects, and also outlines the other functions
 #' dealing with them.
-#' @references Various echousounder instruments provided by BioSonics are
+#' @references Various echosounder instruments provided by BioSonics are
 #' described at the company website, \url{http://www.biosonicsinc.com/}.  The
 #' document listed as [1] below was provided to the author of this function in
 #' November 2011, which suggests that the data format was not changed since

@@ -215,7 +215,7 @@ decodeHeaderRDI <- function(buf, debug=getOption("oceDebug"), tz=getOption("oceT
     ##tpp.seconds <- readBin(FLD[24], "integer", n=1, size=1)
     ##tpp.hundredths <- readBin(FLD[25], "integer", n=1, size=1)
     coordTransform <- byteToBinary(FLD[26], endian="big")
-    bits <- substr(byteToBinary(FLD[26], endian="big"), 4, 5)    
+    bits <- substr(byteToBinary(FLD[26], endian="big"), 4, 5)
     originalCoordinate <- "???"
     if (bits == "00") originalCoordinate <- "beam"
     else if (bits == "01") originalCoordinate <- "xyz"
@@ -308,7 +308,7 @@ decodeHeaderRDI <- function(buf, debug=getOption("oceDebug"), tz=getOption("oceT
         ## also teledyne2014ostm page 144 says could be Surveyor or Observer
     } else {
         instrumentSubtype <- "unknown"
-        ## FIXME: I think this is a poor way to determine the intrument type. Why do we even try?
+        ## FIXME: I think this is a poor way to determine the instrument type. Why do we even try?
         ##> warning("unexpected length ", FLDLength, " of fixed-leader-data header; expecting 50 for
         ##>         'surveyor/observor' or 59 for 'workhorse'.")
     }
@@ -454,7 +454,7 @@ decodeHeaderRDI <- function(buf, debug=getOption("oceDebug"), tz=getOption("oceT
 #' not a format that R supports. These velocities become 8-byte (numeric) values
 #' in R. Thus, the R object created by \code{read.adp.rdi} will require more memory
 #' than that of the data file. A scale factor can be estimated by ignoring
-#' vector quanties (e.g. time, which has just one value per profile) and concentrating on matrix properties
+#' vector quantities (e.g. time, which has just one value per profile) and concentrating on matrix properties
 #' such as velocity, backscatter, and correlation. These three elements have equal dimensions.
 #' Thus, each 4-byte slide in the data file (2 bytes + 1 byte + 1 byte)
 #' corresponds to 10 bytes in the object (8 bytes + 1 byte + 1 byte).
@@ -468,7 +468,7 @@ decodeHeaderRDI <- function(buf, debug=getOption("oceDebug"), tz=getOption("oceT
 #' (e.g. for call-by-value in function evaluation), \code{read.adp.rdi} uses a safety
 #' factor in its calculation of when to auto-decimate a file. This factor is set to 3,
 #' based partly on the developers' experience with datasets in their possession.
-#' Multiplied by the previously stated safety factor of 3, 
+#' Multiplied by the previously stated safety factor of 3,
 #' this suggests that the 2 GB limit on R objects corresponds to approximately a
 #' 222 MB limit on file size. In the present version of \code{read.adp.rdi}, this
 #' value is lowered to 200 MB for simplicity. Larger files are considered to be "big",
@@ -477,7 +477,7 @@ decodeHeaderRDI <- function(buf, debug=getOption("oceDebug"), tz=getOption("oceT
 #' The decimation procedure has two cases.
 #' \enumerate{
 #' \item \emph{Case 1.} If \code{from=1} and
-#' \code{to=0} (or if neither \code{from} or \code{to} is given), then the 
+#' \code{to=0} (or if neither \code{from} or \code{to} is given), then the
 #' intention is to process the full span of the data.  If the input file is
 #' under 200 MB, then \code{by} defaults to 1, so that all profiles are read.
 #' For larger files, \code{by} is set to the \code{\link{ceiling}} of the
@@ -1572,6 +1572,58 @@ read.adp.rdi <- function(file, from, to, by, tz=getOption("oceTz"),
                br[br == 0.0] <- NA    # clean up (not sure if needed)
                res@data <- list(v=v, q=q, a=a, g=g,
                                 br=br, bv=bv,
+                                distance=seq(bin1Distance, by=cellSize, length.out=numberOfCells),
+                                time=time,
+                                pressure=pressure,
+                                temperature=temperature,
+                                salinity=salinity,
+                                depth=depth,
+                                soundSpeed=soundSpeed,
+                                heading=heading,
+                                pitch=pitch,
+                                roll=roll,
+                                headingStd=headingStd,
+                                pitchStd=pitchStd,
+                                rollStd=rollStd,
+                                pressureStd=pressureStd,
+                                xmitCurrent=xmitCurrent,
+                                xmitVoltage=xmitVoltage,
+                                ambientTemp=ambientTemp,
+                                pressurePlus=pressurePlus,
+                                pressureMinus=pressureMinus,
+                                attitudeTemp=attitudeTemp,
+                                attitude=attitude,
+                                contaminationSensor=contaminationSensor,
+                                ## Next are as described starting on p77 of VmDas_Users_Guide_May12.pdf
+                                avgSpeed=avgSpeed,
+                                avgMagnitudeVelocityEast=avgMagnitudeVelocityEast,
+                                avgMagnitudeVelocityNorth=avgMagnitudeVelocityNorth,
+                                avgTrackMagnetic=avgTrackMagnetic,
+                                avgTrackTrue=avgTrackTrue,
+                                avgTrueVelocityEast=avgTrueVelocityEast,
+                                avgTrueVelocityNorth=avgTrueVelocityNorth,
+                                directionMadeGood=directionMadeGood,
+                                firstLatitude=firstLatitude,
+                                firstLongitude=firstLongitude,
+                                firstTime=firstTime,
+                                lastLatitude=lastLatitude,
+                                lastLongitude=lastLongitude,
+                                lastTime=lastTime,
+                                numberOfHeadingSamplesAveraged=numberOfHeadingSamplesAveraged,
+                                numberOfMagneticTrackSamplesAveraged=numberOfMagneticTrackSamplesAveraged,
+                                numberOfPitchRollSamplesAveraged=numberOfPitchRollSamplesAveraged,
+                                numberOfSpeedSamplesAveraged=numberOfSpeedSamplesAveraged,
+                                numberOfTrueTrackSamplesAveraged=numberOfTrueTrackSamplesAveraged,
+                                primaryFlags=primaryFlags,
+                                shipHeading=shipHeading,
+                                shipPitch=shipPitch,
+                                shipRoll=shipRoll,
+                                speedMadeGood=speedMadeGood,
+                                speedMadeGoodEast=speedMadeGoodEast,
+                                speedMadeGoodNorth=speedMadeGoodNorth)
+           } else if (!bFound && isVMDAS) {
+               oceDebug(debug, "creating data slot for a file with !bFound&&isVMDAS\n")
+               res@data <- list(v=v, q=q, a=a, g=g,
                                 distance=seq(bin1Distance, by=cellSize, length.out=numberOfCells),
                                 time=time,
                                 pressure=pressure,

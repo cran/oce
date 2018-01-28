@@ -1,7 +1,7 @@
 Package: oce
 Type: Package
 Title: Analysis of Oceanographic Data
-Version: 0.9-22
+Version: 0.9-23
 Authors@R: c(person(given="Dan", family="Kelley", email="Dan.Kelley@Dal.Ca", role=c("aut", "cre")),
  person(given="Clark", family="Richards", email="clark.richards@gmail.com", role=c("aut")),
  person(given="Chantelle", family="Layton", email="chantelle.layton@dal.ca", role=c("ctb"), comment="curl() coauthor"),
@@ -26,10 +26,10 @@ RoxygenNote: 6.0.1
 BuildVignettes: true
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2017-08-28 15:25:38 UTC; kelley
+Packaged: 2018-01-28 19:14:15 UTC; kelley
 Author: Dan Kelley [aut, cre],
   Clark Richards [aut],
   Chantelle Layton [ctb] (curl() coauthor),
   British Geological Survey [ctb, cph] (magnetic-field subroutine)
 Repository: CRAN
-Date/Publication: 2017-08-28 18:50:30 UTC
+Date/Publication: 2018-01-28 21:13:31 UTC

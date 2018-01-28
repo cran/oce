@@ -100,7 +100,7 @@ A key issue is that RDI files store velocities in 2-byte values, which is
 not a format that R supports. These velocities become 8-byte (numeric) values
 in R. Thus, the R object created by \code{read.adp.rdi} will require more memory
 than that of the data file. A scale factor can be estimated by ignoring
-vector quanties (e.g. time, which has just one value per profile) and concentrating on matrix properties
+vector quantities (e.g. time, which has just one value per profile) and concentrating on matrix properties
 such as velocity, backscatter, and correlation. These three elements have equal dimensions.
 Thus, each 4-byte slide in the data file (2 bytes + 1 byte + 1 byte)
 corresponds to 10 bytes in the object (8 bytes + 1 byte + 1 byte).
@@ -114,7 +114,7 @@ about 2e6 bytes [3].  Since R routinely duplicates objects for certain tasks
 (e.g. for call-by-value in function evaluation), \code{read.adp.rdi} uses a safety
 factor in its calculation of when to auto-decimate a file. This factor is set to 3,
 based partly on the developers' experience with datasets in their possession.
-Multiplied by the previously stated safety factor of 3, 
+Multiplied by the previously stated safety factor of 3,
 this suggests that the 2 GB limit on R objects corresponds to approximately a
 222 MB limit on file size. In the present version of \code{read.adp.rdi}, this
 value is lowered to 200 MB for simplicity. Larger files are considered to be "big",
@@ -123,7 +123,7 @@ and are decimated unless the user supplies a value for the \code{by} argument.
 The decimation procedure has two cases.
 \enumerate{
 \item \emph{Case 1.} If \code{from=1} and
-\code{to=0} (or if neither \code{from} or \code{to} is given), then the 
+\code{to=0} (or if neither \code{from} or \code{to} is given), then the
 intention is to process the full span of the data.  If the input file is
 under 200 MB, then \code{by} defaults to 1, so that all profiles are read.
 For larger files, \code{by} is set to the \code{\link{ceiling}} of the

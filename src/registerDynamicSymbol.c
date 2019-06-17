@@ -3,6 +3,7 @@
 #include <R_ext/Rdynload.h>
 
 extern SEXP _oce_bilinearInterp(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _oce_do_ad2cp_ahrs(SEXP, SEXP);
 extern SEXP _oce_do_adv_vector_time(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _oce_do_amsr_composite(SEXP, SEXP);
 extern SEXP _oce_do_amsr_average(SEXP, SEXP);
@@ -16,9 +17,9 @@ extern SEXP _oce_do_geoddist(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _oce_do_geoddist_alongpath(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _oce_do_geod_xy(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _oce_do_geod_xy_inverse(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _oce_do_get_bit(SEXP, int);
+extern SEXP _oce_do_get_bit(SEXP, SEXP);
 extern SEXP _oce_do_gradient(SEXP, SEXP, SEXP);
-extern SEXP _oce_do_interp_barnes(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _oce_do_interp_barnes(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _oce_do_landsat_transpose_flip(SEXP);
 extern SEXP _oce_do_landsat_numeric_to_bytes(SEXP, SEXP);
 extern SEXP _oce_do_ldc_ad2cp_in_file(SEXP, SEXP, SEXP, SEXP);
@@ -35,6 +36,7 @@ extern SEXP _oce_trim_ts(SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_oce_bilinearInterp", (DL_FUNC) &_oce_bilinearInterp, 5},
+    {"_oce_do_ad2cp_ahrs", (DL_FUNC) &_oce_do_ad2cp_ahrs, 2},
     {"_oce_do_adv_vector_time", (DL_FUNC) &_oce_do_adv_vector_time, 7},
     {"_oce_do_amsr_average", (DL_FUNC) &_oce_do_amsr_average, 2},
     {"_oce_do_amsr_composite", (DL_FUNC) &_oce_do_amsr_composite, 2},

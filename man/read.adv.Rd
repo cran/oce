@@ -183,7 +183,7 @@ bursts.
 Taking these things together, we come upon the issue of how to infer
 sampling times for Nortek instruments.  There do not seem to be definitive
 documents on this, and so \code{read.adv.nortek} is based partly on
-information (of unknown quality) found on Nortek discusson boards.  The
+information (of unknown quality) found on Nortek discussion boards.  The
 present version of \code{read.adv.nortek} infers the times of velocity
 observations differently, depending on whether the instrument was set to
 record in burst mode or continuous mode.  For burst mode, times stated in
@@ -307,7 +307,7 @@ in [1B,C] as being an adjunct to Nortek Vector systems is at
 \code{http://files.microstrain.com/3DM-GX3-35-Data-Communications-Protocol.pdf}
 }
 \seealso{
-Other things related to \code{adv} data: \code{\link{[[,adv-method}},
+Other things related to adv data: \code{\link{[[,adv-method}},
   \code{\link{[[<-,adv-method}}, \code{\link{adv-class}},
   \code{\link{adv}}, \code{\link{beamName}},
   \code{\link{beamToXyz}}, \code{\link{enuToOtherAdv}},
@@ -325,4 +325,4 @@ Other things related to \code{adv} data: \code{\link{[[,adv-method}},
 \author{
 Dan Kelley
 }
-\concept{things related to \code{adv} data}
+\concept{things related to adv data}

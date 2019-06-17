@@ -1,6 +1,6 @@
 ---
 title: "Acoustic Doppler profilers"
-author: "Dan Kelley"
+author: "Dan Kelley (https://orcid.org/0000-0001-7808-5911)"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
@@ -18,10 +18,7 @@ vignette: >
 ---
 
 <!-- HOW TO BUILD THE VIGNETTE. -->
-<!-- 1. edit this file in vignettes/adp.Rmd -->
-<!-- 2. run devtools::build_vignettes() -->
-<!-- 3. build oce -->
-
+<!-- Look in oce.Rmd for instructions. -->
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
@@ -54,7 +51,7 @@ Suppose `f` is a character string naming a data file. In many cases,
 d <- read.oce(f)
 ```
 will read the file, because `read.oce` will look inside the file to try to
-guess the format. If this doesnt work, one ought to try e.g.
+guess the format. If this does not work, one ought to try e.g.
 ```{r eval=FALSE}
 d <- read.adp(f)
 ```

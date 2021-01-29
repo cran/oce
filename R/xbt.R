@@ -15,7 +15,7 @@
 #' 2. Cheng, Lijing, John Abraham, Gustavo Goni, Timothy Boyer, Susan Wijffels, Rebecca
 #' Cowley, Viktor Gouretski, et al. "XBT Science: Assessment of Instrumental Biases and Errors."
 #' Bulletin of the American Meteorological Society 97, no. 6 (June 2016): 924-33.
-#' https://doi.org/10.1175/BAMS-D-15-00031.1.
+#' \code{10.1175/BAMS-D-15-00031.1}
 #'
 #' @templateVar class xbt
 #'
@@ -200,7 +200,7 @@ setMethod(f="summary",
 setMethod(f="subset",
           signature="xbt",
           definition=function(x, subset, ...) {
-              subsetString <- paste(deparse(substitute(subset)), collapse=" ")
+              subsetString <- paste(deparse(substitute(expr=subset, env=environment())), collapse=" ")
               res <- x
               dots <- list(...)
               debug <- getOption("oceDebug")
@@ -210,7 +210,7 @@ setMethod(f="subset",
                   stop("must give 'subset'")
               if (length(grep("depth", subsetString))) {
                   oceDebug(debug, "subsetting an xbt by depth\n")
-                  keep <- eval(substitute(subset), x@data, parent.frame(2))
+                  keep <- eval(expr=substitute(expr=subset, env=environment()), envir=x@data, enclos=parent.frame(2))
                   names <- names(x@data)
                   oceDebug(debug, vectorShow(keep, "keeping bins:"))
                   res <- x
@@ -333,6 +333,21 @@ read.xbt <- function(file, type="sippican", longitude=NA, latitude=NA, debug=get
 
 #' Read a Sippican '.edf' format xbt file
 #'
+#'
+#' The function was written by inspection of a particular file, and might
+#' be wrong for other files; see \dQuote{Details} for a note on character
+#' translation.
+#'
+#' The header is converted to ASCII format prior to storage in
+#' the `metadata` slot, so that e.g. a degree sign in the original file will
+#' become a `?` character in the `header`.  This is to prevent problems
+#' with submission of `oce` to the CRAN system, which produces NOTEs
+#' about UTF-8 strings in data (on some build machines, evidently depending
+#' on the locale on those machines).  This character substitution
+#' is at odds with the `oce` philosophy of leaving data intact, so
+#' it will be reverted, if CRAN policy changes or if the developers
+#' can find a way to otherwise silence the NOTE.
+#'
 #' @param file a connection or a character string giving the name of the file to
 #' load.
 #'
@@ -388,7 +403,10 @@ read.xbt.edf <- function(file, longitude=NA, latitude=NA, debug=getOption("oceDe
     if (0 == length(headerEnd))
         stop("programming error: increase #lines read for header")
     res <- new("xbt")
-    res@metadata$header <- l[1:headerEnd]
+    ## Convert from latin1 to UTF-8, so a degree sign does not cause problems
+    ## res@metadata$header <- l[1:headerEnd]
+    res@metadata$header <- iconv(l[1:headerEnd], from="UTF-8", to="ASCII", sub="?")
+
     date <- getHeaderItem(l, "Date of Launch")
     hms <- getHeaderItem(l, "Time of Launch")
     res@metadata$time <- as.POSIXct(paste(date, hms, sep=" "),
@@ -424,7 +442,7 @@ read.xbt.edf <- function(file, longitude=NA, latitude=NA, debug=getOption("oceDe
 #' Read a NOAA format for AXBTs
 #'
 #'
-#' This file format, described at https://www.aoml.noaa.gov/phod/dhos/axbt.php, contains a header
+#' This file format, described at \code{https://www.aoml.noaa.gov/phod/dhos/axbt.php}, contains a header
 #' line, followed by data lines.  For example, a particular file at this site has first
 #' three lines as follows.
 #' ```
@@ -501,7 +519,7 @@ read.xbt.noaa1 <- function(file, debug=getOption("oceDebug"), missingValue=-9.99
 }
 
 
-#' Plot An xbt data
+#' Plot an xbt Object
 #'
 #' Plots data contained in an [xbt-class] object.
 #'
@@ -591,6 +609,6 @@ setMethod(f="plot",
                   }
               }
               oceDebug(debug, "} # plot.xbt()\n", unindent=1)
-              invisible()
+              invisible(NULL)
           })
 

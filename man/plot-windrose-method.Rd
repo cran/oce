@@ -3,7 +3,7 @@
 \name{plot,windrose-method}
 \alias{plot,windrose-method}
 \alias{plot.windrose}
-\title{Plot Windrose data}
+\title{Plot a windrose Object}
 \usage{
 \S4method{plot}{windrose}(
   x,
@@ -61,6 +61,7 @@ par(opar)
 }
 \seealso{
 Other functions that plot oce data: 
+\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},

@@ -3,7 +3,7 @@
 \name{plot,odf-method}
 \alias{plot,odf-method}
 \alias{plot.odf}
-\title{Plot an ODF Object}
+\title{Plot an odf Object}
 \usage{
 \S4method{plot}{odf}(x, blanks = TRUE, debug = getOption("oceDebug"))
 }
@@ -37,6 +37,7 @@ tend to have more useful plots.
 }
 \seealso{
 Other functions that plot oce data: 
+\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},

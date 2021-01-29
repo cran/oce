@@ -3,7 +3,7 @@
 \name{plot,lobo-method}
 \alias{plot,lobo-method}
 \alias{plot.lobo}
-\title{Plot LOBO data}
+\title{Plot a lobo object}
 \usage{
 \S4method{plot}{lobo}(
   x,
@@ -49,6 +49,7 @@ Plot a summary diagram for lobo data.
 }
 \seealso{
 Other functions that plot oce data: 
+\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},

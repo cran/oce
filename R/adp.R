@@ -228,7 +228,7 @@
 #' @family things related to adp data
 setClass("adp", contains="oce")
 
-#' ADP (acoustic-doppler profiler) dataset
+#' Sample adp (acoustic-doppler profiler) dataset
 #'
 #' This is degraded subsample of measurements that were made with an
 #' upward-pointing ADP manufactured by Teledyne-RDI, as part of the St Lawrence
@@ -550,7 +550,8 @@ setMethod(f="summary",
                   cat("* Beams::\n")
                   cat("    Number:          ", if (is.null(numberOfBeams)) "?" else numberOfBeams, "\n")
                   cat("    Slantwise Angle: ", if (is.null(beamAngle)) "?" else beamAngle , "\n")
-                  cat("    Orientation:     ", if (is.null(orientation)) "?" else orientation, "\n")
+                  if (numberOfBeams > 0)
+                      cat("    Orientation:     ", if (is.null(orientation)) "?" else orientation, "\n")
                   cat("    Unspreaded:      ", if (is.null(beamUnspreaded)) "?" else beamUnspreaded, "\n")
               }
               transformationMatrix <- object[["transformationMatrix"]]
@@ -576,11 +577,12 @@ setMethod(f="summary",
                           numberOfBeams <- object[["numberOfBeams", rt]]
                           cat("    Number of beams:    ", numberOfBeams, "\n")
                           cat("    Beam angle:         ", if (numberOfBeams == 1) 0 else object[["beamAngle"]], "\n")
-                          cat("    Coordinate system:  ", object[["oceCoordinate", rt]], "\n")
+                          if (numberOfBeams > 1)
+                              cat("    Coordinate system:  ", object[["oceCoordinate", rt]], "\n")
                       }
                   }
                   processingLogShow(object)
-                  invisible()
+                  invisible(NULL)
               } else {
                   invisible(callNextMethod()) # summary
               }
@@ -973,7 +975,7 @@ setValidity("adp",
 setMethod(f="subset",
           signature="adp",
           definition=function(x, subset, ...) {
-              subsetString <- paste(deparse(substitute(subset)), collapse=" ")
+              subsetString <- paste(deparse(substitute(expr=subset, env=environment())), collapse=" ")
               res <- x
               dots <- list(...)
               debug <- getOption("oceDebug")
@@ -986,14 +988,15 @@ setMethod(f="subset",
                       oceDebug(debug, "subsetting an adp by time\n")
                       if (length(grep("distance", subsetString)))
                           stop("cannot subset by both time and distance; split into multiple calls")
-                      keep <- eval(substitute(subset), x@data, parent.frame(2))
+                      keep <- eval(expr=substitute(expr=subset, env=environment()), envir=x@data, enclos=parent.frame(2))
                   } else if (grepl("ensembleNumber", subsetString)) {
                       oceDebug(debug, "subsetting an adp by ensembleNumber\n")
                       if (length(grep("distance", subsetString)))
                           stop("cannot subset by both ensembleNumber and distance; split into multiple calls")
                       if (!"ensembleNumber" %in% names(x@metadata))
                           stop("cannot subset by ensembleNumber because this adp object lacks that information")
-                      keep <- eval(substitute(subset), x@metadata, parent.frame(2))
+                      ## FIXME: in other places, e.g. AllClass.R:350, we have parent.frame().  What is right?
+                      keep <- eval(expr=substitute(expr=subset, env=environment()), envir=x@metadata, enclos=parent.frame(2))
                   } else {
                       stop("internal coding error -- please report to developers")
                   }
@@ -1056,7 +1059,8 @@ setMethod(f="subset",
                   oceDebug(debug, "subsetting an adp by distance\n")
                   if (length(grep("time", subsetString)))
                       stop("cannot subset by both time and distance; split into multiple calls")
-                  keep <- eval(substitute(subset), x@data, parent.frame(2))
+                  ## keep <- eval(substitute(subset), x@data, parent.frame(2))
+                  keep <- eval(expr=substitute(expr=subset, env=environment()), envir=x@data, enclos=parent.frame(2))
                   oceDebug(debug, vectorShow(keep, "keeping bins:"), "\n")
                   if (sum(keep) < 2)
                       stop("must keep at least 2 bins")
@@ -1081,7 +1085,8 @@ setMethod(f="subset",
                                paste(dim(res@metadata$flags$v), collapse="x"), "\n")
                   }
               } else if (length(grep("pressure", subsetString))) {
-                  keep <- eval(substitute(subset), x@data, parent.frame(2))
+                  ## keep <- eval(substitute(subset), x@data, parent.frame(2))
+                  keep <- eval(expr=substitute(expr=subset, env=environment()), envir=x@data, enclos=parent.frame(2))
                   res <- x
                   res@data$v <- res@data$v[keep, , ]
                   res@data$a <- res@data$a[keep, , ]
@@ -1286,6 +1291,7 @@ beamName <- function(x, which)
 #'
 #' @param despike if `TRUE`, [despike()] will be used to clean
 #' anomalous spikes in heading, etc.
+#'
 #' @template adpTemplate
 #'
 #' @author Dan Kelley and Clark Richards
@@ -1298,6 +1304,8 @@ read.adp <- function(file, from, to, by, tz=getOption("oceTz"),
                      debug=getOption("oceDebug"),
                      ...)
 {
+    if (!interactive())
+        monitor <- FALSE
     fromGiven <- !missing(from) # FIXME document THIS
     toGiven <- !missing(to) # FIXME document THIS
     byGiven <- !missing(by) # FIXME document THIS
@@ -1347,7 +1355,7 @@ read.adp <- function(file, from, to, by, tz=getOption("oceTz"),
 }
 
 
-#' Plot ADP Data
+#' Plot an adp Object
 #'
 #' Create a summary plot of data measured by an acoustic doppler profiler.
 #'
@@ -1709,8 +1717,6 @@ setMethod(f="plot",
               ## oceDebug(debug, "par(mai)=", paste(par('mai'), collapse=" "), "\n")
               ## oceDebug(debug, "par(mfg)=", paste(par('mfg'), collapse=" "), "\n")
               ## oceDebug(debug, "mai.palette=", paste(mai.palette, collapse=" "), "\n")
-              if ("adorn" %in% names(list(...)))
-                  warning("In plot,adp-method() : the 'adorn' argument was removed in November 2017", call.=FALSE)
               instrumentType <- x[["instrumentType"]]
               if (is.null(instrumentType))
                   instrumentType <- "" # simplifies later checks
@@ -1907,7 +1913,7 @@ setMethod(f="plot",
 
               tt <- x[["time", j]]
               ##ttDia <- x@data$timeDia  # may be null
-              class(tt) <- "POSIXct"              # otherwise image() gives warnings
+              class(tt) <- c("POSIXct", "POSIXt") # otherwise image() gives warnings
               if (!zlimGiven && all(which %in% 5:8)) {
                   ## single scale for all 'a' (amplitude) data
                   zlim <- range(abs(as.numeric(x[["a"]][, , which[1]-4])), na.rm=TRUE) # FIXME name of item missing, was ma
@@ -1986,6 +1992,8 @@ setMethod(f="plot",
                           } else {
                               oceDebug(debug, "a velocity component image/timeseries\n")
                               z <- x[["v", j]][, , which[w]]
+                              oceDebug(debug, "class(z) after subsetting for 3rd dimension:: ", class(z), "\n")
+                              ## oceDebug(debug, "dim(z): ", paste(dim(z), collapse="x"), "\n")
                               zlab <- if (missing(titles)) beamName(x, which[w]) else titles[w]
                               oceDebug(debug, "zlab:", zlab, "\n")
                               xdistance <- x[["distance", j]]
@@ -1994,8 +2002,18 @@ setMethod(f="plot",
                               oceDebug(debug, vectorShow(y.look))
                               if (0 == sum(y.look))
                                   stop("no data in the provided ylim=c(", paste(ylimAsGiven[w, ], collapse=","), ")")
-                              zlim <- if (zlimGiven) zlimAsGiven[w, ] else {
-                                  if (breaksGiven) NULL else max(abs(z[, y.look]), na.rm=TRUE) * c(-1, 1)
+                              zlim <- if (zlimGiven) {
+                                  zlimAsGiven[w, ]
+                              } else {
+                                  if (breaksGiven) {
+                                      NULL
+                                  } else {
+                                      if (is.array(z)){
+                                          max(abs(z[, y.look]), na.rm=TRUE) * c(-1, 1)
+                                      } else {
+                                          max(abs(z), na.rm=TRUE) * c(-1, 1)
+                                      }
+                                  }
                               }
                               oceDebug(debug, "zlim: ", paste(zlim, collapse=" "), "\n")
                           }
@@ -2889,7 +2907,8 @@ setMethod(f="plot",
 #' [xyzToEnuAdp()].
 #'
 #' @references
-#' \url{https://www.nortekgroup.com/faq/how-is-a-coordinate-transformation-done}
+#' 1. @template nortekCoordTemplate
+#'
 #' @family things related to adp data
 toEnuAdp <- function(x, declination=0, debug=getOption("oceDebug"))
 {
@@ -2956,7 +2975,7 @@ toEnuAdp <- function(x, declination=0, debug=getOption("oceDebug"))
 #' lines(apply(a,2,median), distance, type='l',col='red')
 #' legend("topright",lwd=1,col=c("black","red"),legend=c("original","attenuated"))
 #' ## Image
-#' plot(adp.att, which="amplitude",col=oce.colorsJet(100))
+#' plot(adp.att, which="amplitude",col=oce.colorsViridis(100))
 #'
 #' @family things related to adp data
 beamUnspreadAdp <- function(x, count2db=c(0.45, 0.45, 0.45, 0.45), asMatrix=FALSE, debug=getOption("oceDebug"))
@@ -2993,8 +3012,8 @@ beamUnspreadAdp <- function(x, count2db=c(0.45, 0.45, 0.45, 0.45), asMatrix=FALS
             res@data$a[, , beam] <- as.raw(tmp)
         }
         res@metadata$oceBeamUnspreaded <- TRUE
-        res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     }
+    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(expr=match.call()), sep="", collapse=""))
     oceDebug(debug, "} # beamUnspreadAdp()\n", unindent=1)
     res
 }
@@ -3137,7 +3156,7 @@ beamToXyzAdp <- function(x, debug=getOption("oceDebug"))
     } else {
         stop("adp type must be either \"rdi\" or \"nortek\" or \"sontek\"")
     }
-    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(expr=match.call()), sep="", collapse=""))
     oceDebug(debug, "} # beamToXyzAdp()\n", unindent=1)
     res
 }
@@ -3735,7 +3754,7 @@ enuToOtherAdp <- function(x, heading=0, pitch=0, roll=0)
         res@data$bv[, 3] <- other$up
     }
     res@metadata$oceCoordinate <- "other"
-    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(expr=match.call()), sep="", collapse=""))
     res
 }
 
@@ -3786,7 +3805,7 @@ subtractBottomVelocity <- function(x, debug=getOption("oceDebug"))
         res@data$v[, , beam] <- x[["v"]][, , beam] - x@data$bv[, beam]
     }
     oceDebug(debug, "} # subtractBottomVelocity()\n", unindent=1)
-    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(expr=match.call()), sep="", collapse=""))
     res
 }
 

@@ -1,5 +1,6 @@
 ## vim:textwidth=80:expandtab:shiftwidth=4:softtabstop=4
 
+
 abbreviateVector <- function(x)
 {
     if (1 >= length(x)) {
@@ -158,7 +159,7 @@ approx3d <- function(x, y, z, f, xout, yout, zout)
         stop("must have more than one x value")
     if (length(y) < 2)
         stop("must have more than one y value")
-    if (length(x) < 2)
+    if (length(z) < 2)
         stop("must have more than one z value")
     ## Are the array dimensions consistent with x, y, and z?
     if (3 != length(dim(f)))
@@ -196,7 +197,7 @@ argShow <- function(x, nshow=4, last=FALSE, sep="=")
 {
     if (missing(x))
         return("")
-    name <- paste(substitute(x))
+    name <- paste(substitute(expr=x, env=environment()))
     res <- ""
     if (missing(x)) {
         res <- "(missing)"
@@ -222,6 +223,16 @@ argShow <- function(x, nshow=4, last=FALSE, sep="=")
     if (!last)
         res <- paste(res, ",", sep="")
     res
+}
+
+#' Get first finite value in a vector or array, or NULL if none
+#' @param v A numerical vector or array.
+firstFinite <- function(v)
+{
+    if (!is.vector(v))
+        v <- as.vector(v)
+    first <- which(is.finite(v))
+    if (length(first) > 0) v[first[1]] else NULL
 }
 
 #' Read a World Ocean Atlas NetCDF File
@@ -317,15 +328,76 @@ shortenTimeString <- function(t, debug=getOption("oceDebug"))
     tc
 }
 
-#' Get first finite value in a vector or array, or NULL if none
-#' @param v A numerical vector or array.
-firstFinite <- function(v)
+#' Convert each of a vector of strings from SNAKE_CASE to camelCase
+#'
+#' `snakeToCamel` converts "snake-case" characters such as `"NOVA_SCOTIA"`
+#' to "camel-case" values, such as `"NovaScotia"`.  It was written for
+#' use by [read.argo()], but it also may prove helpful in other contexts.
+#'
+#' The basic procedure is to chop the string up into substrings separated by
+#' the underline character, then to upper-case the first letter of
+#' all substrings except the first, and then to paste the substrings
+#' together.
+#'
+#' However, there are exceptions.  First, any upper-case string that contains no
+#' underlines is converted to lower case, but any mixed-case string with no
+#' underlines is returned as-is (see the second example). Second, if
+#' the `specialCases` argument contains `"QC"`, then the
+#' `QC` is passed through directly (since it is an acronym) and
+#' if the first letter of remaining text is upper-cased (contrast
+#' see the four examples).
+#'
+#' @param s A vector of character values.
+#'
+#' @param specialCases A vector of character values that tell which
+#' special-cases to apply, or `NULL` (the default) to turn off special
+#' cases.  The only permitted special case at the moment is `"QC"` (see
+#' \dQuote{Details}) but the idea of this argument is that other cases
+#' can be added later, if needed.
+#'
+#' @return A vector of character values
+#'
+#' @examples
+#' library(oce)
+#' snakeToCamel("PARAMETER_DATA_MODE")   # "parameterDataMode"
+#' snakeToCamel("PARAMETER")             # "parameter"
+#' snakeToCamel("HISTORY_QCTEST")        # "historyQctest"
+#' snakeToCamel("HISTORY_QCTEST", "QC")  # "historyQCTest"
+#' snakeToCamel("PROFILE_DOXY_QC")       # "profileDoxyQc"
+#' snakeToCamel("PROFILE_DOXY_QC", "QC") # "profileDoxyQC"
+#' @author Dan Kelley
+snakeToCamel <- function(s, specialCases=NULL)
 {
-    if (!is.vector(v))
-        v <- as.vector(v)
-    first <- which(is.finite(v))
-    if (length(first) > 0) v[first[1]] else NULL
+    ns <- length(s)
+    if ("QC" %in% specialCases) {
+        s <- gsub("QCTEST", "Q_C_TEST", s) # for e.g. HISTORY_QCTEST
+        s <- gsub("QC$", "Q_C", s)         # for e.g. PROFILE_DOXY_QC
+        s <- gsub("Qc$", "QC", s)          # for e.g. positionQc (converted previously)
+    }
+    if (ns < 1)
+        stop("'s' must be a vector of character values")
+    res <- vector("character", length=ns)
+    for (is in seq(1L, length(s))) {
+        if (!grepl("_", s[is])) {
+            ## Handle the single-word case. If all upper-case, convert to lower,
+            ## but otherwise, leave it as it is.
+            res[is] <- if (s[is] == toupper(s[is])) tolower(s[is]) else s[is]
+        } else {
+            ## Handle the multi-word case. Start by making it lower case.
+            s[is] <- tolower(s[is])
+            ## Now, split and then work through the words
+            w <- strsplit(s[is], "_")[[1]]
+            nw <- length(w)
+            res[is] <- w[1]
+            for (iw in 2:nw) {
+                wl <- tolower(w[iw])
+                res[is] <- paste0(res[is], toupper(substring(wl,1,1)), substring(wl,2))
+            }
+        }
+    }
+    res
 }
+
 
 #' Decode units, from strings
 #'
@@ -686,7 +758,7 @@ titleCase <- function(w)
 #' imagep(x, y, v, zlab="v", asp=1)
 #' imagep(x, y, C$curl, zlab="curl", asp=1)
 #' hist(C$curl, breaks=100)
-#' @family functions relating to vector calculus
+#' @family things relating to vector calculus
 curl <- function(u, v, x, y, geographical=FALSE, method=1)
 {
     if (missing(u)) stop("must supply u")
@@ -1253,7 +1325,7 @@ binAverage <- function(x, y, xmin, xmax, xinc)
 #' u <- interpBarnes(wind$x, wind$y, wind$z)
 #' contour(u$xg, u$yg, u$zg)
 #' U <- ungrid(u$xg, u$yg, u$zg)
-#' points(U$x, U$y, col=oce.colorsJet(100)[rescale(U$grid, rlow=1, rhigh=100)], pch=20)
+#' points(U$x, U$y, col=oce.colorsViridis(100)[rescale(U$grid, rlow=1, rhigh=100)], pch=20)
 ungrid <- function(x, y, grid)
 {
     nrow <- nrow(grid)
@@ -1603,7 +1675,7 @@ smoothSomething <- function(x, ...)
 #' x <- 0.5 * t
 #' z <- 50 * (-1 + sin(2 * pi * t / 360))
 #' T <- 5 + 10 * exp(z / 100)
-#' palette <- oce.colorsJet(100)
+#' palette <- oce.colorsViridis(100)
 #' zlim <- range(T)
 #' drawPalette(zlim=zlim, col=palette)
 #' plot(x, z, type='p', pch=20, cex=3,
@@ -2251,17 +2323,17 @@ oce.spectrum <- oceSpectrum
 #' @examples
 #' vectorShow(pi)
 #' vectorShow(volcano)
-#' knot2mps <- 0.5144444 
+#' knot2mps <- 0.5144444
 #' vectorShow(knot2mps, postscript="knots per m/s")
 #' vectorShow("January", msg="The first month is")
 #'
 #' @author Dan Kelley
-vectorShow <- function(v, msg, postscript, digits=5, n=2L)
+vectorShow <- function(v, msg="", postscript="", digits=5, n=2L)
 {
     DIM <- dim(v)
     nv <- length(v)
-    if (missing(msg))
-        msg <- deparse(substitute(v))
+    if (!nchar(msg))
+        msg <- deparse(substitute(expr=v, env=environment()))
     if (!is.null(DIM)) {
         msg <- paste(msg,
                      paste("[",
@@ -2301,7 +2373,7 @@ vectorShow <- function(v, msg, postscript, digits=5, n=2L)
             }
         }
     }
-    if (!missing(postscript))
+    if (nchar(postscript) > 0)
         res <- paste(res, postscript)
     res <- paste(res, "\n", sep="")
     res
@@ -2336,22 +2408,21 @@ fullFilename <- function(filename)
 #' and including units as appropriate.
 #' Used by e.g. [plot,ctd-method()].
 #'
-#' @param item code for the label.  This must be an element from the following
-#' list, or an abbreviation that uniquely identifies an element through its
-#' first letters: `"S"`, `"C"`, `"conductivity mS/cm"`,
-#' `"conductivity S/m"`, `"T"`, `"theta"`, `"sigmaTheta"`,
-#' `"conservative temperature"`, `"absolute salinity"`,
-#' `"nitrate"`, `"nitrite"`, `"oxygen"`, \code{"oxygen
-#' saturation"}, `"oxygen mL/L"`, `"oxygen umol/L"`, \code{"oxygen
-#' umol/kg"}, `"phosphate"`, `"silicate"`, `"tritium"`,
-#' `"spice"`, `"fluorescence"`, `"p"`, `"z"`,
-#' `"distance"`, `"distance km"`, `"along-track distance km"`,
-#' `"heading"`, `"pitch"`, `"roll"`, `"u"`, `"v"`,
-#' `"w"`, `"speed"`, `"direction"`, `"eastward"`,
-#' `"northward"`, `"depth"`, `"elevation"`, `"latitude"`,
-#' `"longitude"`, `"frequency cph"`, `"sound speed"`, or \code{"spectral density
-#' m2/cph"}.
-#'
+#' @param item code for the label. The following common values are recognized:
+#' `"absolute salinity"`, `"along-spine distance km"`, `"along-track distance km"`,
+#' `"C"`, `"conductivity mS/cm"`, `"conductivity S/m"`, `"conservative temperature"`,
+#' `"CT"`, `"depth"`, `"direction"`, `"distance"`, `"distance km"`, `"eastward"`,
+#' `"elevation"`, `"fluorescence"`, `"frequency cph"`, `"heading"`, `"latitude"`,
+#' `"longitude"`, `"N2"`, `"nitrate"`, `"nitrite"`, `"northward"`, `"oxygen"`,
+#' `"oxygen mL/L"`, `"oxygen saturation"`, `"oxygen umol/kg"`, `"oxygen umol/L"`,
+#' `"p"`, `"phosphate"`, `"pitch"`, `"roll"`, `"S"`, `"SA"`,
+#' `"sigma0"`, `"sigma1"`, `"sigma2"`, `"sigma3"`, `"sigma4"`,
+#' `"sigmaTheta"`,
+#' `"silicate"`, `"sound speed"`, `"spectral density m2/cph"`, `"speed"`,
+#' `"spice"`, `"T"`, `"theta"`, `"tritium"`, `"u"`, `"v"`, `"w"`, or `"z"`.
+#' Other values may also be recognized, and if an unrecognized item is
+#' given, then it is returned, unaltered.
+#"
 #' @param axis a string indicating which axis to use; must be `x` or
 #' `y`.
 #'
@@ -2384,16 +2455,23 @@ resizableLabel <- function(item, axis="x", sep, unit=NULL, debug=getOption("oceD
         stop("must provide 'item'")
     if (axis != "x" && axis != "y")
         stop("axis must be \"x\" or \"y\"")
-    itemAllowed <- c("S", "C", "conductivity mS/cm", "conductivity S/m", "T",
+    itemAllowed <- c("S", "SA", "C", "CT", "conductivity mS/cm", "conductivity S/m", "T",
                      "theta", "sigmaTheta", "conservative temperature",
-                     "absolute salinity", "nitrate", "nitrite",
+                     "absolute salinity", "N2", "nitrate", "nitrite",
                      "oxygen", "oxygen saturation", "oxygen mL/L", "oxygen umol/L", "oxygen umol/kg",
                      "phosphate", "silicate", "tritium", "spice",
                      "fluorescence", "p", "z", "distance", "distance km",
-                     "along-track distance km", "heading", "pitch", "roll", "u",
+                     "along-spine distance km",
+                     "along-track distance km",
+                     "heading", "pitch", "roll", "u",
                      "v", "w", "speed", "direction", "eastward", "northward",
                      "depth", "elevation", "latitude", "longitude", "frequency cph",
-                     "sound speed", "spectral density m2/cph")
+                     "sound speed", "spectral density m2/cph",
+                     "sigma0", "sigma1", "sigma2", "sigma3", "sigma4")
+    ## FIXME: if anything is added, run the next, and paste results into roxygen.
+    ## > A<-paste0("'",paste(sort(itemAllowed), collapse="'`, `'"),"'");A
+    ## NOTE: some hand-tweaking must be done to fix linebreaks and (preferably) to
+    ## change the ' into a ".
     if (!missing(unit)) {
         if (is.list(unit)) {
             unit <- unit[[1]] # second item is a scale
@@ -2443,7 +2521,7 @@ resizableLabel <- function(item, axis="x", sep, unit=NULL, debug=getOption("oceD
         unit <- gettext("unitless", domain="R-oce")
         full <- bquote(.(var)*.(L)*.(unit[[1]])*.(R))
         abbreviated <- bquote("C")
-    } else if (item == "conservative temperature") {
+    } else if (item %in% c("CT", "conservative temperature")) {
         var <- gettext("Conservative Temperature", domain="R-oce")
         full <- bquote(.(var)*.(L)*degree*"C"*.(R))
         abbreviated <- bquote(Theta*.(L)*degree*"C"*.(R))
@@ -2484,6 +2562,10 @@ resizableLabel <- function(item, axis="x", sep, unit=NULL, debug=getOption("oceD
             full <- bquote(.(var)*.(L)*.(unit[[1]])*.(R))
             abbreviated <- bquote(phantom()^3*H*.(L)*.(unit[[1]])*.(R))
         }
+    } else if (item == "N2") {
+        ## full <- bquote("Square of Buoyancy Frequency"*.(L)*s^-2*.(R))
+        full  <- bquote(N^2*.(L)*s^-2*.(R))
+        abbreviated <- bquote(N^2*.(L)*s^-2*.(R))
     } else if (item == "nitrate") {
         var <- gettext("Nitrate", domain="R-oce")
         if (is.null(unit)) {
@@ -2567,7 +2649,7 @@ resizableLabel <- function(item, axis="x", sep, unit=NULL, debug=getOption("oceD
     } else if (item == "S") {
         full <- gettext("Practical Salinity", domain="R-oce")
         abbreviated <- expression(S)
-    } else if (item == "absolute salinity") {
+    } else if (item %in% c("SA", "absolute salinity")) {
         var <- gettext("Absolute Salinity", domain="R-oce")
         full <- bquote(.(var)*.(L)*g/kg*.(R))
         abbreviated <- bquote(S[A]*.(L)*g/kg*.(R))
@@ -2583,6 +2665,9 @@ resizableLabel <- function(item, axis="x", sep, unit=NULL, debug=getOption("oceD
         abbreviated <- full <- bquote(.(var)*.(L)*m*.(R))
     } else if (item == "distance km") {
         var <- gettext("Distance", domain="R-oce")
+        abbreviated <- full <- bquote(.(var)*.(L)*km*.(R))
+    } else if (item == "along-spine distance km") {
+        var <- gettext("Along-spine Distance", domain="R-oce")
         abbreviated <- full <- bquote(.(var)*.(L)*km*.(R))
     } else if (item == "along-track distance km") {
         var <- gettext("Along-track Distance", domain="R-oce")
@@ -2775,9 +2860,10 @@ latlonFormat <- function(lat, lon, digits=max(6, getOption("digits") - 1))
             res[i] <- "Lat and lon unknown"
         else
             res[i] <- paste(format(abs(lat[i]), digits=digits),
-                             if (lat[i] > 0) "N  " else "S  ",
+                             if (lat[i] > 0) gettext("N", domain="R-oce") else gettext("S", domain="R-oce"),
+                             " ",
                              format(abs(lon[i]), digits=digits),
-                             if (lon[i] > 0) "E" else "W",
+                             if (lon[i] > 0) gettext("E", domain="R-oce") else gettext("W", domain="R-oce"),
                              sep="")
     }
     res
@@ -2807,7 +2893,7 @@ latFormat <- function(lat, digits=max(6, getOption("digits") - 1))
             res[i] <-  ""
         else
             res[i] <- paste(format(abs(lat[i]), digits=digits),
-                             if (lat[i] > 0) "N" else "S", sep="")
+                             if (lat[i] > 0) gettext("N", domain="R-oce") else gettext("S", domain="R-oce"), sep="")
     }
     res
 }
@@ -2836,7 +2922,7 @@ lonFormat <- function(lon, digits=max(6, getOption("digits") - 1))
             res[i] <- ""
         else
             res[i] <- paste(format(abs(lon[i]), digits=digits),
-                             if (lon[i] > 0) "E" else "S",
+                             if (lon[i] > 0) gettext("E", domain="R-oce") else gettext("W", domain="R-oce"),
                              sep="")
     res
 }
@@ -2888,7 +2974,7 @@ lon360 <- function(x)
 #' Determine time offset from timezone
 #'
 #' The data are from
-#' \url{https://www.timeanddate.com/library/abbreviations/timezones/} and were
+#' \url{https://www.timeanddate.com/time/zones/} and were
 #' hand-edited to develop this code, so there may be errors.  Also, note that
 #' some of these contradict; if you examine the code, you'll see some
 #' commented-out portions that represent solving conflicting definitions by
@@ -2903,7 +2989,7 @@ lon360 <- function(x)
 #' @examples
 #' library(oce)
 #' cat("Atlantic Standard Time is ", GMTOffsetFromTz("AST"), "hours after UTC")
-#' @family functions relating to time
+#' @family things relating to time
 GMTOffsetFromTz <- function(tz)
 {
     ## Data are from
@@ -3167,7 +3253,7 @@ makeFilter <- function(type=c("blackman-harris", "rectangular", "hamming", "hann
 }
 
 
-#' Filter a time-series
+#' Filter a Time Series
 #'
 #' Filter a time-series, possibly recursively
 #'
@@ -3439,14 +3525,22 @@ interpBarnes <- function(x, y, z, w,
     oceDebug(debug, "xr=", xr, ", yr=", yr, ", gamma=", gamma, ", iterations=", iterations, "\n")
 
     ok <- !is.na(x) & !is.na(y) & !is.na(z) & !is.na(w)
-    g <- do_interp_barnes(x[ok], y[ok], z[ok], w[ok], xg, yg, xr, yr, gamma, iterations)
-    if (trim >= 0 && trim <= 1) {
-        bad <- g$wg < quantile(g$wg, trim, na.rm=TRUE)
-        g$zg[bad] <- NA
+    if (sum(ok) > 0) {
+        g <- do_interp_barnes(x[ok], y[ok], z[ok], w[ok], xg, yg, xr, yr, gamma, iterations)
+        if (trim >= 0 && trim <= 1) {
+            bad <- g$wg < quantile(g$wg, trim, na.rm=TRUE)
+            g$zg[bad] <- NA
+        }
+        rval <- list(xg=xg, yg=yg, zg=g$zg, wg=g$wg, zd=g$zd)
+    } else {
+        rval <- list(xg=xg, yg=yg,
+                     zg=matrix(NA, nrow=length(xg), ncol=length(yg)),
+                     wg=matrix(NA, nrow=length(xg), ncol=length(yg)),
+                     zd=rep(NA, length(x)))
     }
-    oceDebug(debug, sprintf("filled %.3f%% of z matrix\n", 100*sum(is.finite(g$zg))/prod(dim(g$zg))))
+    oceDebug(debug, sprintf("filled %.3f%% of z matrix\n", 100*sum(is.finite(rval$zg))/prod(dim(rval$zg))))
     oceDebug(debug, "} # interpBarnes(...)\n", unindent=1, sep="")
-    list(xg=xg, yg=yg, zg=g$zg, wg=g$wg, zd=g$zd)
+    rval
 }
 
 #' Coriolis parameter on rotating earth
@@ -4199,21 +4293,18 @@ integerToAscii <- function(i)
 
 #' Earth magnetic declination, inclination, and intensity
 #'
-#' Implements the 12th generation International Geomagnetic Reference Field
+#' Implements the 12th and 13th generations of the
+#' International Geomagnetic Reference Field
 #' (IGRF), based on a reworked version of a Fortran program downloaded from a
 #' NOAA website (see reference 1).
 #'
-#' The code (subroutine `igrf12syn`) seems to have
+#' The code (subroutines `igrf12syn` and `igrf13syn`) seem to have
 #' been written by Susan Macmillan of the British Geological Survey.  Comments
-#' in the source code indicate that it employs coefficients agreed to in
-#' December 2014 by the IAGA Working Group V-MOD.  Other comments in that code
-#' suggest that the valid time interval is from years 1900 to 2020,
-#' with only the values from 1945 to 2010 being considered definitive.
-#'
-#' Reference 2 suggests that a new version to the underlying source
-#' code might be expected in 2019 or 2020, but a check on January 31,
-#' 2019, showed that version 12, as incorporated in oce since
-#' 2015, remains the active version.
+#' in the source code `igrf13syn` (the current default used here)
+#' indicate that its coefficients were agreed to in
+#' December 2019 by the IAGA Working Group V-MOD.  Other comments in that code
+#' suggest that the proposed application time interval is from years 1900 to 2025, inclusive,
+#' but that only dates from 1945 to 2015 are to be considered definitive.
 #'
 #' @param longitude longitude in degrees east (negative for degrees west).  The
 #' dimensions must conform to lat.
@@ -4225,6 +4316,11 @@ integerToAscii <- function(i)
 #' `longitude` and `latitude`. The value may a decimal year,
 #' a POSIXt time, or a Date time.
 #'
+#' @param version an integer that must be either 12 or 13, to specify
+#' the version number of the formulae. Note that 13 became the default
+#' on 2020 March 3, so to old code will need to specify `version=12`
+#' to work as it did before that date.
+#'
 #' @return A list containing `declination`, `inclination`, and
 #' `intensity`.
 #'
@@ -4233,13 +4329,20 @@ integerToAscii <- function(i)
 #' British Geological Survey and distributed ``without limitation'' (email from
 #' SM to DK dated June 5, 2015).
 #'
+#' @section Historical Notes:
+#' For about a decade, `magneticField` used the version 12 formulae provided
+#' by IAGA, but the code was updated on March 3, 2020, to version 13.  Example
+#' 3 shows that the differences in declination are typically under 2 degrees
+#' (with 95 percent of the data lying between -1.7 and 0.7 degrees).
+#'
 #' @references
-#' 1. The underlying Fortran code is from `igrf12.f`, downloaded the NOAA
+#' 1. The underlying Fortran code for version 12 is from `igrf12.f`, downloaded the NOAA
 #' website (\url{https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html}) on June 7,
-#' 2015.
+#' 2015. That for version 13 is `igrf13.f`, downloaded from the NOAA website
+#' (\url{https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html} on March 3, 2020.
 #' 2. Witze, Alexandra. \dQuote{Earth's Magnetic Field Is Acting up and Geologists Don't Know Why.}
 #' Nature 565 (January 9, 2019): 143.
-#' \url{https://doi.org/10.1038/d41586-019-00007-1}.
+#' \doi{10.1038/d41586-019-00007-1}
 #'
 #' @examples
 #' library(oce)
@@ -4269,8 +4372,31 @@ integerToAscii <- function(i)
 #' mapContour(lon, lat, dec, levels=0, col='black', lwd=2)
 #'}
 #'
+#' # 3. Declination differences between versions 12 and 13
+#'\donttest{
+#' lon <- seq(-180, 180)
+#' lat <- seq(-90, 90)
+#' decDiff <- function(lon, lat) {
+#'     old <- magneticField(lon, lat, 2020, version=13)$declination
+#'     new <- magneticField(lon, lat, 2020, version=12)$declination
+#'     new - old
+#' }
+#' decDiff <- outer(lon, lat, decDiff)
+#' decDiff <- ifelse(decDiff > 180, decDiff - 360, decDiff)
+#' # Overall (mean) shift -0.1deg
+#' t.test(decDiff)
+#' # View histogram, narrowed to small differences
+#' par(mar=c(3.5, 3.5, 2, 2), mgp=c(2, 0.7, 0))
+#' hist(decDiff, breaks=seq(-180, 180, 0.05), xlim=c(-2, 2),
+#'      xlab="Declination difference [deg] from version=12 to version=13",
+#'      main="Predictions for year 2020")
+#' print(quantile(decDiff, c(0.025, 0.975)))
+#' # Note that the large differences are at high latitudes
+#' imagep(lon,lat,decDiff, zlim=c(-1,1)*max(abs(decDiff)))
+#' lines(coastlineWorld[["longitude"]], coastlineWorld[["latitude"]])
+#'}
 #' @family things related to magnetism
-magneticField <- function(longitude, latitude, time)
+magneticField <- function(longitude, latitude, time, version=13)
 {
     if (missing(longitude) || missing(latitude) || missing(time))
         stop("must provide longitude, latitude, and time")
@@ -4279,9 +4405,9 @@ magneticField <- function(longitude, latitude, time)
         stop("dimensions of longitude and latitude must agree")
     n <- length(latitude)
     if (inherits(time, "Date"))
-        time <- as.POSIXct(time)
+        time <- as.POSIXct(time, tz="UTC")
     if (inherits(time, "POSIXt")) {
-        d <- as.POSIXlt(time)
+        d <- as.POSIXlt(time, tz="UTC")
         year <- d$year+1900
         yearday <- d$yday
         time <- year + yearday / 365.25 # ignore leap year issue (formulae not daily)
@@ -4302,12 +4428,17 @@ magneticField <- function(longitude, latitude, time)
     ##alt <- 0.0                          # altitude in km
     elong <- ifelse(longitude < 0, 360 + longitude, longitude)
     colat <- 90 - latitude
+    iversion <- as.integer(version)
+    if (!(iversion %in% c(12L, 13L)))
+        stop("version must be 12 or 13, but it is ", iversion)
+    ## message("time:", time, " (", as.numeric(time), ")")
     r <- .Fortran("md_driver",
                   as.double(colat), as.double(elong), as.double(time),
                   as.integer(n),
                   declination=double(n),
                   inclination=double(n),
-                  intensity=double(n))
+                  intensity=double(n),
+                  as.integer(iversion))
     declination <- r$declination
     inclination <- r$inclination
     intensity <- r$intensity
@@ -4624,7 +4755,7 @@ oceDebug <- function(debug=0, ..., style="plain", unindent=0)
         }
         flush.console()
     }
-    invisible()
+    invisible(NULL)
 }
 oce.debug <- oceDebug
 
@@ -4824,7 +4955,7 @@ integrateTrapezoid <- function(x, y, type=c("A", "dA", "cA"), xmin, xmax)
 #' contour(x, y, v, asp=1, main=expression(v))
 #' contour(x, y, sqrt(u^2+v^2), asp=1, main=expression(speed))
 #'
-#' @family functions relating to vector calculus
+#' @family things relating to vector calculus
 grad <- function(h, x=seq(0, 1, length.out=nrow(h)), y=seq(0, 1, length.out=ncol(h)))
 {
     if (missing(h))
@@ -4928,7 +5059,7 @@ trimString <- function(s)
 #' Perform lowpass digital filtering
 #'
 #' The filter coefficients are constructed using standard definitions,
-#' and then \link[stats]{filter} in the \pkg{stats} package is
+#' and then [stats::filter()] is
 #' used to filter the data. This leaves `NA`
 #' values within half the filter length of the ends of the time series, but
 #' these may be replaced with the original `x` values, if the argument
@@ -5010,4 +5141,6 @@ lowpass <- function(x, filter="hamming", n, replace=TRUE, coefficients=FALSE)
     }
     rval
 }
+
+
 

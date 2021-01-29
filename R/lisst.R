@@ -16,8 +16,8 @@
 #'
 #' @author Dan Kelley
 #'
-#' @references A users's manual for the LISST-100 instrument is available at
-#' the manufacturer's website \url{http://www.sequoiasci.com}.
+#' @references Information about LISST instruments is provided at
+#' the manufacturer's website, `https://www.sequoiasci.com`.
 #'
 #' @family classes provided by oce
 #' @family things related to lisst data
@@ -111,7 +111,7 @@ setMethod(f="summary",
 
 
 
-#' Plot LISST data
+#' Plot a lisst Object
 #'
 #' Creates a multi-panel summary plot of data measured by LISST instrument.
 #'

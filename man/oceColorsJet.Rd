@@ -17,8 +17,7 @@ Create colors similar to the Matlab Jet scheme
 }
 \examples{
 library(oce)
-imagep(volcano, col=oceColorsJet(128),
-       zlab="oceColorsJet")
+imagep(volcano, col=oceColorsJet, zlab="oceColorsJet")
 }
 \seealso{
 Other things related to colors: 
@@ -37,6 +36,7 @@ Other things related to colors:
 \code{\link{oceColorsSalinity}()},
 \code{\link{oceColorsTemperature}()},
 \code{\link{oceColorsTurbidity}()},
+\code{\link{oceColorsTurbo}()},
 \code{\link{oceColorsTwo}()},
 \code{\link{oceColorsVelocity}()},
 \code{\link{oceColorsViridis}()},

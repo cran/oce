@@ -3,7 +3,7 @@
 \name{plot,lisst-method}
 \alias{plot,lisst-method}
 \alias{plot.lisst}
-\title{Plot LISST data}
+\title{Plot a lisst Object}
 \usage{
 \S4method{plot}{lisst}(x, which = c(16, 37, 38), tformat, debug = getOption("oceDebug"), ...)
 }
@@ -61,6 +61,7 @@ structure of lisst objects, and also outlines the other functions dealing
 with them.
 
 Other functions that plot oce data: 
+\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},

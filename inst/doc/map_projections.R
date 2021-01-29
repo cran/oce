@@ -16,26 +16,25 @@ plot(lon, lat, type="l",
      xlim=c(-130, -50), ylim=c(40, 50), asp=1/cos(45*pi/180))
 
 ## -----------------------------------------------------------------------------
-plot(coastlineWorld,
-     longitudelim=c(-130, -50), latitudelim=c(40, 50))
+plot(coastlineWorld, clongitude=-90, clatitude=45, span=7000)
 
 ## -----------------------------------------------------------------------------
 data(coastlineWorld)
 
 ## ----fig.cap="World coastline with default (Mollweide) projection.", fig.width=5, fig.height=2.7, dpi=72, dev.args=list(pointsize=10)----
 par(mar=c(1.5, 1.5, 0.5, 0.5))
-mapPlot(coastlineWorld)
+mapPlot(coastlineWorld, col="lightgray")
 
 ## ----fig.cap="Polar view with stereographic projection.", fig.width=5, fig.height=5, dpi=72, dev.args=list(pointsize=10)----
 par(mar=c(1.5, 1.5, 0.5, 0.5))
 mapPlot(coastlineWorld, longitudelim=c(-130, 50), latitudelim=c(60, 120),
-       projection="+proj=stere +lat_0=90", col='gray')
+        projection="+proj=stere +lat_0=90", col='gray')
 
 ## -----------------------------------------------------------------------------
 par(mar=c(1.5, 1.5, 0.5, 0.5))
 mapPlot(coastlineWorld,
          longitudelim=c(-130,-55), latitudelim=c(35, 60),
-         projection="+proj=lcc +lat_0=30 +lat_1=60 +lon_0=-100", col='gray')
+         projection="+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-100", col='gray')
 
 ## ----fig.cap="World coastline with Robinson projection.", fig.width=5, fig.height=2.7, dpi=72, dev.args=list(pointsize=10)----
 par(mar=rep(0.5, 4))

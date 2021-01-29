@@ -64,7 +64,7 @@ setMethod(f="initialize",
           })
 
 
-#' LOBO Dataset
+#' Sample LOBO Dataset
 #'
 #' This is sample lobo dataset obtained in the Northwest Arm of Halifax by
 #' Satlantic.
@@ -134,8 +134,6 @@ setMethod(f="[[<-",
 #' structure of LOBO objects, and also outlines the other functions dealing
 #' with them.
 #'
-#' @references \url{http://lobo.satlantic.com} \url{http://www.mbari.org/lobo/}
-#'
 #' @examples
 #'
 #' library(oce)
@@ -177,12 +175,14 @@ setMethod(f="subset",
               res@metadata <- x@metadata
               res@processingLog <- x@processingLog
               for (i in seq_along(x@data)) {
-                  r <- eval(substitute(subset), x@data, parent.frame(2))
+                  ##r <- eval(substitute(subset), x@data, parent.frame(2))
+                  r <- eval(expr=substitute(expr=subset, env=environment()), envir=x@data, enclos=parent.frame(2))
                   r <- r & !is.na(r)
                   res@data[[i]] <- x@data[[i]][r]
               }
               names(res@data) <- names(x@data)
-              subsetString <- paste(deparse(substitute(subset)), collapse=" ")
+              ## subsetString <- paste(deparse(substitute(subset)), collapse=" ")
+              subsetString <- paste(deparse(substitute(expr=subset, env=environment())), collapse=" ")
               res@processingLog <- processingLogAppend(res@processingLog, paste("subset.lobo(x, subset=", subsetString, ")", sep=""))
               res
           })
@@ -267,7 +267,7 @@ plot.lobo.TS <- function(lobo, ...)
 }
 
 
-#' Plot LOBO data
+#' Plot a lobo object
 #'
 #' Plot a summary diagram for lobo data.
 #'
@@ -309,8 +309,6 @@ setMethod(f="plot",
                               ...)
           {
               oceDebug(debug, "plot.lobo(...)\n", sep="")
-              if ("adorn" %in% names(list(...)))
-                  warning("In plot,lobo-method() : the 'adorn' argument was removed in November 2017", call.=FALSE)
               opar <- par(no.readonly = TRUE)
               nw <- length(which)
               oceDebug(debug, "which:", which, "\n")

@@ -3,7 +3,7 @@
 \name{plot,xbt-method}
 \alias{plot,xbt-method}
 \alias{plot.xbt}
-\title{Plot An xbt data}
+\title{Plot an xbt Object}
 \usage{
 \S4method{plot}{xbt}(
   x,
@@ -53,6 +53,7 @@ plot(xbt)
 }
 \seealso{
 Other functions that plot oce data: 
+\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},

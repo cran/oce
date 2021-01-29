@@ -3,7 +3,7 @@
 \docType{data}
 \name{lobo}
 \alias{lobo}
-\title{LOBO Dataset}
+\title{Sample LOBO Dataset}
 \source{
 The data were downloaded from a web interface at Satlantic LOBO web
 server and then read with \code{\link[=read.lobo]{read.lobo()}}.
@@ -25,6 +25,7 @@ plot(lobo)
 Other datasets provided with oce: 
 \code{\link{adp}},
 \code{\link{adv}},
+\code{\link{amsr}},
 \code{\link{argo}},
 \code{\link{cm}},
 \code{\link{coastlineWorld}},

@@ -3,7 +3,7 @@
 \name{plot,bremen-method}
 \alias{plot,bremen-method}
 \alias{plot.bremen}
-\title{Plot a Bremen Object}
+\title{Plot a bremen Object}
 \usage{
 \S4method{plot}{bremen}(x, type, ...)
 }
@@ -24,6 +24,7 @@ pressure.
 }
 \seealso{
 Other functions that plot oce data: 
+\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},

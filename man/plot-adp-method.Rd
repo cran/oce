@@ -3,7 +3,7 @@
 \name{plot,adp-method}
 \alias{plot,adp-method}
 \alias{plot.adp}
-\title{Plot ADP Data}
+\title{Plot an adp Object}
 \usage{
 \S4method{plot}{adp}(
   x,
@@ -329,6 +329,7 @@ plot(adp, which='temperature', tformat='\%H:\%M')
 }
 \seealso{
 Other functions that plot oce data: 
+\code{\link{download.amsr}()},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},
 \code{\link{plot,argo-method}},

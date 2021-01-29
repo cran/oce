@@ -3,7 +3,7 @@
 \docType{data}
 \name{adv}
 \alias{adv}
-\title{ADV (acoustic-doppler velocimeter) dataset}
+\title{Sample adv (acoustic-doppler velocimeter) dataset}
 \source{
 This file came from the SLEIWEX-2008 experiment.
 }
@@ -35,6 +35,7 @@ for (a in seq(-20, 20, by=1))
 \seealso{
 Other datasets provided with oce: 
 \code{\link{adp}},
+\code{\link{amsr}},
 \code{\link{argo}},
 \code{\link{cm}},
 \code{\link{coastlineWorld}},

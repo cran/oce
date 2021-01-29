@@ -88,7 +88,7 @@ qc <- setFlags(qc, name="temperature", i=oddT, value=4)
 # Compare results in TS space
 par(mfrow=c(2, 1))
 plotTS(ctdRaw)
-plotTS(handleFlags(qc, flags=list(1, 3:9)))
+plotTS(handleFlags(qc, flags=c(1, 3:9)))
 
 # Example 2: Interactive flag assignment based on TS plot, using
 # WHP scheme to define 'acceptable' and 'bad' codes
@@ -164,6 +164,7 @@ Other things related to ctd data:
 \code{\link{plotTS}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
+\code{\link{read.ctd.odv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},

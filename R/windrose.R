@@ -182,9 +182,8 @@ as.windrose <- function(x, y, dtheta = 15, debug=getOption("oceDebug"))
 }
 
 
-#' @title Plot Windrose data
+#' Plot a windrose Object
 #'
-#' @description
 #' Plot a [windrose-class] object.
 #'
 #' @param x a [windrose-class] object.
@@ -330,5 +329,5 @@ setMethod(f="plot",
                   }
                   title(paste("Fiveum (max ", sprintf(max, fmt="%.3g"), ")", sep=""))
               }
-              invisible()
+              invisible(NULL)
           })

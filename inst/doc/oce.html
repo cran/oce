@@ -12,7 +12,7 @@
 
 <meta name="author" content="Dan Kelley (https://orcid.org/0000-0001-7808-5911) and Clark Richards (https://orcid.org/0000-0002-7833-206X)" />
 
-<meta name="date" content="2021-01-28" />
+<meta name="date" content="2021-03-27" />
 
 <title>1. Introduction to Oce</title>
 
@@ -28,11 +28,19 @@
     </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
@@ -133,7 +141,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">1. Introduction to Oce</h1>
 <h4 class="author">Dan Kelley (<a href="https://orcid.org/0000-0001-7808-5911" class="uri">https://orcid.org/0000-0001-7808-5911</a>) and Clark Richards (<a href="https://orcid.org/0000-0002-7833-206X" class="uri">https://orcid.org/0000-0002-7833-206X</a>)</h4>
-<h4 class="date">2021-01-28</h4>
+<h4 class="date">2021-03-27</h4>
 
 
 <div id="TOC">
@@ -224,7 +232,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">note=</span><span class="st">&quot;give credit where it&#39;s due&quot;</span>)</span></code></pre></div>
 <p>and a better way to store <code>temperatureAboveFreezing</code> would be</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ctd <span class="ot">&lt;-</span> <span class="fu">oceSetData</span>(ctd, <span class="at">name=</span><span class="st">&quot;temperatureAboveFreezing&quot;</span>,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">value=</span>ctd[[<span class="st">&quot;temperature&quot;</span>]] <span class="sc">-</span> <span class="fu">swTFreeze</span>(ctd), </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">value=</span>ctd[[<span class="st">&quot;temperature&quot;</span>]] <span class="sc">-</span> <span class="fu">swTFreeze</span>(ctd),</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">unit=</span><span class="fu">list</span>(<span class="at">unit=</span><span class="fu">expression</span>(degree<span class="sc">*</span>C), <span class="at">scale=</span><span class="st">&quot;ITS-90&quot;</span>),</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">originalName=</span><span class="st">&quot;-&quot;</span>,</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">note=</span><span class="st">&quot;add temperatureAboveFreezing, for ice-related calculations&quot;</span>)</span></code></pre></div>
@@ -411,7 +419,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(sealevel)</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">tidem</span>(sealevel)</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">oce.plot.ts</span>(sealevel[[<span class="st">&#39;time&#39;</span>]], sealevel[[<span class="st">&#39;elevation&#39;</span>]] <span class="sc">-</span> <span class="fu">predict</span>(m),</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">ylab=</span><span class="st">&quot;Detided sealevel [m]&quot;</span>, </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">ylab=</span><span class="st">&quot;Detided sealevel [m]&quot;</span>,</span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">xlim=</span><span class="fu">c</span>(<span class="fu">as.POSIXct</span>(<span class="st">&quot;2003-09-20&quot;</span>), <span class="fu">as.POSIXct</span>(<span class="st">&quot;2003-10-08&quot;</span>)))</span></code></pre></div>
 <p>The spike reveals a surge of about 1.5m, on the 29th of September, 2003.</p>
 </div>

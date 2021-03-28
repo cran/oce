@@ -122,6 +122,6 @@ library(oce)
 data(sealevel)
 m <- tidem(sealevel)
 oce.plot.ts(sealevel[['time']], sealevel[['elevation']] - predict(m),
-            ylab="Detided sealevel [m]", 
+            ylab="Detided sealevel [m]",
             xlim=c(as.POSIXct("2003-09-20"), as.POSIXct("2003-10-08")))
 

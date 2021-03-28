@@ -1,6 +1,6 @@
 Package: oce
 Title: Analysis of Oceanographic Data
-Version: 1.3-0
+Version: 1.4-0
 Authors@R: c(
     person(given="Dan", family="Kelley", email="Dan.Kelley@Dal.Ca", role=c("aut", "cre"), comment=c(ORCID="https://orcid.org/0000-0001-7808-5911")),
     person(given="Clark", family="Richards", email="clark.richards@gmail.com", role=c("aut"), comment=c(ORCID="https://orcid.org/0000-0002-7833-206X")),
@@ -8,9 +8,9 @@ Authors@R: c(
     person(given="British Geological Survey", role=c("ctb","cph"), comment="magnetic-field subroutine"))
 Maintainer: Dan Kelley <Dan.Kelley@Dal.Ca>
 Depends: R (>= 2.15), gsw, methods, sf (>= 0.9.0), testthat, utils
-Suggests: akima, automap, DBI, foreign, knitr, lubridate, ncdf4,
-        ocedata, raster (>= 1.4.3), rgeos, rmarkdown, RSQLite, R.utils,
-        sp, tiff, XML
+Suggests: akima, automap, DBI, foreign, knitr, lubridate, marmap,
+        ncdf4, ocedata, raster (>= 1.4.3), rgeos, rmarkdown, RSQLite,
+        R.utils, sp, tiff, XML
 BugReports: https://github.com/dankelley/oce/issues
 Description: Supports the analysis of Oceanographic data, including 'ADCP'
     measurements, measurements made with 'argo' floats, 'CTD' measurements,
@@ -31,11 +31,11 @@ VignetteBuilder: knitr
 NeedsCompilation: yes
 LinkingTo: Rcpp
 Imports: Rcpp
-Packaged: 2021-01-28 17:14:03 UTC; kelley
+Packaged: 2021-03-27 22:29:26 UTC; kelley
 Author: Dan Kelley [aut, cre] (<https://orcid.org/0000-0001-7808-5911>),
   Clark Richards [aut] (<https://orcid.org/0000-0002-7833-206X>),
   Chantelle Layton [ctb] (<https://orcid.org/0000-0002-3199-5763>, curl()
     coauthor),
   British Geological Survey [ctb, cph] (magnetic-field subroutine)
 Repository: CRAN
-Date/Publication: 2021-01-29 11:20:02 UTC
+Date/Publication: 2021-03-28 06:50:25 UTC

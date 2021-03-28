@@ -945,11 +945,11 @@ setMethod(f="[[<-",
 #' Assemble data into a [ctd-class] object.
 #'
 #' @param salinity There are several distinct choices for `salinity`.
-#' * It can be an [rsk-class] object (see \dQuote{Converting rsk objects} for details).
 #'
 #' * It can be a
 #' vector indicating the practical salinity through the water column. In that case,
 #' `as.ctd` employs the other arguments listed below.
+#'
 #' * It can be an [rsk-class] object (see \dQuote{Converting rsk objects} for details).
 #'
 #' * It can be something (a data frame, a list or an `oce` object)
@@ -961,9 +961,6 @@ setMethod(f="[[<-",
 #' then only the first column is used, and a warning to that effect is given,
 #' unless the `profile` argument is specified and then that specific
 #' profile is extracted.
-#' * It can be an [rsk-class] object (see \dQuote{Converting rsk objects} for details).
-#'
-#' * It can be an [rsk-class] object (see \dQuote{Converting rsk objects} for details).
 #'
 #' * It can be unspecified, in which case `conductivity` becomes a mandatory
 #' argument, because it will be needed for computing actual salinity,
@@ -1984,8 +1981,7 @@ ctdDecimate <- function(x, p=1, method="boxcar", rule=1, e=1.5, debug=getOption(
 #' other arguments except `x` are ignored. Using `breaks`
 #' is handy in cases where other schemes fail, or when the author
 #' has independent knowledge of how the profiles are strung together
-#' in `x`; see example 3 for how `breaks` might be used
-#' for towyo data.
+#' in `x`.
 #'
 #' @param arr.ind Logical indicating whether the array indices should be returned;
 #' the alternative is to return a vector of ctd objects.
@@ -2012,34 +2008,35 @@ ctdDecimate <- function(x, p=1, method="boxcar", rule=1, e=1.5, debug=getOption(
 #'
 #' @examples
 #' library(oce)
-#' if (file.exists("towyow.csv")) {
-#'     ## Example 1.
-#'     d <- read.csv("towyow.csv", header=TRUE)
-#'     towyow <- as.ctd(d$salinity, d$temperature, d$pressure)
+# These examples cannot be tested, because they are based on
+# data objects that are not provided with oce.
 #'
-#'     casts <- ctdFindProfiles(towyow)
-#'     par(mfrow=c(length(casts), 3))
-#'     for (cast in casts) {
-#'       plotProfile(cast, "salinity")
-#'       plotProfile(cast, "temperature")
-#'       plotTS(cast, type='o')
-#'     }
+#'\dontrun{
+#' # Example 1. Find profiles within a towyo file, as can result
+#' # if the CTD is cycled within the water column as the ship
+#' # moves.
+#' profiles <- ctdFindProfiles(towyo)
+#'}
 #'
-#'     ## Example 2.
-#'     ## Using a moving average to smooth pressure, instead of the default
-#'     ## smooth.spline() method. This avoids a tendency of smooth.spline()
-#'     ## to smooth out the profiles in a tow-yo with many (dozens or more) cycles.
-#'     movingAverage <- function(x, n = 11, ...)
-#'     {
-#'        f <- rep(1/n, n)
-#'        stats::filter(x, f, ...)
-#'     }
-#'     casts <- ctdFindProfiles(towyo, smoother=movingAverage)
-#'
-##     ## Example 3: glider data, with profiles separated by >10dbar jump.
-##     breaks <- which(diff(ctd[["pressure"]]) > 10))
-##     profiles <- ctdFindProfiles(ctd, breaks=breaks)
+#'\dontrun{
+#' # Example 2. Use a moving average to smooth pressure, instead of the
+#' # default smooth.spline() method. This might avoid a tendency of
+#' # the default scheme to miss some profiles in a long towyo.
+#' movingAverage <- function(x, n = 11, ...)
+#' {
+#'     f <- rep(1/n, n)
+#'     stats::filter(x, f, ...)
 #' }
+#' casts <- ctdFindProfiles(towyo, smoother=movingAverage)
+#'}
+#'
+#'\dontrun{
+#' # Example 3: glider data read into a ctd object. Chop
+#' # into profiles by looking for pressure jumps exceeding
+#' # 10 dbar.
+#' breaks <- which(diff(gliderAsCtd[["pressure"]]) > 10)
+#' profiles <- ctdFindProfiles(gliderAsCtd, breaks=breaks)
+#'}
 #'
 #' @author Dan Kelley and Clark Richards
 #'
@@ -4461,11 +4458,11 @@ plotTS <- function (x,
     if (eos == "gsw") {
         salinity <- x[["SA"]]
         y <- x[["CT"]]
-        oceDebug(debug, "salinity as SA, with range", paste(range(salinity,na.rm=TRUE), collapse=" to "), "\n")
+        oceDebug(debug, "Absolute Salinity ranges ", paste(range(salinity,na.rm=TRUE), collapse=" to "), "\n")
     } else {
-        oceDebug(debug, "salinity as Practical Salinity, with range ", paste(range(salinity,na.rm=TRUE), collapse=" to "), "\n")
-        y <- if (inSitu) x[["temperature"]] else swTheta(x, referencePressure=referencePressure, eos=eos)
         salinity <- x[["salinity"]]
+        y <- if (inSitu) x[["temperature"]] else swTheta(x, referencePressure=referencePressure, eos=eos)
+        oceDebug(debug, "Practical Salinity ranges ", paste(range(salinity,na.rm=TRUE), collapse=" to "), "\n")
     }
     ## Can only plot if both S and T are finite, so we trim S and T, at
     ## this point called salinity and y, and also bg, col, cex, and pch.
@@ -5815,6 +5812,23 @@ plotProfile <- function(x,
         w <- which(names(x@data) == xtype)
         if (length(w) < 1)
             stop("unknown xtype value (\"", xtype, "\")")
+        # Try to compute a top-axis label with units, unless 'xlab' was given.
+        if (is.null(xlab)) {
+            label <- if (xtype %in% names(x@metadata$units)) {
+                #. tmp <- getOption("oceUnitSep")
+                #. sep <- if (!is.null(tmp)) tmp else ""
+                #. if (getOption("oceUnitBracket") == "[") {
+                #.     L <- paste(" [", sep, sep="")
+                #.     R <- paste(sep, " ]", sep="")
+                #. } else {
+                #.     L <- paste(" (", sep, sep="")
+                #.     R <- paste(sep, " )", sep="")
+                #. }
+                label <- resizableLabel(as.character(xtype), "x", unit=x@metadata$units[[xtype]]$unit)
+            } else {
+                as.character(xtype)
+            }
+        }
         look <- if (keepNA) seq_along(y) else !is.na(x@data[[xtype]]) & !is.na(y)
         dots <- list(...)
         ## message("names(dots)=", paste(names(dots), collapse=" "))
@@ -5830,7 +5844,6 @@ plotProfile <- function(x,
             mtext(yname, side=2, line=axisNameLoc, cex=par("cex"))
             ## label <- if (w <= length(x@metadata$labels)) x@metadata$labels[w] else
             ##     as.character(xtype)
-            label <- as.character(xtype)
             if (is.character(label) && label == "sigmaTheta")
                 label <- resizableLabel("sigmaTheta", "x", debug=debug-1)
             ##issue1684/2020-04-20 label <- resizableLabel(label, "x", unit=x@metadata$units[[xtype]], debug=debug-1)
@@ -5847,8 +5860,8 @@ plotProfile <- function(x,
         } else if (type == "b" || type == "o") {
             lines(x@data[[w]], y, lwd=lwd, col=col)
             points(x@data[[w]], y, lwd=lwd, pch=pch, col=col, lty=lty, cex=cex)
-        } else {
-            points(x@data[[w]], y, lwd=lwd, pch=pch, col=col, lty=lty, cex=cex)
+        # issue1791 } else {
+        # issue1791     points(x@data[[w]], y, lwd=lwd, pch=pch, col=col, lty=lty, cex=cex)
         }
         if (grid) {
             at <- par("xaxp")

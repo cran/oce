@@ -85,40 +85,6 @@ setClass("topo", contains="oce")
 #' @family things related to topo data
 NULL
 
-## High-resolution Topographic Dataset for Nova Scotia
-##
-## One-minute (under 2km) dataset in a region including Nova Scotia, Prince
-## Edward Island and part of New Brunswick, Canada.
-##
-## @name topoNS
-## @docType data
-##
-## @usage data(topoNS)
-##
-## @source
-## This is created with [read.topo()], using a file downloaded with
-## [download.topo]`(-67,-59.5,43.3,47.2,resolution=1)`.
-##
-## @examples
-## \donttest{
-## library(oce)
-## data(coastlineWorldFine, package="ocedata")
-## data(topoNS)
-## # 1. Contour plot (with no legend)
-## plot(topoNS, location="none")
-## # 2. Image plot (note that whitespace can occur if plot does not match aspect ratio)
-## H <- quantile(abs(topoNS[["z"]]), 0.98)
-## cm <- colormap(H*c(-1, 1),
-##                col=function(n) oceColorsGebco(region="both",n=n))
-## imagep(topoNS, colormap=cm, xlab="", ylab="")
-## lines(coastlineWorldFine[["longitude"]], coastlineWorldFine[["latitude"]])
-## }
-##
-## @family datasets provided with oce
-## @family things related to topo data
-## NULL
-
-
 setMethod(f="initialize",
           signature="topo",
           definition=function(.Object, longitude, latitude, z, filename="", units, ...) {
@@ -258,21 +224,22 @@ setMethod(f="subset",
 #' name specifies the data request, if a file of that name is not already
 #' present on the local file system.  The return value is the name of the data
 #' file, and its typical use is as the filename for a call to [read.topo()].
-#' Given the rules on file naming, subsequent calls to `download.topo()`
+#' Given the rules on file naming, subsequent calls to `download.topo`
 #' with identical parameters will simply return the name of the cached file,
 #' assuming the user has not deleted it in the meantime.
 #'
 #' The specified longitude and latitude limits are rounded to 2 digits
 #' (corresponding to a footprint of approximately 1km), and these are used
 #' in the server request. If the resultant request would generate under
-#' 1 row or column in the result, [download.topo] generates an
+#' 1 row or column in the result, `download.topo` generates an
 #' error message and stops.
 #'
 #' @section Historical note relating to NOAA server changes:
-#' In May of 2020, [download.topo()] stopped working, evidently owing
+#' In May of 2020, `download.topo` stopped working, evidently owing
 #' to changes in the NOAA server API, which had been inferred by reverse
-#' engineering a NOAA data-request website. Luckily, [marmap::getNOAA.bathy()]
-#' was found to be working at that time, and so [download.topo()] was revised based on
+#' engineering a NOAA data-request website. However, the
+#' `marmap` function `getNOAA.bathy`
+#' was found to be working at that time, and so `download.topo` was revised based on
 #' that function.  The problem of keeping up with changing data-server APIs should
 #' be easier in the future, since NOAA has made the API public.
 #'

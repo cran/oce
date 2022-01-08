@@ -18,7 +18,8 @@ swSigmaTheta(
 \item{salinity}{either practical salinity (in which case \code{temperature}
 and \code{pressure} must be provided) \emph{or} an \code{oce} object, in
 which case \code{salinity}, \code{temperature} (in the ITS-90 scale; see
-next item), etc. are inferred from the object.}
+next item), etc. are inferred from the object, ignoring the
+other parameters, if they are supplied.}
 
 \item{temperature}{\emph{in-situ} temperature (\eqn{^\circ}{deg}C), defined
 on the ITS-90 scale.  This scale is used by GSW-style calculation (as
@@ -60,7 +61,7 @@ extracted from it, and used for the calculation instead of any values
 provided in the other arguments.
 }
 \examples{
-expect_equal(26.4212790994, swSigmaTheta(35, 13, 1000, eos="unesco"))
+stopifnot(abs(26.4212790994 - swSigmaTheta(35, 13, 1000, eos="unesco")) < 1e-7)
 
 }
 \references{
@@ -71,6 +72,8 @@ Other functions that calculate seawater properties:
 \code{\link{T68fromT90}()},
 \code{\link{T90fromT48}()},
 \code{\link{T90fromT68}()},
+\code{\link{computableWaterProperties}()},
+\code{\link{locationForGsw}()},
 \code{\link{swAbsoluteSalinity}()},
 \code{\link{swAlphaOverBeta}()},
 \code{\link{swAlpha}()},
@@ -85,6 +88,7 @@ Other functions that calculate seawater properties:
 \code{\link{swRho}()},
 \code{\link{swRrho}()},
 \code{\link{swSCTp}()},
+\code{\link{swSR}()},
 \code{\link{swSTrho}()},
 \code{\link{swSigma0}()},
 \code{\link{swSigma1}()},
@@ -97,6 +101,7 @@ Other functions that calculate seawater properties:
 \code{\link{swSoundSpeed}()},
 \code{\link{swSpecificHeat}()},
 \code{\link{swSpice}()},
+\code{\link{swSstar}()},
 \code{\link{swTFreeze}()},
 \code{\link{swTSrho}()},
 \code{\link{swThermalConductivity}()},

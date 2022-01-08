@@ -14,8 +14,7 @@
 #'
 #' @references
 #' Several online sources list WHP names. An example is
-#' `https://geo.h2o.ucsd.edu/documentation/manuals/pdf/90_1/chap4.pdf`
-#' (a link that was noticed to be failing on May 31, 2020).
+#' \url{https://cchdo.github.io/hdo-assets/documentation/manuals/pdf/90_1/chap4.pdf}
 #'
 #' @family things related to ctd data
 #' @family functions that interpret variable names and units from headers
@@ -67,8 +66,7 @@ oceNames2whpNames <- function(names)
 #'
 #' @references
 #' Several online sources list WOCE names. An example is
-#' `https://geo.h2o.ucsd.edu/documentation/manuals/pdf/90_1/chap4.pdf`
-#' (a link that was noticed to be failing on May 31, 2020).
+#' \url{https://cchdo.github.io/hdo-assets/documentation/manuals/pdf/90_1/chap4.pdf}
 #'
 #' @family things related to ctd data
 #' @family functions that interpret variable names and units from headers
@@ -149,8 +147,7 @@ oceUnits2whpUnits <- function(units, scales)
 #'
 #' @references
 #' Several online sources list WOCE names. An example is
-#' `https://geo.h2o.ucsd.edu/documentation/manuals/pdf/90_1/chap4.pdf`
-#' (a link that was noticed to be failing on May 31, 2020).
+#' \url{https://cchdo.github.io/hdo-assets/documentation/manuals/pdf/90_1/chap4.pdf}
 #'
 #' @family things related to ctd data
 #' @family functions that interpret variable names and units from headers
@@ -546,7 +543,10 @@ read.ctd.woce <- function(file, columns=NULL, station=NULL, missingValue, deploy
 
         ## Read the data into a buffer, since there will likely be
         ## a trailer line at the end, and read.table() cannot handle that.
-        lines <- readLines(file)
+        #> owarn <- options('warn')$warn
+        #> options(warn=-1)
+        lines <- readLines(file)# , warn=FALSE)
+        #> options(warn=owarn)
         nlines <- length(lines)
         if (length(grep("^END", lines[nlines])))
             lines <- lines[-nlines]

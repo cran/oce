@@ -1,4 +1,4 @@
-## vim: tw=120 shiftwidth=4 softtabstop=4 expandtab:
+# vim: tw=80 shiftwidth=4 softtabstop=4 expandtab:
 
 #' Class to Store adp (ADCP) Data
 #'
@@ -231,7 +231,7 @@ setClass("adp", contains="oce")
 #' Sample adp (acoustic-doppler profiler) dataset
 #'
 #' This is degraded subsample of measurements that were made with an
-#' upward-pointing ADP manufactured by Teledyne-RDI, as part of the St Lawrence
+#' upward-pointing, moored, ADP manufactured by Teledyne-RDI, as part of the St Lawrence
 #' Internal Wave Experiment (SLEIWEX).
 #'
 #' @name adp
@@ -328,6 +328,13 @@ setMethod("handleFlags", signature=c(object="adp", flags="ANY", actions="ANY", w
           definition=function(object, flags=NULL, actions=NULL, where=NULL, debug=getOption("oceDebug")) {
               ## DEVELOPER 1: alter the next comment to explain your setup
               ## Flag=1 means bad velocity; 0 means good
+              names <- names(object[["flags"]])
+              for (name in names) {
+                  for (j in 1:length(object[[name]])) {
+                      if (any(class(object[[name]][j]) == "raw"))
+                          stop("use adpConvertRawToNumeric() first to convert raw values to numeric")
+                  }
+              }
               if (is.null(flags)) {
                   flags <- defaultFlags(object)
                   if (is.null(flags))
@@ -351,8 +358,6 @@ setMethod("initializeFlags",
               oceDebug(debug, "setFlags,adp-method name=", name, ", value=", value, "\n")
               if (is.null(name))
                   stop("must supply 'name'")
-              if (name != "v")
-                  stop("the only flag that adp objects can handle is for \"v\"")
               res <- initializeFlagsInternal(object, name, value, debug-1)
               res
           })
@@ -397,8 +402,6 @@ setMethod("setFlags",
           function(object, name=NULL, i=NULL, value=NULL, debug=getOption("oceDebug")) {
               if (is.null(name))
                   stop("must specify 'name'")
-              if (name != "v")
-                  stop("in adp objects, the only flag that can be set is for \"v\"")
               setFlagsInternal(object, name, i, value, debug-1)
           })
 
@@ -446,11 +449,13 @@ setMethod(f="summary",
                             "\n", sep=''))
               }
               v.dim <- dim(object[["v"]])
-              if (!is.ad2cp(object)) {
-                  cat("* Number of profiles:", v.dim[1], "\n")
-                  cat("* Number of cells:   ", v.dim[2], "\n")
-                  cat("* Number of beams:   ", v.dim[3], "\n")
-                  cat("* Cell size:         ", object[["cellSize"]], "m\n")
+              isAD2CP <- is.ad2cp(object)
+              if (!isAD2CP) {
+                  cat("* Number of beams:    ", v.dim[3], "\n", sep="")
+                  cat("* Number of profiles: ", v.dim[1], "\n", sep="")
+                  cat("* Number of cells:    ", v.dim[2], "\n", sep="")
+                  cat("* Number of beams:    ", v.dim[3], "\n", sep="")
+                  cat("* Cell size:          ", object[["cellSize"]], "m\n", sep="")
               }
               if ("time" %in% names(object@data)) {
                   cat("* Summary of times between profiles:\n")
@@ -516,9 +521,13 @@ setMethod(f="summary",
               metadataNames <- names(object@metadata)
               cat("* Frequency:         ", object[["frequency"]], "kHz\n", ...)
               if ("ensembleNumber" %in% names(object@metadata)) {
-                  cat(paste("* Ensemble Numbers:  ", vectorShow(object@metadata$ensembleNumber, msg="")))
+                  en <- object@metadata$ensembleNumber
+                  nen <- length(en)
+                  if (nen > 4)
+                      cat("* Ensemble Numbers:   ", en[1], ", ", en[2], ", ..., ", en[nen-1L], ", ", en[nen], "\n", sep="")
+                  else
+                      cat("* Ensemble Numbers:   ", paste(en, collapse=", "), "\n", sep="")
               }
-              isAD2CP <- is.ad2cp(object)
               if (!isAD2CP) {
                   if ("numberOfCells" %in% metadataNames) {
                       dist <- object[["distance"]]
@@ -548,7 +557,11 @@ setMethod(f="summary",
                   }
                   beamUnspreaded <- object[["oceBeamUnspreaded"]]
                   cat("* Beams::\n")
-                  cat("    Number:          ", if (is.null(numberOfBeams)) "?" else numberOfBeams, "\n")
+                  if ("vv" %in% names(object@data))
+                      cat("    Number:          ", if (is.null(numberOfBeams)) "?" else numberOfBeams, "slanted, plus 1 central\n")
+                  else
+                      cat("    Number:          ", if (is.null(numberOfBeams)) "?" else numberOfBeams, "slanted\n")
+
                   cat("    Slantwise Angle: ", if (is.null(beamAngle)) "?" else beamAngle , "\n")
                   if (numberOfBeams > 0)
                       cat("    Orientation:     ", if (is.null(orientation)) "?" else orientation, "\n")
@@ -611,6 +624,38 @@ setMethod(f="concatenate",
 #'
 #' @param x an [adp-class] object.
 #'
+#' @section Details of the Specialized Method:
+#'
+#' Note that the entries within [adp-class] objects vary greatly, from
+#' instrument to instrument, and so are only sketched here, and in the output
+#' from `[["?"]]`.
+#'
+#' * If `i` is `"?"`, then the return value is a list
+#' containing four items, each of which is a character vector
+#' holding the names of things that can be accessed with `[[`.
+#' The `data` and `metadata` items hold the names of
+#' entries in the object's data and metadata
+#' slots, respectively. The `dataDerived`
+#' and `metadataDerived` items are *not* authoritative, because
+#' information provided by different instruments is so varied.
+#'
+#' * If `i` is `"u1"` then the return value is `v[,1]`. The
+#' same holds for 2, etc., depending on the number of beams in
+#' the instrument.
+#'
+#' * If `i` is `"a1"` then signal amplitude is returned, and similarly
+#' for other digits. The results can be in [raw()] or numeric form,
+#' as shown in the examples.
+#'
+#' * If `i` is `"q1"` then signal quality is returned, and similarly
+#' for other digits.  As with amplitude, the result can be in [raw()]
+#' or numeric form.
+#'
+#' * If `i` is `"coordinate"`, then the coordinate system is
+#' retrieved.
+#'
+#' @template sub_subTemplate
+#'
 #' @examples
 #' data(adp)
 #' # Tests for beam 1, distance bin 1, first 5 observation times
@@ -619,17 +664,6 @@ setMethod(f="concatenate",
 #' adp[["a", "numeric"]][1:5,1,1]
 #' as.numeric(adp[["a"]][1:5,1,1]) # same as above
 #'
-#' @template sub_subTemplate
-#'
-#' @section Details of the specialized `adp` method:
-#'
-#' In addition to the usual extraction of elements by name, some shortcuts
-#' are also provided, e.g. `x[["u1"]]` retrieves `v[,1]`, and similarly
-#' for the other velocity components. The `a` and `q`
-#' data can be retrieved in [raw()] form or numeric
-#' form (see examples). The coordinate system may be
-#' retrieved with e.g. `x[["coordinate"]]`.
-#'
 #' @author Dan Kelley
 #'
 #' @family things related to adp data
@@ -637,39 +671,24 @@ setMethod(f="[[",
           signature(x="adp", i="ANY", j="ANY"),
           definition=function(x, i, j, ...) {
               ##>message("top: i='", i, "'")
-              ## if (i == "a") {
-              ##     if (!missing(j) && j == "numeric") {
-              ##         res <- x@data$a
-              ##         dim <- dim(res)
-              ##         res <- as.numeric(res)
-              ##         dim(res) <- dim
-              ##     } else {
-              ##         res <- x@data$a
-              ##     }
-              ##     res
-              ## } else if (i == "q") {
-              ##     if (!missing(j) && j == "numeric") {
-              ##         res <- x@data$q
-              ##         dim <- dim(res)
-              ##         res <- as.numeric(res)
-              ##         dim(res) <- dim
-              ##     } else {
-              ##         res <- x@data$q
-              ##     }
-              ##     res
-              ## if (i == "g") {
-              ##     if (!missing(j) && 1 == length("numeric", j)) {
-              ##         res <- x@data$g
-              ##         dim <- dim(res)
-              ##         res <- as.numeric(res)
-              ##         dim(res) <- dim
-              ##     } else {
-              ##         res <- x@data$g
-              ##     }
-              ##     res
-              ##} else
+              if (length(i) != 1L)
+                  stop("In [[,adp-method() : may only extract 1 item at a time.\n", call.=FALSE)
               ISAD2CP <- is.ad2cp(x)
               ##>message("ISAD2CP=", ISAD2CP)
+              metadataDerived <- c("coordinate")
+              numberOfBeams <- if (ISAD2CP) 4 else x@metadata$numberOfBeams
+              if (is.null(numberOfBeams)) {
+                  dataDerived <- c("a", "u", "q")
+              } else {
+                  dataDerived <- c(paste0("u", seq_len(numberOfBeams)),
+                      paste0("a", seq_len(numberOfBeams)),
+                      paste0("q", seq_len(numberOfBeams)))
+              }
+              if (i == "?")
+                  return(list(metadata=sort(names(x@metadata)),
+                          metadataDerived=sort(metadataDerived),
+                          data=sort(names(x@data)),
+                          dataDerived=sort(dataDerived)))
               if (i == "distance") {
                   ##>message("asking for 'distance'")
                   if (ISAD2CP) {
@@ -1057,23 +1076,39 @@ setMethod(f="subset",
                   }
               } else if (length(grep("distance", subsetString))) {
                   oceDebug(debug, "subsetting an adp by distance\n")
-                  if (length(grep("time", subsetString)))
-                      stop("cannot subset by both time and distance; split into multiple calls")
+                  if (grepl("time|pressure", subsetString))
+                      stop("cannot subset by both bin (e.g. distance) and profile (i.e. time or pressure)")
                   ## keep <- eval(substitute(subset), x@data, parent.frame(2))
                   keep <- eval(expr=substitute(expr=subset, env=environment()), envir=x@data, enclos=parent.frame(2))
-                  oceDebug(debug, vectorShow(keep, "keeping bins:"), "\n")
+                  oceDebug(debug, "subset() will retain", sum(keep), "of", length(keep), "bins in slant beams\n")
+                  haveVerticalBeam <- "vv" %in% names(x@data) # assume, later, that va, vg, vq and vdistance exist
+                  if (haveVerticalBeam) {
+                      oceDebug(debug, "have a vertical beam\n")
+                      vkeep <- eval(expr=substitute(expr=subset,env=environment()),envir=list(distance=x@data$vdistance),enclos=parent.frame(2))
+                      oceDebug(debug, "subset() will retain", sum(vkeep), "of", length(vkeep), "bins in the vertical beam\n")
+                  }
                   if (sum(keep) < 2)
                       stop("must keep at least 2 bins")
                   res <- x
                   res@data$distance <- x@data$distance[keep] # FIXME: broken for AD2CP
+                  res@metadata$numberOfCells <- sum(keep)
+                  if (haveVerticalBeam)
+                      res@data$vdistance <- x@data$vdistance[vkeep]
                   for (name in names(x@data)) {
                       if (name == "time")
                           next
-                      if (is.array(x@data[[name]]) && 3 == length(dim(x@data[[name]]))) {
-                          oceDebug(debug, "subsetting array data[[", name, "]] by distance\n")
-                          oceDebug(debug, "before, dim(", name, ") =", dim(res@data[[name]]), "\n")
-                          res@data[[name]] <- x@data[[name]][, keep, , drop=FALSE]
-                          oceDebug(debug, "after, dim(", name, ") =", dim(res@data[[name]]), "\n")
+                      # Handle vertical beam.  These items are 2D fields, index1=profile index2=cell. We
+                      # use vkeep, based on vdistance, for the subset.
+                      if (haveVerticalBeam && (name %in% c("va", "vg", "vq", "vv"))) {
+                          oceDebug(debug, "subsetting vertical beam item \"", name, "\"\n", sep="")
+                          res@data[[name]] <- x@data[[name]][, vkeep, drop=FALSE]
+                      } else {
+                          if (is.array(x@data[[name]]) && 3 == length(dim(x@data[[name]]))) {
+                              oceDebug(debug, "subsetting array data[[", name, "]] by distance\n")
+                              oceDebug(debug, "before, dim(", name, ") =", dim(res@data[[name]]), "\n")
+                              res@data[[name]] <- x@data[[name]][, keep, , drop=FALSE]
+                              oceDebug(debug, "after, dim(", name, ") =", dim(res@data[[name]]), "\n")
+                          }
                       }
                   }
                   oceDebug(debug, "names of flags: ", paste(names(x@metadata$flags), collapse=" "), "\n")
@@ -1084,31 +1119,51 @@ setMethod(f="subset",
                                paste(vdim, collapse="x"), "; new dim=",
                                paste(dim(res@metadata$flags$v), collapse="x"), "\n")
                   }
-              } else if (length(grep("pressure", subsetString))) {
+              } else if (grepl("pressure", subsetString)) {
+                  # FIXME: should subset flags (https://github.com/dankelley/oce/issues/1837#issuecomment-862293585)
+                  if (grepl("distance", subsetString))
+                      stop("cannot subset by both profile (e.g. time or pressure) and bin (e.g. distance)")
                   ## keep <- eval(substitute(subset), x@data, parent.frame(2))
                   keep <- eval(expr=substitute(expr=subset, env=environment()), envir=x@data, enclos=parent.frame(2))
+                  oceDebug(debug, "subset() will retain", sum(keep), "of", length(keep), "profiles\n")
+                  nkeep <- length(keep)
                   res <- x
-                  res@data$v <- res@data$v[keep, , ]
-                  res@data$a <- res@data$a[keep, , ]
-                  res@data$q <- res@data$q[keep, , ]
-                  res@data$time <- res@data$time[keep]
-                  if ("v" %in% names(x@metadata$flags)) {
-                      dim <- dim(x@metadata$flags$v)
-                      res@metadata$flags$v <- x@metadata$flags$v[keep, , drop=FALSE]
-                      oceDebug(debug, "subsetting flags$v original dim=",
-                               paste(dim, collapse="x"), "; new dim=",
-                               paste(dim(res@metadata$flags$v), collapse="x"))
+                  for (name in names(x@data)) {
+                      if (name == "time") {
+                          res@data$time <- x@data$time[keep]
+                          oceDebug(debug, "  handled time\n")
+                      } else if (name %in% c("va", "vg", "vq", "vv")) {
+                          if (is.matrix(x@data[[name]]) && dim(x@data[[name]])[1] == nkeep) {
+                              res@data[[name]] <- x@data[[name]][keep,]
+                              oceDebug(debug, "  handled vertical beam", name, "\n")
+                          } else {
+                              oceDebug(debug, "  skipped vertical beam", name, "(first dimension mismatch)\n")
+                          }
+                      } else if (is.vector(x@data[[name]])) {
+                          if (length(x@data[[name]]) == nkeep) {
+                              res@data[[name]] <- x@data[[name]][keep]
+                              oceDebug(debug, "  handled vector", name, "\n")
+                          } else {
+                              oceDebug(debug, "  skipped vector", name, "(length mismatch)\n")
+                          }
+                      } else if (is.matrix(x@data[[name]])) {
+                          if (dim(x@data[[name]])[1] == nkeep) {
+                              res@data[[name]] <- x@data[[name]][keep,]
+                              oceDebug(debug, "  handled matrix", name, "\n")
+                          } else {
+                              oceDebug(debug, "  skipped matrix", name, "(first dimension mismatch)\n")
+                          }
+                      } else if (is.array(x@data[[name]])) {
+                          if (dim(x@data[[name]])[1] == nkeep) {
+                              res@data[[name]] <- x@data[[name]][keep,,]
+                              oceDebug(debug, "  handled array", name, "\n")
+                          } else {
+                              oceDebug(debug, "  skipped array", name, "(first dimension mismatch)\n")
+                          }
+                      } else if (!is.null(x@data[[name]])) {
+                          warning("In subset() : Skipping data@", name, " because it is not a vector, matrix, or array\n", sep="", call.=FALSE)
+                      }
                   }
-                  ## the items below may not be in the dataset
-                  names <- names(res@data)
-                  if ("bottomRange" %in% names) res@data$bottomRange <- res@data$bottomRange[keep, ]
-                  if ("pressure" %in% names) res@data$pressure <- res@data$pressure[keep]
-                  if ("temperature" %in% names) res@data$temperature <- res@data$temperature[keep]
-                  if ("salinity" %in% names) res@data$salinity <- res@data$salinity[keep]
-                  if ("depth" %in% names) res@data$depth <- res@data$depth[keep]
-                  if ("heading" %in% names) res@data$heading <- res@data$heading[keep]
-                  if ("pitch" %in% names) res@data$pitch <- res@data$pitch[keep]
-                  if ("roll" %in% names) res@data$roll <- res@data$roll[keep]
               } else if (length(grep("average", subsetString))) {
                   res@data$burst <- NULL
                   res@data$interleavedBurst <- NULL
@@ -1119,7 +1174,7 @@ setMethod(f="subset",
                   res@data$average <- NULL
                   res@data$burst <- NULL
               } else {
-                  stop('subset should be "distance", "time", "average", "burst", or "interleavedBurst"; "',
+                  stop('subset should be by "distance", "time", "average", "burst", or "interleavedBurst"; "',
                        subsetString, '" is not permitted')
               }
               res@metadata$numberOfSamples <- dim(res@data$v)[1] # FIXME: handle AD2CP
@@ -1695,24 +1750,36 @@ setMethod(f="plot",
                               ...)
           {
               debug <- max(0, min(debug, 4))
-              oceDebug(debug, "plot,adp-method(x, ",
-                       argShow(mar),
-                       "\n", sep="", unindent=1, style="bold")
-              oceDebug(debug, "                ",
-                       argShow(mgp),
-                       "\n", sep="", unindent=1, style="bold")
-              oceDebug(debug, "                ",
-                       argShow(which),
-                       "\n", sep="", unindent=1, style="bold")
-              oceDebug(debug, "                ",
-                       argShow(cex),
-                       argShow(cex.axis),
-                       argShow(cex.lab),
-                       "\n", sep="", unindent=1, style="bold")
-              oceDebug(debug, "                ",
-                       argShow(breaks),
-                       argShow(j),
-                       "...) {\n", sep="", unindent=1, style="bold")
+              theCall <- gsub(" = [^,)]*", "", deparse(expr=match.call()))
+              theCall <- paste(theCall, collapse=" ")
+              theCall <- gsub("[ ]+", " ", theCall)
+              theCall <- gsub(".local", "plot,adp-method", theCall)
+              oceDebug(debug, theCall, " {\n", style="bold", sep="", unindent=1)
+              #> oceDebug(debug, "plot,adp-method(x, ",
+              #>          argShow(mar),
+              #>          "\n", sep="", unindent=1, style="bold")
+              #> oceDebug(debug, "                ",
+              #>          argShow(mgp),
+              #>          "\n", sep="", unindent=1, style="bold")
+              #> oceDebug(debug, "                ",
+              #>          argShow(which),
+              #>          "\n", sep="", unindent=1, style="bold")
+              #> oceDebug(debug, "                ",
+              #>          argShow(cex),
+              #>          argShow(cex.axis),
+              #>          argShow(cex.lab),
+              #>          "\n", sep="", unindent=1, style="bold")
+              #> oceDebug(debug, "                ",
+              #>          argShow(breaks),
+              #>          argShow(j),
+              #>          "...) {\n", sep="", unindent=1, style="bold")
+              dots <- list(...)
+              dotsNames <- names(dots)
+              # Catch some errors users might make
+              if ("colormap" %in% dotsNames)
+                  warning("In plot,adp-method() : \"colormap\" is handled by this function\n", call.=FALSE)
+
+
               ## oceDebug(debug, "par(mar)=", paste(par('mar'), collapse=" "), "\n")
               ## oceDebug(debug, "par(mai)=", paste(par('mai'), collapse=" "), "\n")
               ## oceDebug(debug, "par(mfg)=", paste(par('mfg'), collapse=" "), "\n")
@@ -1767,10 +1834,10 @@ setMethod(f="plot",
               fac <- if (nw < 3) 1 else 0.66 # try to emulate par(mfrow)
               ## par(cex=cex*fac, cex.axis=fac*cex.axis, cex.lab=fac*cex.lab) # BUILD-TEST FAILURE
               ## par(cex=cex*fac)                                             # OK
-              oceDebug(debug, "adp.R:1759 cex=", cex, ", original par('cex')=", par('cex'), style="blue")
+              oceDebug(debug, "adp.R:1759 cex=", cex, ", original par('cex')=", par('cex'), "\n")
               ##par(cex=cex*fac, cex.axis=fac*cex.axis)                         # OK
               par(cex.axis=fac*cex.axis, cex.lab=fac*cex.lab) # OK
-              oceDebug(debug, "adp.R:1761 ... after par() call, have par('cex')=", par('cex'), style="blue")
+              oceDebug(debug, "adp.R:1761 ... after par() call, have par('cex')=", par('cex'), "\n")
               rm(fac)
               numberOfBeams <- x[["numberOfBeams", j]]
               oceDebug(debug, "numberOfBeams=", numberOfBeams, " (note: j=\"", j, "\")\n", sep="")
@@ -1805,7 +1872,6 @@ setMethod(f="plot",
                   whichFraction <- rep(0, length(which))
               }
               par(mgp=mgp, mar=mar, cex=cex)
-              dots <- list(...)
               ytype <- match.arg(ytype)
               ## user may specify a matrix for xlim and ylim
               if (ylimGiven) {
@@ -1928,7 +1994,7 @@ setMethod(f="plot",
               if (showBottom)
                   bottom <- apply(x@data$bottomRange, 1, mean, na.rm=TRUE)
               oceDebug(debug, "showBottom=", showBottom, "\n")
-              oceDebug(debug, "cex=", cex, ", par('cex')=", par('cex'), style="blue")
+              oceDebug(debug, "cex=", cex, ", par('cex')=", par('cex'), "\n")
               if (useLayout) {
                   if (any(which %in% images) || marginsAsImage) {
                       w <- 1.5
@@ -1955,24 +2021,24 @@ setMethod(f="plot",
               oceDebug(debug, 'haveTimeImages=', haveTimeImages, '(if TRUE, it means any timeseries graphs get padding on RHS)\n')
               par(mar=mar, mgp=mgp)
               if (haveTimeImages) {
-                  oceDebug(debug, "setting up margin spacing before plotting\n", style="italic")
-                  oceDebug(debug, "  before: ", vectorShow(par("mar")), unindent=1, style="blue")
+                  oceDebug(debug, "setting up margin spacing before plotting\n")
+                  oceDebug(debug, "before: ", vectorShow(par("mar")))
                   ## Since zlim not given, this just does calculations
                   drawPalette(#cex.axis=cex * (1 - min(nw / 8, 1/4)),
                               debug=debug-1)
-                  oceDebug(debug, "  after: ", vectorShow(par("mar")), unindent=1, style="blue")
+                  oceDebug(debug, "after: ", vectorShow(par("mar")))
               }
               omar <- par("mar")
-              oceDebug(debug, vectorShow(omar), style="red")
+              oceDebug(debug, vectorShow(omar))
               ##oceDebug(debug, "drawTimeRange=", drawTimeRange, "\n", sep="")
-              oceDebug(debug, "cex=", cex, ", par('cex')=", par('cex'), style="blue")
+              oceDebug(debug, "cex=", cex, ", par('cex')=", par('cex'), "\n")
               for (w in 1:nw) {
-                  oceDebug(debug, "plot,adp-method top of loop (before setting par('mar'))\n", style="italic")
-                  oceDebug(debug, vectorShow(par("mar")), style="blue")
-                  oceDebug(debug, vectorShow(par("mai")), style="blue")
-                  oceDebug(debug, vectorShow(omar), style="blue")
+                  oceDebug(debug, "plot,adp-method top of loop (before setting par('mar'))\n")
+                  oceDebug(debug, vectorShow(par("mar")))
+                  oceDebug(debug, vectorShow(par("mai")))
+                  oceDebug(debug, vectorShow(omar))
                   par(mar=omar) # ensures all panels start with original mar
-                  oceDebug(debug, "which[", w, "]=", which[w], "\n", sep="", style="red")
+                  oceDebug(debug, "which[", w, "]=", which[w], "\n", sep="")
                   if (which[w] %in% images) {
                       ## image types
                       skip <- FALSE
@@ -2015,9 +2081,7 @@ setMethod(f="plot",
                                       }
                                   }
                               }
-                              oceDebug(debug, "zlim: ", paste(zlim, collapse=" "), "\n")
                           }
-                          oceDebug(debug, "flipy =", flipy, "\n")
                       } else if (which[w] %in% 5:8) {
                           oceDebug(debug, "which[", w, "]=", which[w], "; this is some type of amplitude\n", sep="")
                           ## amplitude
@@ -2150,7 +2214,7 @@ setMethod(f="plot",
                       if (!skip) {
                           if (numberOfCells > 1) {
                               if (xlimGiven) {
-                                  oceDebug(debug, "about to call imagep() with xlim given: par('cex')=", par("cex"), ", cex=", cex, style="blue")
+                                  oceDebug(debug, "about to call imagep() with xlim given and par('cex')=", par("cex"), ", cex=", cex, "\n", sep="")
                                   oceDebug(debug, "xlimGiven case\n")
                                   ats <- imagep(x=tt, y=x[["distance", j]], z=z,
                                                 xlim=xlim[w, ],
@@ -2176,10 +2240,7 @@ setMethod(f="plot",
                                                 debug=debug-1,
                                                 ...)
                               } else {
-                                  oceDebug(debug, "about to call imagep() with no xlim. cex=", cex, ", par('cex')=", par("cex"), ", par('cex.axis')=", par("cex.axis"), style="blue")
-                                  oceDebug(debug, "about to do an image plot with no xlim given, with cex=", cex, ", par(\"cex\")=", par("cex"), ", nw=", nw, ", cex sent to oce.plots=", cex*(1-min(nw/8, 1/4)), "\n")
-                                  oceDebug(debug, "   with par('mar')=c(", paste(par('mar'),collapse=","), ", mar=c(", paste(mar,collapse=","), ") and mgp=c(",paste(mgp,collapse=","),")", "\n")
-                                  oceDebug(debug, "   with time[1]=", format(tt[[1]], "%Y-%m-%d %H:%M:%S"), "\n")
+                                  oceDebug(debug, "about to call imagep() with time[1]=", format(tt[[1]], "%Y-%m-%d %H:%M:%S"), "\n")
                                   ats <- imagep(x=tt, y=x[["distance", j]], z=z,
                                                 zlim=zlim,
                                                 flipy=flipy,
@@ -2304,12 +2365,12 @@ setMethod(f="plot",
                                                  tformat=tformat,
                                                  debug=debug-1)
                           } else {
-                              oceDebug(debug, "about to do non-diagnostic pressure plot, with cex=", cex, ", par(\"cex\")=", par("cex"), ", nw=", nw, ", cex sent to oce.plots=", cex*(1-min(nw/8, 1/4)), "\n", sep="", style="italic")
-                              oceDebug(debug, vectorShow(mar), style="blue")
-                              oceDebug(debug, vectorShow(par("mar")), style="blue")
-                              oceDebug(debug, vectorShow(par("mai")), style="blue")
-                              oceDebug(debug, vectorShow(haveTimeImages), style="blue")
-                              oceDebug(debug, "time[1]=", format(x[["time",j]][1], "%Y-%m-%d %H:%M:%S"), "\n", style="blue")
+                              oceDebug(debug, "about to do non-diagnostic pressure plot, with cex=", cex, ", par(\"cex\")=", par("cex"), ", nw=", nw, ", cex sent to oce.plots=", cex*(1-min(nw/8, 1/4)), "\n", sep="")
+                              oceDebug(debug, vectorShow(mar))
+                              oceDebug(debug, vectorShow(par("mar")))
+                              oceDebug(debug, vectorShow(par("mai")))
+                              oceDebug(debug, vectorShow(haveTimeImages))
+                              oceDebug(debug, "time[1]=", format(x[["time",j]][1], "%Y-%m-%d %H:%M:%S"), "\n")
                               ats <- oce.plot.ts(x[["time", j]], x[["pressure", j]],
                                                  xlim=if (xlimGiven) xlim[w, ] else tlim,
                                                  ylim=if (ylimGiven) ylim[w, ],
@@ -2872,13 +2933,13 @@ setMethod(f="plot",
                   }
                   if (is.logical(grid[1]) && grid[1])
                       grid(col=grid.col, lty=grid.lty, lwd=grid.lwd)
-                  oceDebug(debug, "plot,adp-method bottom of loop, before reseting par('mar'):\n", style="italic")
-                  oceDebug(debug, vectorShow(par("mar")), style="blue")
-                  oceDebug(debug, vectorShow(par("mai")), style="blue")
+                  oceDebug(debug, "plot,adp-method bottom of loop, before reseting par('mar'):\n")
+                  oceDebug(debug, vectorShow(par("mar")))
+                  oceDebug(debug, vectorShow(par("mai")))
                   par(mar=omar)        # prevent margin creep if we have non-images after images (issue 1632 item 2)
-                  oceDebug(debug, "...after reseting par('mar'):", style="italic")
-                  oceDebug(debug, vectorShow(par("mar")), style="blue")
-                  oceDebug(debug, vectorShow(par("mai")), style="blue")
+                  oceDebug(debug, "...after reseting par('mar').\n")
+                  oceDebug(debug, vectorShow(par("mar")))
+                  oceDebug(debug, vectorShow(par("mai")))
               }
               par(cex=opar$cex, cex.axis=opar$cex.axis, cex.lab=opar$cex.lab)
               if (exists("ats")) {
@@ -3782,6 +3843,13 @@ display.bytes <- function(b, label="", ...)
 #'
 #' @param x an [adp-class] object that contains bottom-tracking velocities.
 #'
+#' @param despike either a logical value or a univariate function. This
+#' controls whether the bottom velocity (`bv`) values should be altered before they are
+#' subtracted from the beam velocities. If it is `TRUE` then the `bv` values are despiked
+#' first by calling [despike()]. If it is a function, then that function is used instead of
+#' [despike()], e.g. `function(x) despike(x, reference="smooth")` would change the reference
+#' function for despiking from its default of `"median"`.
+#'
 #' @template debugTemplate
 #'
 #' @author Dan Kelley and Clark Richards
@@ -3791,7 +3859,7 @@ display.bytes <- function(b, label="", ...)
 #' object class.
 #'
 #' @family things related to adp data
-subtractBottomVelocity <- function(x, debug=getOption("oceDebug"))
+subtractBottomVelocity <- function(x, despike=FALSE, debug=getOption("oceDebug"))
 {
     oceDebug(debug, "subtractBottomVelocity(x) {\n", unindent=1)
     if (!("bv" %in% names(x@data))) {
@@ -3802,7 +3870,17 @@ subtractBottomVelocity <- function(x, debug=getOption("oceDebug"))
     numberOfBeams <- dim(x[["v"]])[3] # could also get from metadata but this is less brittle
     for (beam in 1:numberOfBeams) {
         oceDebug(debug, "beam #", beam, "\n")
-        res@data$v[, , beam] <- x[["v"]][, , beam] - x@data$bv[, beam]
+        if (is.logical(despike)) {
+            if (despike == FALSE) {
+                res@data$v[, , beam] <- x[["v"]][, , beam] - x@data$bv[, beam]
+            } else {
+                res@data$v[, , beam] <- x[["v"]][, , beam] - despike(x@data$bv[, beam])
+            }
+        } else if (is.function(despike)) {
+            res@data$v[, , beam] <- x[["v"]][, , beam] - despike(x@data$bv[, beam])
+        } else {
+            stop("despike must be a logical value or a function")
+        }
     }
     oceDebug(debug, "} # subtractBottomVelocity()\n", unindent=1)
     res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(expr=match.call()), sep="", collapse=""))
@@ -4018,4 +4096,140 @@ adpEnsembleAverage <- function(x, n=5, leftover=FALSE, na.rm=TRUE, ...)
     res@metadata$numberOfSamples <- length(res@data$time) # FIXME: handle AD2CP
     res@processingLog <- processingLogAppend(res@processingLog, paste(deparse(match.call()), sep="", collapse=""))
     res
+}
+
+# vim: tw=120 shiftwidth=4 softtabstop=4 expandtab:
+
+#' Convert Raw to Numeric Values For adp Objects
+#'
+#' Convert variables in an [adp-class] object from raw to numeric format.
+#'
+#' @param object an [adp-class] object.
+#'
+#' @param variables variables stored in an [adp-class] object that has
+#' the same dimensional as `v` and is stored in a raw format.
+#'
+#' @return `adpConvertRawToNumeric` returns an [adp-class] object whose specified
+#' variables have been converted from raw to numerical format.
+#' @template debugTemplate
+#' @family things related to adp data
+#' @author Jaimie Harbin and Dan Kelley
+#' @export
+#'
+#' @examples
+#' library(oce)
+#' data(adp)
+#' adp[["a"]][,,1][,1]
+#' ADP <- adpConvertRawToNumeric(adp)
+#' ADP[["a"]][,,1][,1]
+adpConvertRawToNumeric <- function(object=NULL, variables=NULL, debug=getOption("oceDebug"))
+{
+    oceDebug(debug, "adpConvertRawToNumeric() {\n", sep="", unindent=1, style="bold")
+    if (!inherits(object, "adp"))
+        stop("object must be an adp object")
+    v <- object[["v"]]
+    if (!exists("v"))
+        stop("the adp object must contain \"v\"")
+    # Find relevant variables if variable=NULL
+    dimNeeded <- dim(object[["v"]])
+    if (is.null(variables)) {
+        dataNames <- names(object@data)
+        keep <- sapply(dataNames,
+            function(variableTrial) {
+                dimtest <- dim(object[[variableTrial]])
+                length(dimtest) == 3 && all(dimtest == dimNeeded)
+            })
+        variables <- dataNames[keep]
+        oceDebug(debug, "inferred variables:", paste(variables, collapse=", "), "\n")
+    }
+    for (variable in variables) {
+        # Catch errors
+        if (length(dim(object[[variable]])) != 3)
+            stop("\"", variable, "\" does not have three dimensions")
+        if (all(dim(object[[variable]]) != dimNeeded))
+            stop("\"", variable, "\" must have dimension ", paste(dimNeeded, collapse="x"))
+        # Convert this relevant variable from raw to numeric 
+        object[[variable]] <- object[[variable, "numeric"]]
+    }
+    object@processingLog <- processingLogAppend(object@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    oceDebug(debug, "} # adpConvertRawToNumeric()\n", sep="", unindent=1, style="bold")
+    object
+}
+
+# vim: tw=120 shiftwidth=4 softtabstop=4 expandtab:
+
+#' Flag adp Data Past Water Column Boundary
+#'
+#' Flag variables with the same dimension of `v` in
+#' an [adp-class] object that are beyond the water column boundary.
+#' Currently, this operation can only be performed on [adp-class]
+#' objects that contain bottom ranges. Commonly, [handleFlags()] would
+#' then be used to remove such data.
+#'
+#' This works by fitting a smoothing spline to a bottom range with a defined
+#' number of degrees of freedom. For each time, it then searches to determine
+#' which associated distances are greater than the predicted smooth spline
+#' multiplied by \eqn{1-trim}.
+#'
+#' @param x an [adp-class] object containing bottom ranges.
+#'
+#' @param fields a variable contained within `x` indicating which field to flag.
+#'
+#' @param df the degrees of freedom to use during the smoothing spline operation.
+#'
+#' @param trim a scale factor for boundary trimming (see \dQuote{Details}).
+#'
+#' @param good number stored in flags to indicate good data.
+#'
+#' @param bad number stored in flags to indicate bad data.
+#' @template debugTemplate
+#'
+#' @return `adpFlagPastBoundary` returns an [adp-class] object with flags
+#' adjusted in the specified fields if data are beyond the water column boundary.
+#'
+#' @author Jaimie Harbin, Clark Richards, and Dan Kelley
+#'
+#' @family things related to adp data
+#'
+#' @export
+adpFlagPastBoundary <- function(x=NULL, fields=NULL, df=20, trim=0.15, good=1, bad=4, debug=getOption("oceDebug"))
+{
+    oceDebug(debug, "adpFlagPastBoundary() {\n", sep="", unindent=1, style="bold")
+    if (!inherits(x, "adp"))
+        stop("x must be an adp object")
+    if (!"br" %in% names(x@data))
+        stop("adpFlagPastBoundary can only flag fields that have the same dimension as \"v\"")
+    dimNeeded <- dim(x[["v"]])
+    if (is.null(fields)) {
+        dataNames <- names(x@data)
+        keep <- sapply(dataNames,
+            function(variableTrial) {
+                dimtest <- dim(x[[variableTrial]])
+                length(dimtest) == 3 && all(dimtest == dimNeeded)
+            })
+        fields <- dataNames[keep]
+        oceDebug(debug, "inferred fields:", paste(fields, collapse=", "), "\n")
+    }
+    mask <- array(good, dim=dim(x[["v"]]))
+    time <- x[["time"]]
+    for (kbeam in seq_len(x[["numberOfBeams"]])) {
+        timeSeconds <- as.numeric(time)
+        br <- x[["br"]][,kbeam]
+        ok <- is.finite(br)
+        X <- timeSeconds[ok]
+        y <- br[ok]
+        s <- smooth.spline(X, y, df=df)
+        p <- predict(s, timeSeconds)$y
+        for (itime in seq_along(x[["time"]])) {
+            jbad <- x[["distance"]] > (1-trim)*p[itime]
+            mask[itime, jbad, kbeam] <- bad
+        }
+    }
+    for (f in fields) {
+        x[["flags"]][[f]] <- mask
+        oceDebug(debug, "handled field '",f, "'\n", sep="")
+    }
+    x@processingLog <- processingLogAppend(x@processingLog, paste(deparse(match.call()), sep="", collapse=""))
+    oceDebug(debug, "} # adpFlagPastBoundary()\n", sep="", unindent=1, style="bold")
+    return(x)
 }

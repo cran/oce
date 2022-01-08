@@ -12,7 +12,7 @@ data(adp)
 }
 \description{
 This is degraded subsample of measurements that were made with an
-upward-pointing ADP manufactured by Teledyne-RDI, as part of the St Lawrence
+upward-pointing, moored, ADP manufactured by Teledyne-RDI, as part of the St Lawrence
 Internal Wave Experiment (SLEIWEX).
 }
 \examples{
@@ -57,7 +57,9 @@ Other things related to adp data:
 \code{\link{[[<-,adp-method}},
 \code{\link{ad2cpHeaderValue}()},
 \code{\link{adp-class}},
+\code{\link{adpConvertRawToNumeric}()},
 \code{\link{adpEnsembleAverage}()},
+\code{\link{adpFlagPastBoundary}()},
 \code{\link{adp_rdi.000}},
 \code{\link{as.adp}()},
 \code{\link{beamName}()},

@@ -53,7 +53,7 @@ also applies to the \code{longitude} and \code{latitude} arguments.
 # in the newer ITS-90 scale, so we must convert before checking.
 Tcheck <- -2.588567 # IPTS-68
 T <- swTFreeze(salinity=40, pressure=500, eos="unesco")
-expect_equal(Tcheck, T68fromT90(T), tolerance=1e-6)
+stopifnot(abs(Tcheck - T68fromT90(T)) < 1e-6)
 
 # 2. Compare unesco and gsw formulations.
 data(ctd)
@@ -86,6 +86,8 @@ Other functions that calculate seawater properties:
 \code{\link{T68fromT90}()},
 \code{\link{T90fromT48}()},
 \code{\link{T90fromT68}()},
+\code{\link{computableWaterProperties}()},
+\code{\link{locationForGsw}()},
 \code{\link{swAbsoluteSalinity}()},
 \code{\link{swAlphaOverBeta}()},
 \code{\link{swAlpha}()},
@@ -100,6 +102,7 @@ Other functions that calculate seawater properties:
 \code{\link{swRho}()},
 \code{\link{swRrho}()},
 \code{\link{swSCTp}()},
+\code{\link{swSR}()},
 \code{\link{swSTrho}()},
 \code{\link{swSigma0}()},
 \code{\link{swSigma1}()},
@@ -113,6 +116,7 @@ Other functions that calculate seawater properties:
 \code{\link{swSoundSpeed}()},
 \code{\link{swSpecificHeat}()},
 \code{\link{swSpice}()},
+\code{\link{swSstar}()},
 \code{\link{swTSrho}()},
 \code{\link{swThermalConductivity}()},
 \code{\link{swTheta}()},

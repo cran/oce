@@ -63,17 +63,11 @@ See \dQuote{Details} for the particular case of \linkS4class{ctd} objects.
 \details{
 Since all the entries in the \code{data} slot of ctd objects are vectors, \code{i} must be a vector (either logical as in Example 1 or integer as in Example 2), or a function taking a \code{ctd} object and returning such a vector (see \dQuote{Indexing rules}).
 }
-\section{Caution}{
-
-This function was added in early May, 2018, and is likely to undergo
-changes until the mid-summer of that year.  Use with caution.
-}
-
 \examples{
 library(oce)
 # Example 1: Range-check salinity
 data(ctdRaw)
-## Salinity and temperature range checks
+# Salinity and temperature range checks
 qc <- ctdRaw
 # Initialize flags to 2, meaning good data in the default
 # scheme for handleFlags(ctd).
@@ -149,6 +143,7 @@ Other things related to ctd data:
 \code{\link{ctdDecimate}()},
 \code{\link{ctdFindProfiles}()},
 \code{\link{ctdRaw}},
+\code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
 \code{\link{ctd}},
 \code{\link{d200321-001.ctd}},

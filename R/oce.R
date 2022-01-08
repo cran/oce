@@ -91,7 +91,7 @@ NULL
 #'
 #' \tabular{lllll}{
 #' **Deprecated**             \tab **Replacement**   \tab **Deprecated**  \tab **Defunct** \tab **Removed** \cr
-#' `byteToBinary(x,"endian")` \tab [rawToBits()]     \tab 1.1-1           \tab 1.1-3       \tab 1.1-4       \cr
+## `byteToBinary(x,"endian")` \tab [rawToBits()]     \tab 1.1-1           \tab 1.1-3       \tab 1.1-4       \cr
 #' `renameData()`             \tab [oceRenameData()] \tab 1.1-2           \tab 1.1-3       \tab 1.1-4       \cr
 #' }
 #'
@@ -102,11 +102,12 @@ NULL
 #'
 #'\tabular{lll}{
 #' **Defunct**         \tab **Replacement**                \tab **Version**\cr
-#' (none)              \tab (none)                         \tab (none)     \cr
+#' `renameData()`      \tab [oceRenameData()]              \tab 1.5        \cr
+#' `byteToBinary()`    \tab [rawToBits()]                  \tab 1.5        \cr
 #'}
 #'
 #' The following functions were removed after having been marked as "deprecated"
-#' in at least one CRAN release, and thereafter as "defunct" in at least
+#' in at least one CRAN release, and possibly as "defunct" in at least
 #' one CRAN release.  (The version number in the table is the first
 #' version to lack the named function.)
 #'
@@ -149,14 +150,6 @@ NULL
 #'
 #' Several \sQuote{oce} function arguments are considered "defunct", which
 #' means they will be removed in the next CRAN release. They are as follows.
-#'
-#' * The `date` argument of [as.ctd()]
-#' was discovered to have been unused in early 2016. Since
-#' the `startTime` actually fills its role, `date`
-#' was considered to be deprecated in June 2016.
-#'
-#' * The `quality` flag of [as.ctd()] was
-#' marked as deprecated in March 2016.
 #'
 #' * The `fill` argument of [mapPlot()] was confusing
 #' to users, so it was designated as deprecated in June 2016.
@@ -1153,6 +1146,23 @@ oce.grid <- function(xat, yat, col="lightgray", lty="dotted", lwd=par("lwd"))
 #' @param drawTimeRange an optional indication of whether/how to draw a time range,
 #' in the top-left margin of the plot; see [oce.axis.POSIXct()] for details.
 #'
+#' @param simplify an integer value that indicates
+#' whether to speed up `type="l"` plots by replacing the data
+#' with minimum and maximum values within a subsampled time mesh.
+#' This can speed up plots of large datasets (e.g. by factor 20 for 10^7 points),
+#' sometimes with minor changes in appearance.
+#' This procedure is skipped if `simplify` is `NA` or
+#' if the number of visible data points is less than 5 times `simplify`.
+#' Otherwise, `oce.plot.ts` creates `simplify` intervals ranging across
+#' the visible time range. Intervals with under 2 finite
+#' `y` data are ignored. In the rest, `y` values
+#' are replaced with their range, and `x` values are replaced
+#' with the repeated midpoint time. Thus, each retained sub-interval
+#' has exactly 2 data points.
+#' A warning is printed if this replacement is done.
+#' The default value of `simplify` means that cases with
+#' under 2560 visible points are plotted conventionally.
+#'
 #' @param fill boolean, set `TRUE` to fill the curve to zero (which it
 #' does incorrectly if there are missing values in `y`).
 #' @param col The colours for points (if `type=="p"`) or lines (if `type=="l"`).
@@ -1247,7 +1257,7 @@ oce.grid <- function(xat, yat, col="lightgray", lty="dotted", lwd=par("lwd"))
 #' # Flip the y axis
 #' oce.plot.ts(t, y, flipy=TRUE)
 oce.plot.ts <- function(x, y, type="l", xlim, ylim, log="", logStyle="r", flipy=FALSE, xlab, ylab,
-                        drawTimeRange, fill=FALSE, col=par("col"), pch=par("pch"),
+                        drawTimeRange, simplify=2560, fill=FALSE, col=par("col"), pch=par("pch"),
                         cex=par("cex"), cex.axis=par("cex.axis"), cex.lab=par("cex.lab"), cex.main=par("cex.main"),
                         xaxs=par("xaxs"), yaxs=par("yaxs"),
                         mgp=getOption("oceMgp"),
@@ -1291,6 +1301,9 @@ oce.plot.ts <- function(x, y, type="l", xlim, ylim, log="", logStyle="r", flipy=
         stop("flipy must be TRUE or FALSE")
     if (!log %in% c("", "y"))
         stop("log must be either an empty string or \"y\", not \"", log, "\" as given")
+    if (!is.na(simplify) && (!is.numeric(simplify) || simplify <= 0))
+        stop("simplify must be NA or a positive number, but it is ", simplify)
+
     #oceDebug(debug, "length(x)", length(x), "; length(y)", length(y), "\n")
     #oceDebug(debug, "marginsAsImage=", marginsAsImage, ")\n")
     oceDebug(debug, "x has timezone", attr(x[1], "tzone"), "\n")
@@ -1310,6 +1323,7 @@ oce.plot.ts <- function(x, y, type="l", xlim, ylim, log="", logStyle="r", flipy=
     par(mgp=mgp, mar=mar)
     args <- list(...)
     xlimGiven <- !missing(xlim)
+    # Trim data to visible window (to improve speed and to facilitate 'simplify' calculation)
     if (xlimGiven) {
         if (2 != length(xlim))
             stop("'xlim' must be of length 2, but it is of length ", length(xlim))
@@ -1350,10 +1364,30 @@ oce.plot.ts <- function(x, y, type="l", xlim, ylim, log="", logStyle="r", flipy=
         nyBAD <- sum(yBAD)
         if (nyBAD > 0L) {
             warning(nyBAD, " y value <= 0 omitted from logarithmic oce.plot.ts\n")
-            ##> Warning in xy.coords(x, y, xlabel, ylabel, log): 1 y value <= 0 omitted from
             x <- x[!yBAD]
             y <- y[!yBAD]
         }
+    }
+    # Handle 'simplify' argument
+    nx <- length(x)
+    if (type == "l" && is.numeric(simplify) & nx > (5L*simplify)) {
+        warning("simplifying a large dataset; set simplify=NA to see raw data\n")
+        xgrid <- seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE), length.out=simplify)
+        df <- data.frame(x, y)
+        # Tests N=1e8 suggest split(X,findInterval()) is 2X faster than split(X,cut())
+        #>>> dfSplit <- split(df, cut(df$x, xgrid))
+        dfSplit <- split(df, as.factor(findInterval(df$x, xgrid)))
+        # Compute within the sub-intervals, inserting NAs when no data there
+        tz <- attr(x, "tzone")         # cause gridded x to inherit timezone from original x
+        x <- rep(unname(sapply(dfSplit, function(DF) if (length(DF$x) > 2) mean(DF$x, na.rm=TRUE) else NA)), each=2)
+        x <- numberAsPOSIXct(x, tz=tz)
+        ymin <- unname(sapply(dfSplit, function(DF) if (length(DF$y) > 2) min(DF$y, na.rm=TRUE) else NA))
+        ymax <- unname(sapply(dfSplit, function(DF) if (length(DF$y) > 2) max(DF$y, na.rm=TRUE) else NA))
+        y <- as.vector(rbind(ymin, ymax))
+        # Remove any segments for which min and max could not be computed
+        bad <- !is.finite(y)
+        x <- x[!bad]
+        y <- y[!bad]
     }
     xrange <- range(x, na.rm=TRUE)
     yrange <- range(y, finite=TRUE)
@@ -1705,7 +1739,10 @@ oce.write.table <- function (x, file="", ...)
 #' 1. Sverdrup, H U, Martin W Johnson, and Richard H Fleming. The Oceans,
 #' Their Physics, Chemistry, and General Biology. New York: Prentice-Hall, 1942.
 ## \url{https://ark.cdlib.org/ark:/13030/kt167nb66r}
-#' \url{https://publishing.cdlib.org/ucpressebooks/view?docId=kt167nb66r}
+## next worked well most of the time, but I got a failure on 2021-08-07 and
+## I just don't see the point in retaining a link that will *ever* fail, given
+## the possible consequence in terms of CRAN.
+#' \code{https://publishing.cdlib.org/ucpressebooks/view?docId=kt167nb66r}
 #'
 #' 2.Locarnini, R. A., A. V. Mishonov, J. I. Antonov, T. P. Boyer,
 #' H. E. Garcia, O. K. Baranova, M. M. Zweng, D. R. Johnson, and
@@ -1755,7 +1792,7 @@ standardDepths <- function(n=0)
 oceMagic <- function(file, debug=getOption("oceDebug"))
 {
     filename <- file
-    oceDebug(debug, paste("oceMagic(file=\"", filename, "\") {\n", sep=""), unindent=1)
+    oceDebug(debug, paste("oceMagic(file=\"", filename, "\") {\n", sep=""), unindent=1, style="bold", sep="")
     isdir<- file.info(file)$isdir
     if (is.finite(isdir) && isdir) {
         tst <- file.info(paste(file, "/", file, "_MTL.txt", sep=""))$isdir
@@ -1782,17 +1819,18 @@ oceMagic <- function(file, debug=getOption("oceDebug"))
             oceDebug(debug, "file names contains \".s4a.\", so this is an interocean S4 file.\n")
             return("interocean/s4")
         }
-        if (length(grep(".ODF$", filename, ignore.case=TRUE))) {
+        if (grepl(".ODF$", filename, ignore.case=TRUE)) {
             ## in BIO files, the data type seems to be on line 14.  Read more, for safety.
-            someLines <- readLines(file, n=100, encoding="UTF-8")
-            dt <- grep("DATA_TYPE=", someLines)
+            lines <- readLines(file, encoding="UTF-8")
+            dt <- grep("DATA_TYPE[ \t]*=", lines)
             if (length(dt) < 1)
                 stop("cannot infer type of ODF file")
-            subtype <- gsub("[',]", "", tolower(strsplit(someLines[dt[1]], "=")[[1]][2]))
+            subtype <- gsub("[',]", "", tolower(strsplit(lines[dt[1]], "=")[[1]][2]))
             subtype <- gsub("^\\s*", "", subtype)
             subtype <- gsub("\\s*$", "", subtype)
             res <- paste(subtype, "odf", sep="/")
             oceDebug(debug, "file type:", res, "\n")
+            oceDebug(debug, "} # oceMagic()\n", unindent=1, style="bold")
             return(res)
         }
         if (length(grep(".WCT$", filename, ignore.case=TRUE))) {
@@ -2062,23 +2100,22 @@ oceMagic <- function(file, debug=getOption("oceDebug"))
 #' plotTS(x) # just the TS
 read.oce <- function(file, ...)
 {
+    dots <- list(...)
+    debug <- if ("debug" %in% names(dots)) dots$debug else 0L
+    debug <- round(max(0L, debug))
     if (missing(file))
         stop("must supply 'file'")
     if (is.character(file) && "http://" != substr(file, 1, 7) && !file.exists(file))
         stop("In read.oce() : cannot open '", file, "' because there is no such file or directory", call.=FALSE)
     if (is.character(file) && "http://" != substr(file, 1, 7) && 0 == file.info(file)$size)
         stop("empty file")
-    dots <- list(...)
-    debug <- if ("debug" %in% names(dots)) dots$debug else 0
     type <- oceMagic(file, debug=debug-1)
-    oceDebug(debug,
-             "read.oce(\"", as.character(file), "\", ...) inferred type=\"", type, "\"\n",
-             sep="", unindent=1)
+    oceDebug(debug, "read.oce(\"", as.character(file), "\") {\n", sep="", unindent=1, style="bold")
     if (is.character(file) && "http://" != substr(file, 1, 7) && 0 == file.info(file)$size)
         stop("empty file")
     ##> OLD: deparse is unhelpful if "file" is a variable in the calling code
     ##> OLD: processingLog <- paste(deparse(match.call()), sep="", collapse="")
-    processingLog <- paste('read.oce("', file, '"', ifelse(length(dots), ", ...)", ")"), sep="")
+    processingLog <- paste('read.oce("', file, '"', ifelse(length(list(...)), ", ...)", ")"), sep="")
 
     ## read.index if (type == "index")
     ## read.index     return(read.index(file))
@@ -2118,7 +2155,7 @@ read.oce <- function(file, ...)
     } else if (type == "ctd/odf" || type == "mctd/odf" || type == "mvctd/odf") {
         res <- read.ctd.odf(file, processingLog=processingLog, ...)
     } else if (length(grep(".odf$", type))) {
-        res <- read.odf(file, ..., debug=debug, ...)
+        res <- read.odf(file, ...)
     } else if (type == "mtg/odf") {
         ## FIXME: document this data type
         ## Moored tide gauge: returns a data frame.
@@ -2195,7 +2232,7 @@ read.oce <- function(file, ...)
     } else {
         stop("unknown file type \"", type, "\"")
     }
-    oceDebug(debug, "} # read.oce()\n", unindent=1)
+    oceDebug(debug, "} # read.oce()\n", unindent=1, sep="", style="bold")
     res
 }
 
@@ -2287,7 +2324,7 @@ read.netcdf <- function(file, ...)
 
 
 #' Draw an axis, possibly with decade-style logarithmic scaling
-#' 
+#'
 #' @param logStyle a character value that indicates how to draw the y axis, if
 #' `log="y"`.  If it is `"r"` (the default) then the conventional R style is used,
 #' in which a logarithmic transform connects y values to position on the "page"
@@ -2303,7 +2340,7 @@ read.netcdf <- function(file, ...)
 #' whether to draw such labels.  The first form only works if the coordinate is not logarithmic,
 #' and if `logStyle` is `"r"`.
 #' @param \dots other graphical parameters, passed to [axis()].
-#' 
+#'
 #' @return Numerical values at which tick marks were drawn (or would have been drawn, if `labels`
 #' specified to draw them).
 #'
@@ -2556,37 +2593,28 @@ oceColorsClosure <- function(spec) {
 #' library(oce)
 #' imagep(volcano, col=oceColorsTurbo(128),
 #'        zlab="oceColorsTurbo")
+#'
+#' @template colourBlindnessTemplate
 #' @family things related to colors
 oceColorsTurbo <- oce.colorsTurbo <- oceColorsClosure("turbo")
 
 
 #' Create colors similar to the matlab Viridis scheme
 #'
-#' This is patterned on a \proglang{matlab}/\proglang{python} scheme (reference 1) that blends
+#' This is patterned on a \proglang{matlab}/\proglang{python} scheme that blends
 #' from yellow to blue in a way that is designed to reproduce well
 #' in black-and-white, and to be interpretable by those with
-#' certain forms of color blindness (references 3-4).  An alternative
-#' to this is provide in the \CRANpkg{viridis} package, as illustrated
+#' certain forms of color blindness.  See the references for
+#' notes about issues of colour blindness in computer graphics.
+#' An alternative
+#' to [oceColorsViridis] is provided in the \CRANpkg{viridis} package, as illustrated
 #' in Example 2.
 #'
 #' @aliases oce.colorsViridis oceColorsViridis
 #'
 #' @param n number of colors to create.
 #'
-#' @references
-#' 1. A blog item on the Viridis (and related) matplotlib color
-#' scales is at \url{http://bids.github.io/colormap/}.
-#'
-#' 2. Light, A., and P. J. Bartlein, 2004. The End of the Rainbow? Color
-#' Schemes for Improved Data Graphics. *Eos Trans. AGU*, 85(40),
-#' \doi{doi:10.1029/2004EO400002}.
-#'
-#' 3. Martin Jakobsson, Ron Macnab, and Members of the Editorial Board, IBCAO.
-#' Selective comparisons of GEBCO (1979) and IBCAO (2000) maps.
-#' \samp{https://www.ngdc.noaa.gov/mgg/bathymetry/arctic/ibcao_gebco_comp.html}.
-#'
-#' 4. Stephenson, David B., 2005. Comment on ``Color schemes for improved data
-#' graphics,'' by A. Light and P. J. Bartlein. *Eos Trans. AGU*, 86(20).
+#' @template colourBlindnessTemplate
 #'
 #' @author Dan Kelley
 #'
@@ -2601,66 +2629,92 @@ oceColorsTurbo <- oce.colorsTurbo <- oceColorsClosure("turbo")
 #'        zlab="viridis::viridis")}
 #'
 #' @family things related to colors
+#'
+#' @template colourBlindnessTemplate
 oceColorsViridis <- oce.colorsViridis <- oceColorsClosure("viridis")
 
 #' @templateVar colorItem CDOM
 #' @templateVar colorItemUC CDOM
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsCDOM <- oce.colorsCDOM <- oceColorsClosure("cdom")
 
 #' @templateVar colorItem chlorophyll
 #' @templateVar colorItemUC Chlorophyll
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsChlorophyll <- oce.colorsChlorophyll <- oceColorsClosure("chlorophyll")
 
 #' @templateVar colorItem density
 #' @templateVar colorItemUC Density
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsDensity <- oce.colorsDensity <- oceColorsClosure("density")
 
 #' @templateVar colorItem freesurface
 #' @templateVar colorItemUC Freesurface
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsFreesurface <- oce.colorsFreesurface <- oceColorsClosure("freesurface")
 
 #' @templateVar colorItem oxygen
 #' @templateVar colorItemUC Oxygen
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsOxygen <- oce.colorsOxygen <- oceColorsClosure("oxygen")
 
 #' @templateVar colorItem PAR
 #' @templateVar colorItemUC PAR
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsPAR <- oce.colorsPAR <- oceColorsClosure("par")
 
 #' @templateVar colorItem phase
 #' @templateVar colorItemUC Phase
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsPhase <- oce.colorsPhase <- oceColorsClosure("phase")
 
 #' @templateVar colorItem salinity
 #' @templateVar colorItemUC Salinity
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsSalinity <- oce.colorsSalinity <- oceColorsClosure("salinity")
 
 #' @templateVar colorItem temperature
 #' @templateVar colorItemUC Temperature
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsTemperature <- oce.colorsTemperature <- oceColorsClosure("temperature")
 
 #' @templateVar colorItem turbidity
 #' @templateVar colorItemUC Turbidity
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsTurbidity <- oce.colorsTurbidity <- oceColorsClosure("turbidity")
 
 #' @templateVar colorItem velocity
 #' @templateVar colorItemUC Velocity
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsVelocity <- oce.colorsVelocity <- oceColorsClosure("velocity")
 
 #' @templateVar colorItem vorticity
 #' @templateVar colorItemUC Vorticity
 #' @template cmcolorTemplate
+#'
+#' @template colourBlindnessTemplate
 oceColorsVorticity <- oce.colorsVorticity <- oceColorsClosure("vorticity")
 
 
@@ -2670,6 +2724,8 @@ oceColorsVorticity <- oce.colorsVorticity <- oceColorsClosure("vorticity")
 #' @examples
 #' library(oce)
 #' imagep(volcano, col=oceColorsJet, zlab="oceColorsJet")
+#'
+#' @template colourBlindnessTemplate
 #' @family things related to colors
 oceColorsJet <- function(n)
 {
@@ -2699,6 +2755,8 @@ oce.colors9A <- oceColors9A <- oce.colorsJet <- oceColorsJet
 #' library(oce)
 #' imagep(volcano, col=oceColors9B(128),
 #'        zlab="oceColors9B")
+#'
+#' @template colourBlindnessTemplate
 #' @family things related to colors
 oceColors9B <- function(n)
 {
@@ -2726,6 +2784,8 @@ oce.colors9B <- oceColors9B
 #' to use; see \dQuote{Details}.
 #'
 #' @aliases oce.colorsPalette oceColorsPalette
+#'
+#' @template colourBlindnessTemplate
 #'
 #' @family things related to colors
 oceColorsPalette <- function(n, which=1)
@@ -2874,10 +2934,10 @@ oce.axis.POSIXct <- function (side, x, at, tformat, labels = TRUE,
                               debug=getOption("oceDebug"), ...)
 {
     oceDebug(debug, "oce.axis.POSIXct(..., debug=", debug, ",...) {\n", sep="", unindent=1, style="bold")
-    oceDebug(debug, argShow(mar), "\n", style="blue")
-    oceDebug(debug, argShow(mgp), "\n", style="blue")
-    oceDebug(debug, "cex.axis=", cex.axis, ", cex.lab=", cex.lab, ", cex.main=", cex.main, "\n", style="blue")
-    oceDebug(debug, vectorShow(x, "x"), style="blue")
+    oceDebug(debug, argShow(mar), "\n")
+    oceDebug(debug, argShow(mgp), "\n")
+    oceDebug(debug, "cex.axis=", cex.axis, ", cex.lab=", cex.lab, ", cex.main=", cex.main, "\n")
+    oceDebug(debug, vectorShow(x, "x"))
     tformatGiven <- !missing(tformat)
     if (missing(drawTimeRange))
         drawTimeRange <- getOption("oceDrawTimeRange")
@@ -3170,6 +3230,7 @@ oce.axis.POSIXct <- function (side, x, at, tformat, labels = TRUE,
             tr2 <- format(time.range[2])
         }
         if (abbreviateTimeRange) {
+            oceDebug(debug, "abbreviating time format\n")
             if (time.range[1]$year == time.range[2]$year) {
                 tr2 <- substr(tr2, 6, nchar(tr2)) # remove the "YYYY-"
                 if (time.range[1]$mon == time.range[2]$mon) {
@@ -3187,22 +3248,23 @@ oce.axis.POSIXct <- function (side, x, at, tformat, labels = TRUE,
         oceDebug(debug, "round(time.range[1], 'days'):", format(round(time.range[1], 'days')), "\n")
         oceDebug(debug, "time.range[2]:", format(time.range[2]), "\n")
         oceDebug(debug, "round(time.range[2], 'days'):", format(round(time.range[2], 'days')), "\n")
+        tzone <- c(attr(time.range[1], "tzone"), attr(time.range[2], "tzone"))
+        # Only show tzone if it is UTC (https://github.com/dankelley/oce/issues/1811)
+        tzone <- if (all(tzone == "UTC")) c("", "UTC") else rep("", 2)
         ## The below is not fool-proof, depending on how xlim might have been supplied; see
         ##    https://bugs.r-project.org/bugzilla3/show_bug.cgi?id=14449
         if (diff(as.numeric(time.range)) > 7*86400) {
             label <- paste(tr1, tr2, sep=" to ")
         } else {
-            label <- paste(tr1, attr(time.range[1], "tzone")[1], " to ", tr2,  attr(time.range[2], "tzone")[1], sep="")
+            label <- paste(tr1, tzone[1], " to ", tr2,  tzone[2], sep="")
         }
         if (drawFrequency && is.finite(1/deltat))
             label <- paste(label, "@", sprintf("%.4g Hz", 1/deltat), sep=" ")
-        oceDebug(debug, "label=", label, " at cex.lab=", cex.lab, "\n")
-        ## message("DANNY about to write time range with size cex.lab=", cex.lab, " resulting in ", cex.lab*par('cex'))
+        oceDebug(debug, "label=\"", label, "\" at cex.lab=", cex.lab, "\n", sep="")
         mtext(label, side=if (side==1) 3 else 1, cex=cex.lab*par('cex'), adj=0)
         oceDebug(debug, "cex.axis=", cex.axis, "; par('cex')=", par('cex'), "\n")
     }
     if (nchar(main) > 0) {
-        ## message("DANNIE about to write label with cex.lab=", cex.lab, " resulting in ", cex.lab*par('cex'))
         mtext(main, side=if (side==1) 3 else 1, cex=cex.lab*par('cex'), adj=1)
     }
     oceDebug(debug, vectorShow(z, "z="))
@@ -3394,7 +3456,8 @@ numberAsPOSIXct <- function(t, type, tz="UTC")
         type <- typeAllowed[type]
     }
     if (type == "unix") {
-        tref <- as.POSIXct("2000-01-01", tz=tz) # arbitrary
+        # We add something with a timezone, and then subtract it, as a trick to inherit the timezone
+        tref <- if (!is.null(tz)) as.POSIXct("2000-01-01", tz=tz) else as.POSIXct("2000-01-01")
         return(tref + as.numeric(t) - as.numeric(tref))
     } else if (type == "matlab") {
         ## R won't take a day "0", so subtract one

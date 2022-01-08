@@ -114,12 +114,6 @@ See reference 4 for a deeper explanation of the meanings of these codes.
 
 See reference 4 for a deeper explanation of the meanings of these codes.
 }
-\section{Caution}{
-
-This function was added in early May, 2018, and is likely to undergo
-changes until the autumn of that year.  Use with caution.
-}
-
 \references{
 \enumerate{
 \item The codes for \code{"argo"} are derived from information in Table 4.1
@@ -168,6 +162,7 @@ Other things related to ctd data:
 \code{\link{ctdDecimate}()},
 \code{\link{ctdFindProfiles}()},
 \code{\link{ctdRaw}},
+\code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
 \code{\link{ctd}},
 \code{\link{d200321-001.ctd}},

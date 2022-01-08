@@ -61,6 +61,13 @@ processingLogShow(adp)
 ## -----------------------------------------------------------------------------
 plot(adp, which="uv")
 
+## ---- eval=FALSE, message=FALSE, warning=FALSE, error=FALSE-------------------
+#  library(oce)
+#  adcp <- read.adp("COR2019002_20190818T064815_007_000000.ENS")
+#  enu <- toEnu(adcp)
+#  removeShipSpeed <- subtractBottomVelocity(enu)
+#  plot(removeShipSpeed, which=1:3)
+
 ## ----fig.height=7-------------------------------------------------------------
 plot(subset(adp, time < median(adp[["time"]])))
 

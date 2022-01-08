@@ -1,4 +1,4 @@
-## vim:textwidth=128:expandtab:shiftwidth=4:softtabstop=4
+# vim:textwidth=80:expandtab:shiftwidth=4:softtabstop=4
 
 #' Class to Store Meteorological Data
 #'
@@ -33,12 +33,30 @@ setClass("met", contains="oce")
 #'
 #' @param x a [met-class] object.
 #'
+#' @section Details of the Specialized Method:
+#'
+#' * If `i` is `"?"`, then the return value is a list
+#' containing four items, each of which is a character vector
+#' holding the names of things that can be accessed with `[[`.
+#' The `data` and `metadata` items hold the names of
+#' entries in the object's data and metadata
+#' slots, respectively. The `dataDerived`
+#' and `metadataDerived` items are each NULL, because
+#' no derived values are defined by [met-class] objects.
+#'
 #' @template sub_subTemplate
+#'
+#' @author Dan Kelley
 #'
 #' @family things related to met data
 setMethod(f="[[",
           signature(x="met", i="ANY", j="ANY"),
           definition=function(x, i, j, ...) {
+              if (i == "?")
+                  return(list(metadata=sort(names(x@metadata)),
+                          metadataDerived=NULL,
+                          data=sort(names(x@data)),
+                          dataDerived=NULL))
               callNextMethod()         # [[
           })
 
@@ -462,7 +480,7 @@ metNames2oceNames <- function(names, scheme)
     res <- names
     if (!missing(scheme)) {
         if (scheme == "ODF") {
-            res <- ODFNames2oceNames(ODFnames=names, ODFunits=NULL)
+            res <- ODFNames2oceNames(ODFnames=names)
         } else if (scheme == "met") {
             ## next block handles monthly data
             res[grep("^Date.Time$", res)] <- "DateTime"
@@ -683,13 +701,13 @@ read.met.csv1 <- function(file, skip=NULL, tz=getOption("oceTz"), debug=getOptio
     options(warn=owarn)
     names <- names(rawData)
     ## FIXME: handle daily data, if the column names differ
-    if ("Day" %in% names && "Time" %in% names) {
+    time <- if ("Day" %in% names && "Time" %in% names) {
         ## hourly data
-        time <- strptime(paste(rawData$Year, rawData$Month, rawData$Day, rawData$Time),
-                         "%Y %m %d %H:%M", tz=tz)
+        as.POSIXct(strptime(paste(rawData$Year, rawData$Month, rawData$Day, rawData$Time),
+                            "%Y %m %d %H:%M", tz=tz))
     } else {
         ## monthly data
-        time <- ISOdatetime(rawData$Year, rawData$Month, 15, 0, 0, 0, tz="UTC")
+        ISOdatetime(rawData$Year, rawData$Month, 15, 0, 0, 0, tz="UTC")
     }
     ## deltat <- if ("Date.Time" %in% names) "monthly" else "hourly"
     ## print(data.frame(old=names, new=metNames2oceNames(names, "met")))

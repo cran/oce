@@ -80,6 +80,7 @@ using lower case) that is inconsistent with the \code{"camelCase"} scheme
 used in oce. Since argo objects are just a small part of oce, a decision
 was made to rename argo items. For example, \code{"CYCLE_NUMBER"} in the netcdf file
 becomes \code{"cycleNumber"} in the oce object returned by \code{read.argo}.
+(Note that \verb{[[,argo-method} also accepts \code{"cycle"} for this item.)
 The conversion for objects in the \code{data} slot often also involves
 expanding on argo abbreviations, e.g. \code{"PSAL"} becomes \code{"salinity"}.
 The renaming work is carried out with \code{\link[=argoNames2oceNames]{argoNames2oceNames()}} for
@@ -103,7 +104,7 @@ work can be required to track down the data.
 
 Some servers provide data for floats that surfaced in a given ocean
 on a given day, the anonymous FTP server
-\code{ftp://usgodae.org/pub/outgoing/argo/geo/} being an example.
+\code{usgodae.org/pub/outgoing/argo/geo/} being an example.
 
 Other servers provide data on a per-float basis. A complicating
 factor is that these data tend to be categorized by "dac" (data

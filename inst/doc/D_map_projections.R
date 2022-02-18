@@ -36,8 +36,8 @@ mapPlot(coastlineWorld, longitudelim=c(-130, 50), latitudelim=c(60, 120),
 ## -----------------------------------------------------------------------------
 par(mar=c(1.5, 1.5, 0.5, 0.5))
 mapPlot(coastlineWorld,
-         longitudelim=c(-130,-55), latitudelim=c(35, 60),
-         projection="+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-100", col='gray')
+    longitudelim=c(-130,-55), latitudelim=c(45, 70),
+    projection="+proj=lcc +lat_1=50 +lat_2=65 +lon_0=-100", col='gray')
 
 ## ----fig.cap="World coastline with Robinson projection.", fig.width=5, fig.height=2.7, dpi=72, dev.args=list(pointsize=10)----
 par(mar=rep(0.5, 4))

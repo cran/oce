@@ -155,7 +155,8 @@
 #'
 #' 11. Konda, M. Imasato N., Nishi, K., and T. Toda, 1994.  Measurement of the Sea
 #' Surface Emissivity.  *Journal of Oceanography*, 50, 17:30.
-#' \url{http://www.terrapub.co.jp/journals/JO/pdf/5001/50010017.pdf}
+#' \doi{10.1007/BF02233853}
+## \code{http://www.terrapub.co.jp/journals/JO/pdf/5001/50010017.pdf}
 #'
 #' @author Dan Kelley and Clark Richards
 #'
@@ -1068,9 +1069,9 @@ read.landsatmeta <- function(file, debug=getOption("oceDebug"))
 #' @references
 #'
 #' 1. Konda, M. Imasato N., Nishi, K., and T. Toda, 1994.  Measurement of the Sea
-#' Surface Emissivity.  *Journal of Oceanography*, 50, 17:30.  Available at
-#' \url{http://www.terrapub.co.jp/journals/JO/pdf/5001/50010017.pdf} as of
-#' February 2015.
+#' Surface Emissivity.  *Journal of Oceanography*, 50, 17:30.
+#' \doi{10.1007/BF02233853}
+## \code{http://www.terrapub.co.jp/journals/JO/pdf/5001/50010017.pdf}
 #'
 #' @author Dan Kelley
 #'

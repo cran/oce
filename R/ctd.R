@@ -1912,7 +1912,7 @@ ctdDecimate <- function(x, p=1, method="boxcar", rule=1, e=1.5, debug=getOption(
                                 if (datumName != "pressure") {
                                     yvar <- x@data[[datumName]][focus]
                                     m <- try(lm(yvar ~ xvar), silent=TRUE)
-                                    if (class(m) != "try-error")
+                                    if (!inherits(m, "try-error"))
                                         dataNew[[datumName]][i] <- predict(m, newdata=list(xvar=pt[i]))
                                     else
                                         dataNew[[datumName]][i] <- NA
@@ -2521,7 +2521,7 @@ ctdTrim <- function(x, method, removeDepthInversions=FALSE, parameters=NULL,
                                      ifelse(s < s0, p0, p0+dpds * (s-s0))
                                  },
                                  start=list(s0=s0, p0=0, dpds=dpds0)), silent=TRUE)
-                    scanStart <- if (class(m) == "try-error") 1 else max(1, floor(0.5 + coef(m)["s0"]))
+                    scanStart <- if (inherits(m,"try-error")) 1 else max(1, floor(0.5 + coef(m)["s0"]))
                 } else if (submethod == "B") {
                     oceDebug(debug, "method[3]=\"B\" so using two-segment model with zero near-surface pressure\n")
                     m <- try(nls(pp ~ function(ss, s0, dpds)
@@ -2530,7 +2530,7 @@ ctdTrim <- function(x, method, removeDepthInversions=FALSE, parameters=NULL,
                                      ifelse(s < s0, 0, dpds * (s-s0))
                                  },
                                  start=list(s0=s0, dpds=dpds0)), silent=TRUE)
-                    scanStart <- if (class(m) == "try-error") 1 else max(1, floor(0.5 + coef(m)["s0"]))
+                    scanStart <- if (inherits(m, "try-error")) 1 else max(1, floor(0.5 + coef(m)["s0"]))
                 } else {
                     stop("unknown submethod '", submethod, "'")
                 }
@@ -2588,7 +2588,7 @@ ctdTrim <- function(x, method, removeDepthInversions=FALSE, parameters=NULL,
                                      ifelse(s < s0, p0, p0+dpds * (s-s0))
                                  },
                                  start=list(s0=s0, p0=0, dpds=dpds0)), silent=TRUE)
-                    scanStart <- if (class(m) == "try-error") 1 else max(1, floor(0.5 + coef(m)["s0"]))
+                    scanStart <- if (inherits(m, "try-error")) 1 else max(1, floor(0.5 + coef(m)["s0"]))
                 } else if (submethod == "B") {
                     oceDebug(debug, "method[3]=\"B\" so using two-segment model with zero near-surface pressure\n")
                     m <- try(nls(pp ~ function(ss, s0, dpds)
@@ -2597,7 +2597,7 @@ ctdTrim <- function(x, method, removeDepthInversions=FALSE, parameters=NULL,
                                      ifelse(s < s0, 0, dpds * (s-s0))
                                  },
                                  start=list(s0=s0, dpds=dpds0)), silent=TRUE)
-                    scanStart <- if (class(m) == "try-error") 1 else max(1, floor(0.5 + coef(m)["s0"]))
+                    scanStart <- if (inherits(m, "try-error")) 1 else max(1, floor(0.5 + coef(m)["s0"]))
                 } else {
                     stop("unknown submethod '", submethod, "'")
                 }
@@ -3280,7 +3280,8 @@ setMethod(f="plot",
         }
         if (any(c("latlim", "lonlim") %in% names(list(...))))
             warning("In plot,ctd-method() : latlim and lonlim are no longer handled; use clongitude, clatitude and span instead", call.=FALSE)
-        # Convert from numbers to strings.
+        # Convert 'which' from numbers to strings, e.g. 12 becomes "N2".  We
+        # retain the original values in 'whichOrig'.
         whichOrig <- which
         which <- as.character(which)
         for (i in seq_along(which)) {
@@ -3290,6 +3291,7 @@ setMethod(f="plot",
             else if (wi ==  "3") which[i] <- "TS"
             else if (wi ==  "4") which[i] <- "text"
             else if (wi ==  "5") which[i] <- "map"
+            else if (wi ==  "5.1") which[i] <- "map_with_filename"
             else if (wi ==  "6") which[i] <- "density+dpdt"
             else if (wi ==  "7") which[i] <- "density+time"
             else if (wi ==  "8") which[i] <- "index"
@@ -3452,7 +3454,7 @@ setMethod(f="plot",
                     keepNA=keepNA, inset=inset, add=add,
                     debug=debug-1,
                     ...)
-            } else if (which[w] == "map") {
+            } else if (which[w] == "map" || which[w] == "map_with_filename") {
                 oceDebug(debug, "handling which[", w, "]=\"", whichOrig[w], "\" as a special case\n", sep="")
                 omar <- mar
                 if (length(which) > 1)
@@ -3619,6 +3621,9 @@ setMethod(f="plot",
                         }
                     }
                 }
+                if (which[w] == "map_with_filename" && !is.null(x@metadata$filename))
+                    mtext(x@metadata$filename,
+                        side=3, adj=0, cex=par("cex"), line=1.5)
                 mar <- omar # recover mar, which was altered for multi-panel plots
                 oceDebug(debug, "} # plot(ctd, ...) of type \"map\"\n", unindent=1)
             } else if (which[w] == "index") {
@@ -3693,11 +3698,12 @@ setMethod(f="plot",
                     oce.plot.ts(x[["time"]], x[["sigma0"]],
                         ylab=resizableLabel("sigmaTheta", "y", debug=debug-1))
             } else {
-                oceDebug(debug, "handling which[", w, "]=\"", whichOrig[w], "\" as a general case\n", sep="")
-                if (whichOrig[w] %in% available) {
-                    xlab <- resizableLabel(item=whichOrig[w], axis="x",
-                        unit=x@metadata$units[[whichOrig[w]]])
-                    plotProfile(x, xtype=x[[whichOrig[w]]],
+                oceDebug(debug, "handling which[", w, "]=\"", which[w], "\" (from whichOrig[", w, "]=\"", whichOrig[w], "\") as a general case\n", sep="")
+                if (which[w] %in% available) {
+                    oceDebug(debug, "this 'which' value is computable using [[\n")
+                    xlab <- resizableLabel(item=which[w], axis="x",
+                        unit=x@metadata$units[[which[w]]])
+                    plotProfile(x, xtype=x[[which[w]]],
                         xlab=xlab,# whichOrig[w],
                         Slim=Slim, Tlim=Tlim, plim=plim,
                         eos=eos,
@@ -5709,7 +5715,7 @@ plotProfile <- function(x,
             cex=cex, pch=pch, pt.bg=pt.bg,
             keepNA=keepNA, debug=debug-1)
     } else if (xtype == "spice") {
-        oceDebug(debug ,"case 16: xtype is \"spice\"\n")
+        oceDebug(debug ,"case 13: xtype is \"spice\"\n")
         spice <-swSpice(x)
         look <- if (keepNA) seq_along(y) else !is.na(spice) & !is.na(y)
         if (!add) {

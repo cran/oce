@@ -59,7 +59,7 @@ the SBE names in question. Then consult the SBE documentation to find
 an appropriate name for the data, and either manipulate the names in the object
 data slot directly or use
 \code{\link[=renameData]{renameData()}} to rename the elements. Finally, please publish
-an 'issue' on the oce Github site \url{https://github.com/dankelley/oce/issues}
+an 'issue' on the oce Github site \verb{https://github.com/dankelley/oce/issues}
 so that the developers can add the data type in question. (To save
 development time, there is no plan to add all possible data types without
 a reasonable and specific expression user interest. Oxygen alone has over forty
@@ -255,10 +255,12 @@ Other things related to ctd data:
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
 \code{\link{plotTS}()},
+\code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
 \code{\link{read.ctd.sbe}()},
+\code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},
 \code{\link{read.ctd}()},

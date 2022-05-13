@@ -20,7 +20,7 @@ to match patterns.
 }
 \references{
 Several online sources list WOCE names. An example is
-\url{https://cchdo.github.io/hdo-assets/documentation/manuals/pdf/90_1/chap4.pdf}
+\verb{https://cchdo.github.io/hdo-assets/documentation/manuals/pdf/90_1/chap4.pdf}
 }
 \seealso{
 Other things related to ctd data: 
@@ -48,10 +48,12 @@ Other things related to ctd data:
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
 \code{\link{plotTS}()},
+\code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
 \code{\link{read.ctd.sbe}()},
+\code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},
 \code{\link{read.ctd}()},

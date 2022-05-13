@@ -35,7 +35,7 @@
 #' an appropriate name for the data, and either manipulate the names in the object
 #' data slot directly or use
 #' [renameData()] to rename the elements. Finally, please publish
-#' an 'issue' on the oce Github site \url{https://github.com/dankelley/oce/issues}
+#' an 'issue' on the oce Github site `https://github.com/dankelley/oce/issues`
 #' so that the developers can add the data type in question. (To save
 #' development time, there is no plan to add all possible data types without
 #' a reasonable and specific expression user interest. Oxygen alone has over forty
@@ -878,6 +878,8 @@ read.ctd.sbe <- function(file, columns=NULL, station=NULL, missingValue,
         }
         ##if (iline>129) browser()
         lline <- tolower(aline)
+        if (grepl("^.*date:", lline))  # assume UTC
+            date <- as.POSIXct(gsub(".*date:(.*) utc","\\1", lline), tz="UTC")
         if (0 < regexpr(".*seacat profiler.*", lline))
             serialNumber <- gsub("[ ].*$", "", gsub(".*sn[ ]*", "", lline))
         if (length(grep("^\\* Temperature SN", lline, ignore.case=TRUE)))

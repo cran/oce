@@ -20,9 +20,11 @@ drawIsopycnals(
 }
 \arguments{
 \item{nlevels}{suggested number of density levels (i.e. isopycnal curves);
-ignored if \code{levels} is supplied.}
+ignored if \code{levels} is supplied.  If this is set to 0, no isopycnal
+are drawn (see also \code{levels}, next).}
 
-\item{levels}{optional density levels to draw.}
+\item{levels}{optional density levels to draw.  If this is \code{NULL}, then
+no isopycnals are drawn.}
 
 \item{rotate}{boolean, set to \code{TRUE} to write all density labels
 horizontally.}
@@ -65,7 +67,7 @@ an image plot is used to show TS data density.
 "Algorithms for Computation of Fundamental Properties of Seawater."
 UNESCO Technical Papers in Marine Research. SCOR working group on Evaluation of CTD data;
 UNESCO/ICES/SCOR/IAPSO Joint Panel on Oceanographic Tables and Standards, 1983.
-\url{https://unesdoc.unesco.org/ark:/48223/pf0000059832}.
+\verb{https://unesdoc.unesco.org/ark:/48223/pf0000059832}.
 \item McDougall, Trevor J., David R. Jackett, Daniel G. Wright, and Rainer Feistel.
 "Accurate and Computationally Efficient Algorithms for Potential Temperature and Density of Seawater."
 Journal of Atmospheric and Oceanic Technology 20, no. 5 (May 1, 2003): 730-41.

@@ -119,7 +119,7 @@ See reference 4 for a deeper explanation of the meanings of these codes.
 \item The codes for \code{"argo"} are derived from information in Table 4.1
 of Wong, Annie, Robert Keeley, Thierry Carval, and Argo Data Management Team
 (8 January 2020), "Argo Quality Control Manual for CTD and Trajectory Data, Version 3.3,"
-available at \url{https://archimer.ifremer.fr/doc/00228/33951/}
+available at \verb{https://archimer.ifremer.fr/doc/00228/33951/}
 as of June 2020.
 \item The codes for \code{"BODC"} are defined at
 http://seadatanet.maris2.nl/v_bodc_vocab_v2/browse.asp?order=conceptid&formname=search&screen=0&lib=l20
@@ -176,10 +176,12 @@ Other things related to ctd data:
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
 \code{\link{plotTS}()},
+\code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
 \code{\link{read.ctd.sbe}()},
+\code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},
 \code{\link{read.ctd}()},

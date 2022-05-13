@@ -133,7 +133,7 @@ and sufficiently skilled users may even manipulate the contents directly.
 
 Archived CTD (and other) data may be found on servers such as
 \enumerate{
-\item \url{https://cchdo.ucsd.edu/}
+\item \verb{https://cchdo.ucsd.edu/}
 }
 }
 
@@ -175,10 +175,12 @@ Other things related to ctd data:
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
 \code{\link{plotTS}()},
+\code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
 \code{\link{read.ctd.sbe}()},
+\code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},
 \code{\link{read.ctd}()},

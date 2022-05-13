@@ -100,9 +100,9 @@ interest.
 }
 \references{
 \enumerate{
-\item \url{https://www.bodc.ac.uk/resources/delivery_formats/odv_format/} describes
+\item \verb{https://www.bodc.ac.uk/resources/delivery_formats/odv_format/} describes
 the \code{ODV} format.
-\item \url{https://vocab.nerc.ac.uk/collection/P07/current/} may be
+\item \verb{https://vocab.nerc.ac.uk/collection/P07/current/} may be
 worth consulting for variable names.
 }
 }
@@ -133,9 +133,11 @@ Other things related to ctd data:
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
 \code{\link{plotTS}()},
+\code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.sbe}()},
+\code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},
 \code{\link{read.ctd}()},

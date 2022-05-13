@@ -22,7 +22,7 @@
 #' see the several vignettes that are provided with oce,
 #' and a book
 #' (Kelley, Dan E. Oceanographic Analysis with R. New York: Springer-Verlag, 2018.
-#' https://link.springer.com/us/book/9781493988426) written
+#' https://link.springer.com/book/10.1007/978-1-4939-8844-0) written
 #' by one of the oce co-authors.
 #'
 #' @section Specialized Functions:
@@ -31,7 +31,7 @@
 #' [oceMagic()] to try to detect the file type,
 #' based on the file name and contents. If this detection
 #' is not possible, users will need to go beyond [read.oce()],
-#" using a more specialized function, e.g. [read.ctd()] for CTD files,
+#' using a more specialized function, e.g. [read.ctd()] for CTD files,
 #' [read.ctd.sbe()] for Teledyne-Seabird files, etc.
 #'
 #' @section Generic Methods:
@@ -165,7 +165,7 @@ NULL
 #'
 #' @seealso The \sQuote{Bioconductor} scheme for removing functions is
 #' described at
-#' \url{https://www.bioconductor.org/developers/how-to/deprecation/} and it is
+#' `https://www.bioconductor.org/developers/how-to/deprecation/` and it is
 #' extended here to function arguments.
 NULL
 
@@ -1604,7 +1604,7 @@ oce.write.table <- function (x, file="", ...)
 #' @references
 #' 1. Sverdrup, H U, Martin W Johnson, and Richard H Fleming. The Oceans,
 #' Their Physics, Chemistry, and General Biology. New York: Prentice-Hall, 1942.
-## \url{https://ark.cdlib.org/ark:/13030/kt167nb66r}
+## `https://ark.cdlib.org/ark:/13030/kt167nb66r`
 ## next worked well most of the time, but I got a failure on 2021-08-07 and
 ## I just don't see the point in retaining a link that will *ever* fail, given
 ## the possible consequence in terms of CRAN.
@@ -1683,6 +1683,7 @@ oceMagic <- function(file, debug=getOption("oceDebug"))
         #>>>     }
         #>>> }
         # Check for a lisst file
+
         if (grepl(".asc$", filename)) {
             someLines <- readLines(file, encoding="UTF-8", n=1)
             if (42 == length(strsplit(someLines[1], ' ')[[1]])) {
@@ -1775,7 +1776,9 @@ oceMagic <- function(file, debug=getOption("oceDebug"))
         if (grepl(".csv$", filename, ignore.case=TRUE)) {
             someLines <- readLines(filename, 30, encoding="UTF-8-BOM")
             #print(someLines[1])
-            if (1L == length(grep('^.*"WMO Identifier",', someLines))) {
+            if (grepl("^SSDA Sea & Sun Technology", someLines[1], useBytes=TRUE)) {
+                return("ctd/ssda")
+            } else if (1L == length(grep('^.*"WMO Identifier",', someLines))) {
                 oceDebug(debug, "} # oceMagic returning met/csv1\n", unindent=1, style="bold")
                 return("met/csv1") # FIXME: may be other things too ...
             } else if (grepl('^.*Longitude.*Latitude.*Station Name.*Climate ID.*Dew Point', someLines[1])) {
@@ -1908,10 +1911,12 @@ oceMagic <- function(file, debug=getOption("oceDebug"))
         oceDebug(debug, "} # oceMagic returning odf\n", unindent=1, style="bold")
         return("odf")
     }
-    if (1 == length(grep("^\\* Sea-Bird", line, useBytes=TRUE))) {
-        oceDebug(debug, "} # oceMagic returning ctd/sbe/19\n", unindent=1, style="bold")
-        return("ctd/sbe/19")
+    if (grepl("^\\* Sea-Bird SBE", line, useBytes=TRUE) ||
+        grepl("^\\* Viking Buoy CTD file", line, useBytes=TRUE)) {
+        oceDebug(debug, "} # oceMagic returning ctd/sbe\n", unindent=1, style="bold")
+        return("ctd/sbe")
     }
+
     if (1 == length(grep("^%ITP", line, useBytes=TRUE))) {
         oceDebug(debug, "} # oceMagic returning ctd/itp\n", unindent=1, style="bold")
         return("ctd/itp")
@@ -2037,7 +2042,7 @@ read.oce <- function(file, ...)
     # FIXME need adv/sontek (non adr)
     } else if (type == "interocean/s4") {
         res <- read.cm.s4(file, processingLog=processingLog, ...)
-    } else if (type == "ctd/sbe/19") {
+    } else if (type == "ctd/sbe") {
         res <- read.ctd.sbe(file, processingLog=processingLog, ...)
     } else if (type == "ctd/woce/exchange") {
         res <- read.ctd.woce(file, processingLog=processingLog, ...)
@@ -2084,6 +2089,8 @@ read.oce <- function(file, ...)
     #     return(read.ctd.odv(file, processingLog=processingLog, ...))
     } else if (type == "ctd/itp") {
         res <- read.ctd.itp(file, processingLog=processingLog, ...)
+    } else if (type == "ctd/ssda") {
+        res <- read.ctd.ssda(file, processingLog=processingLog, ...)
     } else if (type == "gpx") {
         res <- read.gps(file, type="gpx", processingLog=processingLog, ...)
     } else if (type == "coastline") {
@@ -2476,7 +2483,7 @@ oceColorsClosure <- function(spec) {
 #' Mikhailo, Anton.
 #' \dQuote{Turbo, An Improved Rainbow Colormap for Visualization.}
 #' Google AI (blog), August 20, 2019.
-#' \url{https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html}
+#' `https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html`
 #'
 #' @author Dan Kelley
 #'
@@ -3310,14 +3317,14 @@ numberAsHMS <- function(t, default=0)
 #'
 #' @references
 #' 1. Matlab times:
-#' \url{https://www.mathworks.com/help/matlab/ref/datenum.html}
+#' `https://www.mathworks.com/help/matlab/ref/datenum.html`
 #'
-#' 2. NCEP times: \url{https://psl.noaa.gov/data/gridded/faq.html}
+#' 2. NCEP times: `https://psl.noaa.gov/data/gridded/faq.html`
 #'
 #' 3. problem with NCEP times:
-#' \url{https://github.com/dankelley/oce/issues/738}
+#' `https://github.com/dankelley/oce/issues/738`
 #'
-#' 4. EPIC times: software and manuals at \url{https://www.pmel.noaa.gov/epic/download/index.html#epslib};
+#' 4. EPIC times: software and manuals at `https://www.pmel.noaa.gov/epic/download/index.html#epslib`;
 #' see also Denbo, Donald W., and Nancy N. Soreide. \dQuote{EPIC.} Oceanography 9 (1996).
 #' \doi{10.5670/oceanog.1996.10}
 #'

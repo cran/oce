@@ -1,3 +1,14 @@
+# oce 1.7.3
+
+* Add `read.ctd.ssda()`.
+* Add `read.argo.copernicus()`.
+* Add `sectionSort()` parameter `decreasing` (thanks to M. Renner).
+* Address unused-variable warnings in C++ code.
+* Address byte-order mark problem in `read.met()` tests.
+* Change most documentation hyperlinks to plain-text.
+* Change `read.met()` file encoding; remove sample data.
+* Speed up some tests.
+
 # oce 1.7.2
 
 ## Version 1.7.2
@@ -9,7 +20,7 @@
 ## Version 1.7.1
 
 * Fix error in comparing a `class()` result with a string, which was reported
-  as an error during the attempted CRAN submission of version 1.7.1.
+  as an error during the attempted CRAN submission of version 1.7.0.
 
 ## Version 1.7.0
 

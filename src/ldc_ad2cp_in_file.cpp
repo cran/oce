@@ -162,15 +162,15 @@ List do_ldc_ad2cp_in_file(CharacterVector filename, IntegerVector from, IntegerV
 
   // Find file size, and return to start
   fseek(fp, 0L, SEEK_END);
-  unsigned long int fileSize = ftell(fp);
+  long long int fileSize = ftell(fp);
   fseek(fp, 0L, SEEK_SET);
   if (debug) {
     Rprintf("do_ldc_ad2cp_in_file(filename='%s', from=%d, to=%d, by=%d)\n",
         fn.c_str(), from[0], to[0], by[0]);
     Rprintf("  fileSize=%d\n", fileSize);
   }
-  unsigned int chunk = 0;
-  long int cindex = 0;//, cindex_last_good = 0;
+  long long int chunk = 0;
+  long long int cindex = 0;//, cindex_last_good = 0;
   int checksum_failures = 0;
 
   // Ensure that the first byte we point to equals SYNC.
@@ -213,7 +213,7 @@ List do_ldc_ad2cp_in_file(CharacterVector filename, IntegerVector from, IntegerV
   unsigned int *id_buf = (unsigned int*)R_Calloc((size_t)nchunk, unsigned int);
   int early_EOF = 0;
   int reset_cindex = 0; // set to 1 if we skipped to find a new header start, after a bad checksum
-  while (chunk < to_value) { // FIXME: use whole file here
+  while (chunk < to_value && cindex < fileSize) { // FIXME: use whole file here
     if (checksum_failures > 100)
       ::Rf_error("more than 100 checksum errors");
     if (chunk > nchunk - 1) {

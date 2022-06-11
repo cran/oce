@@ -8,13 +8,18 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 #  ?`[[,ctd-method`
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  S <- d[['salinity']]
+#  S <- d[["salinity"]]
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  data <- d[['data']]
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  data$temperature
+
+## ----eval=FALSE---------------------------------------------------------------
+#  library(oce)
+#  data(ctd)
+#  ctd[["?"]]
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  data(ctd)
@@ -28,15 +33,15 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  ctd <- oceSetMetadata(ctd, name="scientist",
-#                        value="Dalhousie Oceanography 4120/5120 Class of 2003",
-#                        note="give credit where it's due")
+#      value="Dalhousie Oceanography 4120/5120 Class of 2003",
+#      note="give credit where it's due")
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  ctd <- oceSetData(ctd, name="temperatureAboveFreezing",
-#                        value=ctd[["temperature"]] - swTFreeze(ctd),
-#                        unit=list(unit=expression(degree*C), scale="ITS-90"),
-#                        originalName="-",
-#                        note="add temperatureAboveFreezing, for ice-related calculations")
+#      value=ctd[["temperature"]] - swTFreeze(ctd),
+#      unit=list(unit=expression(degree*C), scale="ITS-90"),
+#      originalName="-",
+#      note="add temperatureAboveFreezing, for ice-related calculations")
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  library(oce)
@@ -74,6 +79,13 @@ plot(ctd)
 
 ## ----echo=FALSE---------------------------------------------------------------
 Sys.setenv(LANGUAGE="en")
+
+## -----------------------------------------------------------------------------
+library(oce)
+data(ctd)
+"N2" %in% ctd[["?"]]$dataDerived
+ctd@data$temperature <- NULL # erase temperature
+"N2" %in% ctd[["?"]]$dataDerived
 
 ## ----fig.width=5, fig.height=5, fig.keep="none"-------------------------------
 library(oce)
@@ -122,6 +134,6 @@ library(oce)
 data(sealevel)
 m <- tidem(sealevel)
 oce.plot.ts(sealevel[['time']], sealevel[['elevation']] - predict(m),
-            ylab="Detided sealevel [m]",
-            xlim=c(as.POSIXct("2003-09-20"), as.POSIXct("2003-10-08")))
+    ylab="Detided sealevel [m]",
+    xlim=c(as.POSIXct("2003-09-20"), as.POSIXct("2003-10-08")))
 

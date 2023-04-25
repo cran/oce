@@ -24,8 +24,8 @@ summary(o)
 ## -----------------------------------------------------------------------------
 str(o[["latitude"]])
 
-## ----fig.cap="**Figure 1.** Demonstration of base-level plot()."--------------
-plot(o)
+## ----fig.cap="**Figure 1.** Demonstration of base-level plot().", fig.width=4, fig.height=4, dpi=72, dev.args=list(pointsize=10)----
+plot(o, pch=20, cex=0.5)
 
 ## -----------------------------------------------------------------------------
 drifter <- setClass(Class="drifter", contains="oce")
@@ -66,7 +66,7 @@ setMethod(f="plot",
                 ylab=lonlab, ...)
         } else if (which == 2) {
             oce.plot.ts(x[["time"]], x[["latitude"]],
-                ylab=latlab,...)
+                ylab=latlab, ...)
         } else if (which == 3) {
             asp <- 1 / cos(mean(range(x[["latitude"]]) * pi / 180))
             plot(x[["longitude"]], x[["latitude"]],
@@ -77,8 +77,8 @@ setMethod(f="plot",
     })
 
 ## ----fig.cap="**Figure 2.** Demonstration of specialized plot()."-------------
-par(mar=c(3.3,3.3,1,1), mgp=c(2,0.7,0))
-layout(matrix(c(1,3,2,3),nrow=2,byrow=TRUE))
+par(mar=c(3.3, 3.3, 1, 1), mgp=c(2, 0.7, 0))
+layout(matrix(c(1, 3, 2, 3), nrow=2, byrow=TRUE))
 plot(d, which=1, drawTimeRange=FALSE)
 plot(d, which=2, drawTimeRange=FALSE)
 plot(d, which=3)
@@ -104,7 +104,6 @@ setMethod(f="[[",
                 dx <- diff(x)
                 c(dx[1], dx)
             }
-            dist <- geodDist(x[["longitude"]], x[["latitude"]])
             lat <- x[["latitude"]]
             lon <- x[["longitude"]]
             dt <- D(as.numeric(x[["time"]])) # seconds
@@ -118,17 +117,17 @@ setMethod(f="[[",
         }
     })
 
-## ----fig.cap="**Figure 3.** Velocities inferred from drifter motion."---------
+## ----fig.cap="**Figure 3.** Velocities inferred from drifter motion.", fig.width=5, fig.height=3, dpi=72, dev.args=list(pointsize=10)----
 uv <- d[["velocity"]]
-par(mfrow=c(2,1))
-oce.plot.ts(d[["time"]], uv$u, ylab="Eastward velocity [m/s]", grid=TRUE)
-oce.plot.ts(d[["time"]], uv$v, ylab="Northward velocity [m/s]", grid=TRUE)
+par(mfrow=c(2, 1))
+oce.plot.ts(d[["time"]], uv$u, ylab="Eastward velo. [m/s]", grid=TRUE)
+oce.plot.ts(d[["time"]], uv$v, ylab="Northward vel. [m/s]", grid=TRUE)
 
-## ----fig.cap="**Figure 4.** Autocorrelation analysis of drifter velocities, showing also the M2 period."----
+## ----fig.cap="**Figure 4.** Autocorrelation analysis of drifter velocities, showing also the M2 period.", fig.width=5, fig.height=3, dpi=72, dev.args=list(pointsize=10)----
 data(tidedata)
 M2period <- 1 / with(tidedata$const, freq[[which(name=="M2")]])
 uv <- d[["velocity"]]
-par(mfrow=c(2,1), mar=c(3,3,1,1), mgp=c(2,0.7,0))
+par(mfrow=c(2, 1), mar=c(3, 3, 1, 1), mgp=c(2, 0.7, 0))
 acf(uv$u, main="", ylab="u ACF")
 abline(v=M2period, col=2)
 acf(uv$v, main="", ylab="v ACF")

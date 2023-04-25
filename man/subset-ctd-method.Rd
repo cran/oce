@@ -34,9 +34,9 @@ then that expression is used to subset each item within the
 library(oce)
 data(ctd)
 plot(ctd)
-## Example 1
+# Example 1
 plot(subset(ctd, pressure<10))
-## Example 2
+# Example 2
 plot(subset(ctd, indices=1:10))
 
 }
@@ -48,16 +48,17 @@ Other things related to ctd data:
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd-class}},
-\code{\link{ctd.cnv}},
+\code{\link{ctd.cnv.gz}},
 \code{\link{ctdDecimate}()},
+\code{\link{ctdFindProfilesRBR}()},
 \code{\link{ctdFindProfiles}()},
 \code{\link{ctdRaw}},
 \code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv}},
+\code{\link{ctd_aml.csv.gz}},
 \code{\link{ctd}},
-\code{\link{d200321-001.ctd}},
-\code{\link{d201211_0011.cnv}},
+\code{\link{d200321-001.ctd.gz}},
+\code{\link{d201211_0011.cnv.gz}},
 \code{\link{handleFlags,ctd-method}},
 \code{\link{initialize,ctd-method}},
 \code{\link{initializeFlagScheme,ctd-method}},

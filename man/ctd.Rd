@@ -17,11 +17,11 @@ results from \code{\link[=plotScan]{plotScan()}}.
 This station was sampled by students enrolled in the Dan Kelley's Physical
 Oceanography class at Dalhousie University.  The data were acquired near the
 centre of the Bedford Basin of the Halifax Harbour, during an October 2003
-field trip of Dalhousie University's Oceanography 4120/5120 class.  (Note
+field trip of Dalhousie University's Oceanography 4120/5120 class.  Note
 that the \code{startTime} in the \code{metadata} slot was altered from 1903 to 2003,
 using \code{\link[=oceEdit]{oceEdit()}}. The change was done because the original time was clearly
 incorrect, perhaps owing to the use of software that was designed to work in
-the twentieth only.)
+the twentieth century only.
 }
 \examples{
 \dontrun{
@@ -64,15 +64,16 @@ Other things related to ctd data:
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd-class}},
-\code{\link{ctd.cnv}},
+\code{\link{ctd.cnv.gz}},
 \code{\link{ctdDecimate}()},
+\code{\link{ctdFindProfilesRBR}()},
 \code{\link{ctdFindProfiles}()},
 \code{\link{ctdRaw}},
 \code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv}},
-\code{\link{d200321-001.ctd}},
-\code{\link{d201211_0011.cnv}},
+\code{\link{ctd_aml.csv.gz}},
+\code{\link{d200321-001.ctd.gz}},
+\code{\link{d201211_0011.cnv.gz}},
 \code{\link{handleFlags,ctd-method}},
 \code{\link{initialize,ctd-method}},
 \code{\link{initializeFlagScheme,ctd-method}},

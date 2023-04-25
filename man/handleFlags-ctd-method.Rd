@@ -5,7 +5,7 @@
 \title{Handle Flags in ctd Objects}
 \usage{
 \S4method{handleFlags}{ctd}(
-  object,
+  object = "oce",
   flags = NULL,
   actions = NULL,
   where = NULL,
@@ -103,8 +103,8 @@ f <- function(x) {
   sp <- smooth.spline(T, S, df=df)
   0.5 * (S + predict(sp, T)$y)
 }
-par(mfrow=c(1,2))
-STN3 <- handleFlags(stn, flags=list(salinity=c(1,3:9)), action=list(salinity=f))
+par(mfrow=c(1, 2))
+STN3 <- handleFlags(stn, flags=list(salinity=c(1, 3:9)), action=list(salinity=f))
 plotProfile(stn, "salinity", mar=c(3, 3, 3, 1))
 p <- stn[["pressure"]]
 par(mar=c(3, 3, 3, 1))
@@ -163,16 +163,17 @@ Other things related to ctd data:
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd-class}},
-\code{\link{ctd.cnv}},
+\code{\link{ctd.cnv.gz}},
 \code{\link{ctdDecimate}()},
+\code{\link{ctdFindProfilesRBR}()},
 \code{\link{ctdFindProfiles}()},
 \code{\link{ctdRaw}},
 \code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv}},
+\code{\link{ctd_aml.csv.gz}},
 \code{\link{ctd}},
-\code{\link{d200321-001.ctd}},
-\code{\link{d201211_0011.cnv}},
+\code{\link{d200321-001.ctd.gz}},
+\code{\link{d201211_0011.cnv.gz}},
 \code{\link{initialize,ctd-method}},
 \code{\link{initializeFlagScheme,ctd-method}},
 \code{\link{oceNames2whpNames}()},

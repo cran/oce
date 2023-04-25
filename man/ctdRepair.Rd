@@ -47,9 +47,9 @@ is retained, unaltered.
 \examples{
 library(oce)
 data(ctd)
-# Insert location information into 'data', although it belongs in 'metadata'.
-ctd@data$latitude <- ctd@metadata$latitude   # do NOT do this!
-ctd@data$longitude <- ctd@metadata$longitude # do NOT do this!
+# Insert location information into 'data' slot, although it belongs in 'metadata'.
+ctd@data$latitude <- ctd@metadata$latitude   # Done by experts only!
+ctd@data$longitude <- ctd@metadata$longitude # Done by experts only!
 repaired <- ctdRepair(ctd)
 
 }
@@ -61,15 +61,16 @@ Other things related to ctd data:
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd-class}},
-\code{\link{ctd.cnv}},
+\code{\link{ctd.cnv.gz}},
 \code{\link{ctdDecimate}()},
+\code{\link{ctdFindProfilesRBR}()},
 \code{\link{ctdFindProfiles}()},
 \code{\link{ctdRaw}},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv}},
+\code{\link{ctd_aml.csv.gz}},
 \code{\link{ctd}},
-\code{\link{d200321-001.ctd}},
-\code{\link{d201211_0011.cnv}},
+\code{\link{d200321-001.ctd.gz}},
+\code{\link{d201211_0011.cnv.gz}},
 \code{\link{handleFlags,ctd-method}},
 \code{\link{initialize,ctd-method}},
 \code{\link{initializeFlagScheme,ctd-method}},

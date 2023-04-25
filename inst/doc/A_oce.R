@@ -11,7 +11,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 #  S <- d[["salinity"]]
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  data <- d[['data']]
+#  data <- d[["data"]]
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  data$temperature
@@ -58,18 +58,18 @@ library(oce)
 data(section)
 GS <- subset(section, 102 <= stationId & stationId <= 124)
 GSg <- sectionGrid(GS, p=seq(0, 1600, 25))
-plot(GSg, which=c(1,99), map.xlim=c(-85,-(64+13/60)))
+plot(GSg, which=c(1, 99), map.xlim=c(-85, -(64+13/60)))
 
 ## ----fig.cap="**Figure 9.** Sea-level timeseries measured in 2003 in Halifax Harbour.", fig.width=5, fig.height=4, dpi=72, dev.args=list(pointsize=16)----
 library(oce)
 data(sealevel)
 plot(sealevel)
 
-## ----fig.cap="**Figure 10.** Measurements made with a bottom-mounted ADP in the St Lawrence Estuary. The line near the surface indicates pressure measured by the ADP.", fig.width=4, fig.height=2, dpi=72----
+## ----fig.cap="**Figure 10.** Measurements made with a bottom-mounted ADP in the St Lawrence Estuary. The line near the surface indicates pressure measured by the ADP.", fig.width=6, fig.height=2, dpi=72----
 library(oce)
 data(adp)
 plot(adp, which=1)
-lines(adp[['time']], adp[['pressure']], lwd=2)
+lines(adp[["time"]], adp[["pressure"]], lwd=2)
 
 ## ----fig.keep="none"----------------------------------------------------------
 library(oce)
@@ -93,7 +93,7 @@ swRho(34, 10, 100, eos="unesco")
 swTheta(34, 10, 100, eos="unesco")
 swRho(34, swTheta(34, 10, 100, eos="unesco"), 0, eos="unesco")
 swRho(34, swTheta(34, 10, 100, 200, eos="unesco"), 200, eos="unesco")
-plotTS(as.ctd(c(30,40),c(-2,20),rep(0,2)), eos="unesco", grid=TRUE, col="white")
+plotTS(as.ctd(c(30, 40), c(-2, 20), rep(0, 2)), eos="unesco", grid=TRUE, col="white")
 
 ## ----fig.width=5, fig.height=5, fig.keep="none"-------------------------------
 library(oce)
@@ -109,7 +109,7 @@ library(oce)
 data(section)
 GS <- subset(section, 102 <= stationId & stationId <= 124)
 dh <- swDynamicHeight(GS)
-par(mfrow=c(2,1), mar=c(3, 3, 1, 1), mgp=c(2, 0.7, 0))
+par(mfrow=c(2, 1), mar=c(3, 3, 1, 1), mgp=c(2, 0.7, 0))
 plot(dh$distance, dh$height, type="l", xlab="", ylab="Dyn. Height [m]")
 grid()
 # 1e3 metres per kilometre
@@ -119,13 +119,13 @@ g <- gravity(latMean)
 v <- diff(dh$height)/diff(dh$distance) * g / f / 1e3
 plot(dh$distance[-1], v, type="l", xlab="Distance [km]", ylab="Velocity [m/s]")
 grid()
-abline(h=0, col='red')
+abline(h=0, col="red")
 
 ## ----fig.width=7, fig.height=3, fig.keep="none"-------------------------------
 library(oce)
 data(sealevel)
 # Focus on 2003-Sep-28 to 29th, the time when Hurricane Juan caused flooding
-plot(sealevel,which=1,xlim=as.POSIXct(c("2003-09-24","2003-10-05"), tz="UTC"))
+plot(sealevel, which=1, xlim=as.POSIXct(c("2003-09-24", "2003-10-05"), tz="UTC"))
 abline(v=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
 mtext("Juan", at=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
 
@@ -133,7 +133,7 @@ mtext("Juan", at=as.POSIXct("2003-09-29 04:00:00", tz="UTC"), col="red")
 library(oce)
 data(sealevel)
 m <- tidem(sealevel)
-oce.plot.ts(sealevel[['time']], sealevel[['elevation']] - predict(m),
+oce.plot.ts(sealevel[["time"]], sealevel[["elevation"]] - predict(m),
     ylab="Detided sealevel [m]",
     xlim=c(as.POSIXct("2003-09-20"), as.POSIXct("2003-10-08")))
 

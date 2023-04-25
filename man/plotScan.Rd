@@ -21,15 +21,18 @@ plotScan(
 \arguments{
 \item{x}{a \linkS4class{ctd} object.}
 
-\item{which}{Numerical vector numerical codes specifying the panels to draw: 1
-for pressure vs scan, 2 for \code{diff(pressure)} vs scan, 3 for temperature vs
-scan, and 4 for salinity vs scan.}
+\item{which}{integer specifying the plot to be drawn: 1
+for pressure vs 'x', 2 for \code{diff(pressure)} vs 'x', 3 for temperature vs
+'x', and 4 for salinity vs 'x'  Here, the value of 'x' is determined by
+\code{xtype}.}
 
-\item{xtype}{Character string indicating variable for the x axis. May be
-\code{"scan"} (the default) or \code{"time"}. In the former case, a
-\code{scan} variable will be created using \code{\link[=seq_along]{seq_along()}},
-if necessary. In the latter case, an error results if the \code{data}
-slot of \code{x} lacks a variable called \code{time}.}
+\item{xtype}{Character string indicating variable for the x axis. The
+permitted values are \code{"scan"} (the default), \code{"time"} and \code{"index"}.
+The last of these is created by using \code{\link[=seq_along]{seq_along()}} on the pressure
+column (which is assumed to be present in any \linkS4class{ctd} object).
+Only \code{xtype="index"} is guaranteed to work for all objects, and indeed
+that value is used, if either \code{"scan"} or \code{"time"} is requested, but
+unavailable.}
 
 \item{flipy}{Logical value, ignored unless \code{which} is 1. If \code{flipy}
 is \code{TRUE}, then a pressure plot will have high pressures at the bottom
@@ -67,11 +70,17 @@ by specifying higher \code{debug} values.}
 Plot CTD data as time-series against scan number, to help with trimming
 extraneous data from a CTD cast.
 }
+\section{Historical Note}{
+
+On 2022-12-07, \code{xtype} was expanded to include \code{"index"}, and
+an undocumented multi-panel feature was removed.
+}
+
 \examples{
 library(oce)
 data(ctdRaw)
 plotScan(ctdRaw)
-abline(v=c(130, 350), col='red') # useful for ctdTrim()
+abline(v=c(130, 350), col="red") # useful for ctdTrim()
 
 }
 \seealso{
@@ -111,16 +120,17 @@ Other things related to ctd data:
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd-class}},
-\code{\link{ctd.cnv}},
+\code{\link{ctd.cnv.gz}},
 \code{\link{ctdDecimate}()},
+\code{\link{ctdFindProfilesRBR}()},
 \code{\link{ctdFindProfiles}()},
 \code{\link{ctdRaw}},
 \code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv}},
+\code{\link{ctd_aml.csv.gz}},
 \code{\link{ctd}},
-\code{\link{d200321-001.ctd}},
-\code{\link{d201211_0011.cnv}},
+\code{\link{d200321-001.ctd.gz}},
+\code{\link{d201211_0011.cnv.gz}},
 \code{\link{handleFlags,ctd-method}},
 \code{\link{initialize,ctd-method}},
 \code{\link{initializeFlagScheme,ctd-method}},

@@ -1,6 +1,7 @@
 ADCP
 ADCPs
 ADPs
+ADR
 ADVField
 ADVs
 AFL
@@ -23,6 +24,7 @@ Appl
 Aquadopp
 Aquatracka
 ArcGIS
+ArgonautXR
 AvgInterval
 Azimuthal
 BAMS
@@ -135,6 +137,7 @@ Gridded
 Grinten
 Groten
 Guo
+HAC
 HDG
 HDT
 HEALPix
@@ -215,6 +218,7 @@ MEDS
 MGL
 MLI
 MSB
+MTIME
 MacNeil
 Macnab
 Mahy
@@ -424,6 +428,7 @@ Yu
 Yutaka
 Zimmerle
 Zweng
+accelerometer
 addColumn
 addCtdColumn
 adiabatically
@@ -612,6 +617,7 @@ errorBars
 et
 etopo
 exmple
+extdata
 extrema
 favour
 favoured
@@ -686,11 +692,13 @@ io
 ipss
 isobath
 isobaths
+isopleths
 isopycnal
 isopycnals
 issuecomment
 itp
 jcommops
+joss
 juld
 julian
 julianDay
@@ -703,6 +711,7 @@ l'Institut
 labelled
 labelling
 labelsTop
+labsat
 ladp
 landsat
 landsathandbook
@@ -889,6 +898,7 @@ replot
 rescale
 reseting
 retime
+revH
 rgdal
 riley
 rotateAboutZ
@@ -922,6 +932,7 @@ situ
 sle
 smoothScatter
 snakeCase
+snsjho
 soest
 soi
 sontek
@@ -984,6 +995,7 @@ topoInterpolate
 topoMaritimes
 topoWorld
 towyo
+trac
 transmissometry
 travelled
 travelling
@@ -996,12 +1008,14 @@ tz
 uPa
 uS
 uchicago
+ucmerced
 ucp
 ucp
 ucsd
 ug
 uhslc
 uint
+uk
 umol
 un
 unabbreviate
@@ -1032,6 +1046,7 @@ vapour
 vectorize
 velocimeter
 velocimeters
+velocimetry
 velocityStatistics
 verlag
 version

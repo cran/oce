@@ -16,10 +16,10 @@ read.oce(system.file("extdata", "adp_rdi.000", package="oce"))
 \seealso{
 Other raw datasets: 
 \code{\link{CTD_BCD2014666_008_1_DN.ODF.gz}},
-\code{\link{ctd.cnv}},
-\code{\link{ctd_aml.csv}},
-\code{\link{d200321-001.ctd}},
-\code{\link{d201211_0011.cnv}},
+\code{\link{ctd.cnv.gz}},
+\code{\link{ctd_aml.csv.gz}},
+\code{\link{d200321-001.ctd.gz}},
+\code{\link{d201211_0011.cnv.gz}},
 \code{\link{xbt.edf}}
 
 Other things related to adp data: 
@@ -34,6 +34,7 @@ Other things related to adp data:
 \code{\link{adpFlagPastBoundary}()},
 \code{\link{adpRdiFileTrim}()},
 \code{\link{adp}},
+\code{\link{applyMagneticDeclination,adp-method}},
 \code{\link{as.adp}()},
 \code{\link{beamName}()},
 \code{\link{beamToXyzAdpAD2CP}()},

@@ -1,6 +1,6 @@
 Package: oce
 Title: Analysis of Oceanographic Data
-Version: 1.8-0
+Version: 1.8-1
 Authors@R: c(
     person(given="Dan", family="Kelley", email="Dan.Kelley@Dal.Ca", role=c("aut", "cre"), comment=c(ORCID="https://orcid.org/0000-0001-7808-5911")),
     person(given="Clark", family="Richards", email="clark.richards@gmail.com", role=c("aut"), comment=c(ORCID="https://orcid.org/0000-0002-7833-206X")),
@@ -30,7 +30,7 @@ VignetteBuilder: knitr
 NeedsCompilation: yes
 LinkingTo: Rcpp
 Imports: Rcpp
-Packaged: 2023-04-25 09:29:14 UTC; kelley
+Packaged: 2023-06-27 13:18:10 UTC; kelley
 Config/testthat/edition: 3
 Author: Dan Kelley [aut, cre] (<https://orcid.org/0000-0001-7808-5911>),
   Clark Richards [aut] (<https://orcid.org/0000-0002-7833-206X>),
@@ -38,4 +38,4 @@ Author: Dan Kelley [aut, cre] (<https://orcid.org/0000-0001-7808-5911>),
     coauthor),
   British Geological Survey [ctb, cph] (magnetic-field subroutine)
 Repository: CRAN
-Date/Publication: 2023-04-25 11:00:02 UTC
+Date/Publication: 2023-06-29 13:20:02 UTC

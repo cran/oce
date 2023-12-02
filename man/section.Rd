@@ -3,7 +3,7 @@
 \docType{data}
 \name{section}
 \alias{section}
-\title{Hydrographic section}
+\title{Sample section Data}
 \source{
 This is based on the WOCE file named \code{a03_hy1.csv}, downloaded
 from \verb{https://cchdo.ucsd.edu/cruise/90CT40_1}, 13 April 2015.
@@ -39,9 +39,9 @@ for data taken thirty years ago.
 library(oce)
 # Gulf Stream
 data(section)
-GS <- subset(section, 113<=stationId&stationId<=129)
-GSg <- sectionGrid(GS, p=seq(0, 5000, 100))
-plot(GSg, span=1500) # increase span to show more coastline
+GS <- subset(section, 113 <= stationId & stationId <= 129)
+GSg <- sectionGrid(GS, p = seq(0, 5000, 100))
+plot(GSg, span = 1500) # increase span to show more coastline
 
 }
 \seealso{

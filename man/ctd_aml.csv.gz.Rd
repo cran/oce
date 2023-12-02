@@ -4,7 +4,7 @@
 \encoding{UTF-8}
 \name{ctd_aml.csv.gz}
 \alias{ctd_aml.csv.gz}
-\title{Sample ctd dataset in AML format}
+\title{Sample ctd File in aml Format}
 \description{
 This file may be read with \code{\link[=read.ctd.aml]{read.ctd.aml()}}.  It is based
 on a file donated by Ashley Stanek, which was shortened to
@@ -57,6 +57,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

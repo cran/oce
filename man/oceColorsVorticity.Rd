@@ -3,7 +3,7 @@
 \name{oceColorsVorticity}
 \alias{oceColorsVorticity}
 \alias{oce.colorsVorticity}
-\title{Create colors suitable for vorticity fields}
+\title{Create Colors Suitable for vorticity Fields}
 \usage{
 oceColorsVorticity(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsVorticity(128),
-       zlab="oceColorsVorticity")
+    zlab="oceColorsVorticity")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

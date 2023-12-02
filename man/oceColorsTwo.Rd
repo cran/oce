@@ -3,7 +3,7 @@
 \name{oceColorsTwo}
 \alias{oceColorsTwo}
 \alias{oce.colorsTwo}
-\title{Create two-color palette}
+\title{Create Two-Color Palette}
 \usage{
 oceColorsTwo(n, low = 2/3, high = 0, smax = 1, alpha = 1)
 }
@@ -24,8 +24,10 @@ in the middle.
 }
 \examples{
 library(oce)
-imagep(volcano-mean(range(volcano)), col=oceColorsTwo(128),
-       zlim="symmetric", zlab="oceColorsTwo")
+imagep(volcano - mean(range(volcano)),
+    col = oceColorsTwo(128),
+    zlim = "symmetric", zlab = "oceColorsTwo"
+)
 }
 \seealso{
 Other things related to colors: 

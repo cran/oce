@@ -5,7 +5,7 @@
 \alias{oce.colorsJet}
 \alias{oceColors9A}
 \alias{oce.colors9A}
-\title{Create colors similar to the Matlab Jet scheme}
+\title{Create Colors Similar to the Matlab Jet Scheme}
 \usage{
 oceColorsJet(n)
 }
@@ -13,11 +13,11 @@ oceColorsJet(n)
 \item{n}{number of colors}
 }
 \description{
-Create colors similar to the Matlab Jet scheme
+Create Colors Similar to the Matlab Jet Scheme
 }
 \examples{
 library(oce)
-imagep(volcano, col=oceColorsJet, zlab="oceColorsJet")
+imagep(volcano, col = oceColorsJet, zlab = "oceColorsJet")
 
 }
 \references{

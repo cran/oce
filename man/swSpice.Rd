@@ -2,7 +2,7 @@
 % Please edit documentation in R/sw.R
 \name{swSpice}
 \alias{swSpice}
-\title{Seawater spiciness}
+\title{Seawater Spiciness}
 \usage{
 swSpice(
   salinity,
@@ -69,10 +69,11 @@ ignored in the Flament definition.
 library(oce)
 data(ctd)
 p <- ctd[["pressure"]]
-plot(swSpice(ctd, eos="unesco"), p,
-     xlim=c(-2.7, -1.5), ylim=rev(range(p)),
-     xlab="Spice", ylab="Pressure (dbar)")
-points(swSpice(ctd, eos="gsw"), p,col=2)
+plot(swSpice(ctd, eos = "unesco"), p,
+    xlim = c(-2.7, -1.5), ylim = rev(range(p)),
+    xlab = "Spice", ylab = "Pressure (dbar)"
+)
+points(swSpice(ctd, eos = "gsw"), p, col = 2)
 mtext("black=unesco, red=gsw")
 
 }

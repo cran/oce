@@ -2,7 +2,7 @@
 % Please edit documentation in R/sw.R
 \name{swSigmaTheta}
 \alias{swSigmaTheta}
-\title{Seawater potential density anomaly}
+\title{Seawater Potential Density Anomaly}
 \usage{
 swSigmaTheta(
   salinity,
@@ -64,7 +64,7 @@ extracted from it, and used for the calculation instead of any values
 provided in the other arguments.
 }
 \examples{
-stopifnot(abs(26.4212790994 - swSigmaTheta(35, 13, 1000, eos="unesco")) < 1e-7)
+stopifnot(abs(26.4212790994 - swSigmaTheta(35, 13, 1000, eos = "unesco")) < 1e-7)
 
 }
 \references{

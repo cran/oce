@@ -2,7 +2,7 @@
 % Please edit documentation in R/adv.R
 \name{subset,adv-method}
 \alias{subset,adv-method}
-\title{Subset an ADV Object}
+\title{Subset an adv Object}
 \usage{
 \S4method{subset}{adv}(x, subset, ...)
 }
@@ -26,7 +26,7 @@ specified in terms of \code{time}.
 library(oce)
 data(adv)
 plot(adv)
-plot(subset(adv, time < mean(range(adv[['time']]))))
+plot(subset(adv, time < mean(range(adv[["time"]]))))
 
 }
 \seealso{

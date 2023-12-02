@@ -2,7 +2,7 @@
 % Please edit documentation in R/sw.R
 \name{swAbsoluteSalinity}
 \alias{swAbsoluteSalinity}
-\title{Seawater absolute salinity, in GSW formulation}
+\title{Seawater Absolute Salinity (GSW Formulation)}
 \usage{
 swAbsoluteSalinity(
   salinity,
@@ -32,10 +32,7 @@ Typically, this is a fraction of a unit
 higher than practical salinity as defined in the UNESCO formulae.
 }
 \examples{
-\dontrun{
-sa <- swAbsoluteSalinity(35.5, 300, 260, 16)
-stopifnot(abs(35.671358392019094 - sa) < 00.000000000000010)
-}
+swAbsoluteSalinity(35.5, 300, 260, 16) # 35.67136
 
 }
 \references{

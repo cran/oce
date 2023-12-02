@@ -3,7 +3,7 @@
 \name{oceColorsGebco}
 \alias{oceColorsGebco}
 \alias{oce.colorsGebco}
-\title{Create colors in a Gebco-like scheme}
+\title{Create Colors in a GEBCO-like Scheme}
 \usage{
 oceColorsGebco(
   n = 9,
@@ -33,7 +33,7 @@ colours representing both mountains and the deep sea.
 }
 \examples{
 library(oce)
-imagep(volcano, col=oceColorsGebco(128, region="both"))
+imagep(volcano, col = oceColorsGebco(128, region = "both"))
 
 }
 \seealso{

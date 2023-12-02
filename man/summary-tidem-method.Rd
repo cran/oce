@@ -2,7 +2,7 @@
 % Please edit documentation in R/tides.R
 \name{summary,tidem-method}
 \alias{summary,tidem-method}
-\title{Summarize a Tidem Object}
+\title{Summarize a tidem Object}
 \usage{
 \S4method{summary}{tidem}(object, p = 1, constituent, ...)
 }
@@ -28,15 +28,16 @@ percent level.
 Note that the p values are estimated as the average of the p values for the
 sine and cosine components at a given frequency.
 }
-\examples{
-\dontrun{
+\section{Sample of Usage}{
+
+\preformatted{
 library(oce)
 data(sealevel)
 tide <- tidem(sealevel)
 summary(tide)
 }
-
 }
+
 \seealso{
 Other things related to tides: 
 \code{\link{[[,tidem-method}},

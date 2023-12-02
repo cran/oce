@@ -2,7 +2,7 @@
 % Please edit documentation in R/sw.R
 \name{swSigma}
 \alias{swSigma}
-\title{Seawater density anomaly}
+\title{Seawater Density Anomaly}
 \usage{
 swSigma(
   salinity,
@@ -49,8 +49,8 @@ kg/m\eqn{^3}{^3}.
 }
 \examples{
 library(oce)
-swSigma(35, 13, 1000, longitude=300, latitude=30, eos="gsw") # 30.82374
-swSigma(35, T90fromT68(13), 1000, eos="unesco")    # 30.8183
+swSigma(35, 13, 1000, longitude = 300, latitude = 30, eos = "gsw") # 30.82374
+swSigma(35, T90fromT68(13), 1000, eos = "unesco") # 30.8183
 
 }
 \references{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/section.R
 \name{addSpine}
 \alias{addSpine}
-\title{Add a spine to a section object}
+\title{Add a Spine to a section Object}
 \usage{
 addSpine(section, spine, debug = getOption("oceDebug"))
 }
@@ -32,14 +32,14 @@ onto the spine.
 library(oce)
 data(section)
 eastern <- subset(section, longitude < (-65))
-spine <- list(longitude=c(-74.5, -69.2, -55),
-    latitude=c(38.6, 36.25, 36.25))
+spine <- list(
+    longitude = c(-74.5, -69.2, -55),
+    latitude = c(38.6, 36.25, 36.25)
+)
 easternWithSpine <- addSpine(eastern, spine)
-\dontrun{
 # plot(easternWithSpine, which="map")
 # plot(easternWithSpine, xtype="distance", which="temperature")
 # plot(easternWithSpine, xtype="spine", which="temperature")
-}
 
 }
 \author{

@@ -1,4 +1,4 @@
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ----fig.cap="**Figure 2.** An overview of a ctd dataset.", fig.width=6, fig.height=6, dpi=72, dev.args=list(pointsize=14), message=FALSE----
@@ -27,7 +27,7 @@ plotScan(ctdRaw)
 #  library(oce)
 #  # http://cchdo.ucsd.edu/data/7971/ar18_58JH19941029_ct1.zip
 #  # setwd("~/Downloads/ar18_58JH19941029_ct1")
-#  files <- system("ls *.csv", intern=TRUE)
+#  files <- list.files(pattern="*.csv$", full.names=TRUE)
 #  for (i in seq_along(files)) {
 #      x <- read.ctd(files[i])
 #      if (i == 1) {
@@ -55,7 +55,7 @@ plotProfile(pycnocline, which="density+N2")
 #  library(oce)
 #  # http://cchdo.ucsd.edu/data/7971/ar18_58JH19941029_ct1.zip
 #  # setwd("~/Downloads/ar18_58JH19941029_ct1")
-#  files <- system("ls *.csv", intern=TRUE)
+#  files <- list.files(pattern="*.csv$", full.names=TRUE)
 #  n <- length(files)
 #  ctds <- vector("list", n) # to hold the CTD objects
 #  station <- vector("list", n)

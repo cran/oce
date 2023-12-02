@@ -3,7 +3,7 @@
 \name{oceColorsSalinity}
 \alias{oceColorsSalinity}
 \alias{oce.colorsSalinity}
-\title{Create colors suitable for salinity fields}
+\title{Create Colors Suitable for salinity Fields}
 \usage{
 oceColorsSalinity(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsSalinity(128),
-       zlab="oceColorsSalinity")
+    zlab="oceColorsSalinity")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

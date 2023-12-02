@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{secondsToCtime}
 \alias{secondsToCtime}
-\title{Time interval as colon-separated string}
+\title{Express Time Interval as Colon-Separated String}
 \usage{
 secondsToCtime(sec)
 }
@@ -17,9 +17,9 @@ Convert a time interval to a colon-separated string
 }
 \examples{
 library(oce)
-cat("   10 s = ", secondsToCtime(10), "\n", sep="")
-cat("   61 s = ", secondsToCtime(61), "\n", sep="")
-cat("86400 s = ", secondsToCtime(86400), "\n", sep="")
+cat("   10 s = ", secondsToCtime(10), "\n", sep = "")
+cat("   61 s = ", secondsToCtime(61), "\n", sep = "")
+cat("86400 s = ", secondsToCtime(86400), "\n", sep = "")
 }
 \seealso{
 See \code{\link[=ctimeToSeconds]{ctimeToSeconds()}}, the inverse of this.

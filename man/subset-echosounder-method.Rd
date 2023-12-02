@@ -2,7 +2,7 @@
 % Please edit documentation in R/echosounder.R
 \name{subset,echosounder-method}
 \alias{subset,echosounder-method}
-\title{Subset an Echosounder Object}
+\title{Subset an echosounder Object}
 \usage{
 \S4method{subset}{echosounder}(x, subset, ...)
 }
@@ -27,7 +27,7 @@ library(oce)
 data(echosounder)
 plot(echosounder)
 plot(subset(echosounder, depth < 10))
-plot(subset(echosounder, time < mean(range(echosounder[['time']]))))
+plot(subset(echosounder, time < mean(range(echosounder[["time"]]))))
 
 }
 \seealso{

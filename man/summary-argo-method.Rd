@@ -3,15 +3,14 @@
 \name{summary,argo-method}
 \alias{summary,argo-method}
 \alias{summary.argo}
-\title{Summarize an Argo Object}
+\title{Summarize an argo Object}
 \usage{
 \S4method{summary}{argo}(object, ...)
 }
 \arguments{
-\item{...}{Further arguments passed to or from other methods.}
+\item{object}{an object of class \code{"argo"}, usually, a result of a call to \code{\link[=read.argo]{read.argo()}}.}
 
-\item{object}{an}{object of class \code{"argo"}, usually, a result of a
-call to \code{\link[=read.argo]{read.argo()}}.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
 A matrix containing statistics of the elements of the \code{data} slot.

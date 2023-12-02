@@ -3,7 +3,7 @@
 \name{handleFlags,section-method}
 \alias{handleFlags,section-method}
 \alias{handleFlags.section}
-\title{Handle flags in Section Objects}
+\title{Handle flags in section Objects}
 \usage{
 \S4method{handleFlags}{section}(
   object = "oce",
@@ -94,8 +94,8 @@ on the stations, individually.
 \examples{
 library(oce)
 data(section)
-section2 <- handleFlags(section, flags=c(1,3:9))
-par(mfrow=c(2, 1))
+section2 <- handleFlags(section, flags = c(1, 3:9))
+par(mfrow = c(2, 1))
 plotTS(section)
 plotTS(section2)
 

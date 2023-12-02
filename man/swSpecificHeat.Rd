@@ -2,7 +2,7 @@
 % Please edit documentation in R/sw.R
 \name{swSpecificHeat}
 \alias{swSpecificHeat}
-\title{Seawater specific heat}
+\title{Seawater Specific Heat}
 \usage{
 swSpecificHeat(
   salinity,
@@ -42,7 +42,7 @@ If the first argument is a \code{ctd} object, then salinity, etc, are
 extracted from it, and used for the calculation.
 }
 \examples{
-swSpecificHeat(40, T90fromT68(40), 10000, eos="unesco") # 3949.499
+swSpecificHeat(40, T90fromT68(40), 10000, eos = "unesco") # 3949.499
 
 }
 \references{

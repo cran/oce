@@ -3,7 +3,7 @@
 \name{oceColorsChlorophyll}
 \alias{oceColorsChlorophyll}
 \alias{oce.colorsChlorophyll}
-\title{Create colors suitable for chlorophyll fields}
+\title{Create Colors Suitable for chlorophyll Fields}
 \usage{
 oceColorsChlorophyll(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsChlorophyll(128),
-       zlab="oceColorsChlorophyll")
+    zlab="oceColorsChlorophyll")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

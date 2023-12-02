@@ -3,7 +3,7 @@
 \name{oceColorsPhase}
 \alias{oceColorsPhase}
 \alias{oce.colorsPhase}
-\title{Create colors suitable for phase fields}
+\title{Create Colors Suitable for phase Fields}
 \usage{
 oceColorsPhase(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsPhase(128),
-       zlab="oceColorsPhase")
+    zlab="oceColorsPhase")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

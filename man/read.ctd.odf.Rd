@@ -2,7 +2,7 @@
 % Please edit documentation in R/odf.R
 \name{read.ctd.odf}
 \alias{read.ctd.odf}
-\title{Read a CTD file in ODF format}
+\title{Read a ctd File in odf Format}
 \usage{
 read.ctd.odf(
   file,
@@ -100,7 +100,7 @@ better for normal calls by a user.}
 This function returns a \linkS4class{ctd} object.
 }
 \description{
-Read a CTD file in ODF format
+Read a ctd File in odf Format
 }
 \details{
 \code{read.ctd.odf} reads files stored in Ocean Data Format, used in
@@ -167,6 +167,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
@@ -209,6 +210,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
@@ -237,6 +239,7 @@ Other things related to odf data:
 Other functions that read ctd data: 
 \code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

@@ -3,7 +3,7 @@
 \name{oceColorsFreesurface}
 \alias{oceColorsFreesurface}
 \alias{oce.colorsFreesurface}
-\title{Create colors suitable for freesurface fields}
+\title{Create Colors Suitable for freesurface Fields}
 \usage{
 oceColorsFreesurface(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsFreesurface(128),
-       zlab="oceColorsFreesurface")
+    zlab="oceColorsFreesurface")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

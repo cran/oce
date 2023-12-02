@@ -2,7 +2,7 @@
 % Please edit documentation in R/windrose.R
 \name{[[,windrose-method}
 \alias{[[,windrose-method}
-\title{Extract Something From a Windrose Object}
+\title{Extract Something From a windrose Object}
 \usage{
 \S4method{[[}{windrose}(x, i, j, ...)
 }
@@ -124,6 +124,9 @@ Other things related to windrose data:
 \code{\link{plot,windrose-method}},
 \code{\link{summary,windrose-method}},
 \code{\link{windrose-class}}
+}
+\author{
+Dan Kelley
 }
 \concept{functions that extract parts of oce objects}
 \concept{things related to windrose data}

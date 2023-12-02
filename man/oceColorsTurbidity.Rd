@@ -3,7 +3,7 @@
 \name{oceColorsTurbidity}
 \alias{oceColorsTurbidity}
 \alias{oce.colorsTurbidity}
-\title{Create colors suitable for turbidity fields}
+\title{Create Colors Suitable for turbidity Fields}
 \usage{
 oceColorsTurbidity(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsTurbidity(128),
-       zlab="oceColorsTurbidity")
+    zlab="oceColorsTurbidity")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

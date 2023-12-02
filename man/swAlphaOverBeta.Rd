@@ -2,8 +2,7 @@
 % Please edit documentation in R/sw.R
 \name{swAlphaOverBeta}
 \alias{swAlphaOverBeta}
-\title{Ratio of seawater thermal expansion coefficient to haline contraction
-coefficient}
+\title{Ratio of Seawater Thermal Expansion Coefficient to Haline Contraction Coefficient}
 \usage{
 swAlphaOverBeta(
   salinity,
@@ -38,7 +37,7 @@ Value in psu/\eqn{^\circ}{deg}C.
 Compute \eqn{\alpha/\beta}{alpha/beta} using McDougall's (1987) algorithm.
 }
 \examples{
-swAlphaOverBeta(40, 10, 4000, eos="unesco") # 0.3476
+swAlphaOverBeta(40, 10, 4000, eos = "unesco") # 0.3476
 
 }
 \references{

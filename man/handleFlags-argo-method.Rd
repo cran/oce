@@ -3,7 +3,7 @@
 \name{handleFlags,argo-method}
 \alias{handleFlags,argo-method}
 \alias{handleFlags.argo}
-\title{Handle Flags in ARGO Objects}
+\title{Handle Flags in argo Objects}
 \usage{
 \S4method{handleFlags}{argo}(
   object = "oce",
@@ -87,9 +87,9 @@ library(oce)
 data(argo)
 argoNew <- handleFlags(argo)
 # Demonstrate replacement, looking at the second profile
-f <- argo[["salinityFlag"]][,2]
-df <- data.frame(flag=f, orig=argo[["salinity"]][,2], new=argoNew[["salinity"]][,2])
-df[11:15,] # notice line 13
+f <- argo[["salinityFlag"]][, 2]
+df <- data.frame(flag = f, orig = argo[["salinity"]][, 2], new = argoNew[["salinity"]][, 2])
+df[11:15, ] # notice line 13
 
 }
 \references{

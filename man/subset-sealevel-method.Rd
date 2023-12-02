@@ -2,7 +2,7 @@
 % Please edit documentation in R/sealevel.R
 \name{subset,sealevel-method}
 \alias{subset,sealevel-method}
-\title{Subset a Sealevel Object}
+\title{Subset a sealevel Object}
 \usage{
 \S4method{subset}{sealevel}(x, subset, ...)
 }
@@ -25,7 +25,7 @@ subsetting is only permitted by time.
 library(oce)
 data(sealevel)
 plot(sealevel)
-plot(subset(sealevel, time < mean(range(sealevel[['time']]))))
+plot(subset(sealevel, time < mean(range(sealevel[["time"]]))))
 
 }
 \seealso{

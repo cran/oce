@@ -3,12 +3,12 @@
 \docType{data}
 \name{topoWorld}
 \alias{topoWorld}
-\title{Global Topographic Dataset at Half-degree Resolution}
+\title{Global Topographic Data (at Half-degree Resolution)}
 \source{
 This is created with \code{\link[=read.topo]{read.topo()}}, using a file downloaded with
 \preformatted{
 topoFile <- download.topo(west=-180, east=180, south=-90, north=90,
-                         resolution=30, destdir=".")
+   resolution=30, destdir=".")
 }
 }
 \usage{
@@ -47,16 +47,17 @@ versions appear identical when plotted at the global scale that is
 the recommended for such a coarse topographic file.
 }
 
-\examples{
-\dontrun{
+\section{Sample of Usage}{
+
+\preformatted{
 library(oce)
 data(topoWorld)
 par(mfrow=c(2, 1))
 plot(topoWorld, location=NULL)
 imagep(topoWorld)
 }
-
 }
+
 \seealso{
 Other datasets provided with oce: 
 \code{\link{adp}},

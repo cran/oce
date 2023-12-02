@@ -2,7 +2,7 @@
 % Please edit documentation in R/cm.R
 \name{read.cm}
 \alias{read.cm}
-\title{Read a CM file}
+\title{Read a cm File}
 \usage{
 read.cm(
   file,
@@ -131,15 +131,16 @@ magnetic declination into account.
 }
 }
 
-\examples{
-\dontrun{
-  library(oce)
-  cm <- read.oce("cm_interocean_0811786.s4a.tab")
-  summary(cm)
-  plot(cm)
+\section{Sample of Usage}{
+
+\preformatted{
+library(oce)
+cm <- read.oce("cm_interocean_0811786.s4a.tab")
+summary(cm)
+plot(cm)
+}
 }
 
-}
 \seealso{
 Other things related to cm data: 
 \code{\link{[[,cm-method}},

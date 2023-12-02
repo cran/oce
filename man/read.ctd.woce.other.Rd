@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.woce.R
 \name{read.ctd.woce.other}
 \alias{read.ctd.woce.other}
-\title{Read a WOCE-exchange EXPOCODE File}
+\title{Read a ctd File in WOCE-Exchange EXPOCODE Format}
 \usage{
 read.ctd.woce.other(
   file,
@@ -123,6 +123,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce}()},
@@ -138,6 +139,7 @@ Other functions that read ctd data:
 \code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce}()},

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Dan Kelley (https://orcid.org/0000-0001-7808-5911) and Clark Richards (https://orcid.org/0000-0002-7833-206X)" />
 
-<meta name="date" content="2023-06-27" />
+<meta name="date" content="2023-12-01" />
 
 <title>2. Analysis of CTD data</title>
 
@@ -341,17 +341,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">2. Analysis of CTD data</h1>
 <h4 class="author">Dan Kelley (<a href="https://orcid.org/0000-0001-7808-5911" class="uri">https://orcid.org/0000-0001-7808-5911</a>) and Clark
 Richards (<a href="https://orcid.org/0000-0002-7833-206X" class="uri">https://orcid.org/0000-0002-7833-206X</a>)</h4>
-<h4 class="date">2023-06-27</h4>
+<h4 class="date">2023-12-01</h4>
 
 
 <div id="TOC">
 <ul>
-<li><a href="#example-with-pre-trimmed-data" id="toc-example-with-pre-trimmed-data"><span class="toc-section-number">1</span> Example with pre-trimmed
-data</a></li>
-<li><a href="#example-with-raw-data" id="toc-example-with-raw-data"><span class="toc-section-number">2</span>
-Example with raw data</a></li>
-<li><a href="#example-with-woce-archive-data" id="toc-example-with-woce-archive-data"><span class="toc-section-number">3</span> Example with WOCE archive
-data</a></li>
+<li><a href="#pre-trimmed-data" id="toc-pre-trimmed-data"><span class="toc-section-number">1</span> Pre-trimmed data</a></li>
+<li><a href="#raw-data" id="toc-raw-data"><span class="toc-section-number">2</span> Raw data</a></li>
+<li><a href="#woce-archive-data" id="toc-woce-archive-data"><span class="toc-section-number">3</span> WOCE archive data</a></li>
 <li><a href="#solutions-to-exercises" id="toc-solutions-to-exercises"><span class="toc-section-number">4</span> Solutions to exercises</a></li>
 </ul>
 </div>
@@ -370,9 +367,8 @@ data</a></li>
 <!--      devtools::install(build_vignettes=TRUE) -->
 <p><strong>Abstract.</strong> The basics of working with CTD data are
 outlined in this vignette, as a supplement to a shorter entry in the <a href="A_oce.html">main vignette</a>.</p>
-<div id="example-with-pre-trimmed-data" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Example with
-pre-trimmed data</h1>
+<div id="pre-trimmed-data" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Pre-trimmed data</h1>
 <p>Many of the object types supported by <code>oce</code> come with
 built-in data. For an example, <code>data(ctd)</code> yields a CTD
 profile that has been trimmed to just the downcast portion of the
@@ -431,9 +427,8 @@ these values to what are sometimes called “science” units.</p>
 <p><strong>Exercise 1.</strong> Plot a profile of <span class="math inline">\(\sigma_\theta\)</span> and <span class="math inline">\(N^2\)</span> within the pycnocline in the built-in
 <code>ctd</code> data set. (Hint: use <code>subset()</code>.)</p>
 </div>
-<div id="example-with-raw-data" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Example with raw
-data</h1>
+<div id="raw-data" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Raw data</h1>
 <p>Practicing Oceanographers may be wondering how the CTD cast used in
 the preceding section was trimmed of equilibration-phase and
 upcast-phase data. Spurious data from these phases must be trimmed as a
@@ -472,9 +467,8 @@ smoothed results to uniformly-spaced pressure values.</p>
 file takes just one line of code:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ctdDecimate</span>(<span class="fu">ctdTrim</span>(<span class="fu">read.ctd</span>(<span class="st">&quot;stn123.cnv&quot;</span>))))</span></code></pre></div>
 </div>
-<div id="example-with-woce-archive-data" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Example with WOCE
-archive data</h1>
+<div id="woce-archive-data" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> WOCE archive data</h1>
 <p>The package has a harder time scanning the headers of data files in
 the WOCE archive format than it does in the Seabird format illustrated
 in the previous examples. This is mainly because front-line researchers
@@ -504,7 +498,7 @@ time.)</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(oce)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co"># http://cchdo.ucsd.edu/data/7971/ar18_58JH19941029_ct1.zip</span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co"># setwd(&quot;~/Downloads/ar18_58JH19941029_ct1&quot;)</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">system</span>(<span class="st">&quot;ls *.csv&quot;</span>, <span class="at">intern=</span><span class="cn">TRUE</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">pattern=</span><span class="st">&quot;*.csv$&quot;</span>, <span class="at">full.names=</span><span class="cn">TRUE</span>)</span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(files)) {</span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">read.ctd</span>(files[i])</span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="cf">if</span> (i <span class="sc">==</span> <span class="dv">1</span>) {</span>
@@ -558,7 +552,7 @@ fairly large dataset, so the processing will take up to a minute.)</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(oce)</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co"># http://cchdo.ucsd.edu/data/7971/ar18_58JH19941029_ct1.zip</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co"># setwd(&quot;~/Downloads/ar18_58JH19941029_ct1&quot;)</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">system</span>(<span class="st">&quot;ls *.csv&quot;</span>, <span class="at">intern=</span><span class="cn">TRUE</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">pattern=</span><span class="st">&quot;*.csv$&quot;</span>, <span class="at">full.names=</span><span class="cn">TRUE</span>)</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(files)</span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>ctds <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, n) <span class="co"># to hold the CTD objects</span></span>
 <span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>station <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, n)</span>

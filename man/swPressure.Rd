@@ -2,7 +2,7 @@
 % Please edit documentation in R/sw.R
 \name{swPressure}
 \alias{swPressure}
-\title{Water pressure}
+\title{Water Pressure}
 \usage{
 swPressure(depth, latitude = 45, eos = getOption("oceEOS", default = "gsw"))
 }
@@ -28,8 +28,8 @@ If \code{eos="unesco"} this is done by numerical inversion of
 \CRANpkg{gsw} package.
 }
 \examples{
-swPressure(9712.653, 30, eos="unesco") # 10000
-swPressure(9712.653, 30, eos="gsw")    #  9998.863
+swPressure(9712.653, 30, eos = "unesco") # 10000
+swPressure(9712.653, 30, eos = "gsw") #  9998.863
 
 }
 \references{

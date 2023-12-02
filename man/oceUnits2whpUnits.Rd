@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.woce.R
 \name{oceUnits2whpUnits}
 \alias{oceUnits2whpUnits}
-\title{Translate oce unit to WHP unit}
+\title{Translate oce Unit to WHP Unit}
 \usage{
 oceUnits2whpUnits(units, scales)
 }
@@ -53,6 +53,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{unitFromString}
 \alias{unitFromString}
-\title{Decode units, from strings}
+\title{Decode Units From Strings}
 \usage{
 unitFromString(unit, scale = NULL)
 }
@@ -29,8 +29,8 @@ found in oceanographic files available to the author, \emph{not} on all
 possible units.
 }
 \examples{
-unitFromString("dbar")   # dbar (no scale)
-unitFromString("deg c")  # modern temperature (ITS-90 scale)
+unitFromString("dbar") # dbar (no scale)
+unitFromString("deg c") # modern temperature (ITS-90 scale)
 }
 \seealso{
 Other functions that interpret variable names and units from headers: 

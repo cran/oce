@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.woce.R
 \name{woceUnit2oceUnit}
 \alias{woceUnit2oceUnit}
-\title{Translate WOCE units to oce units}
+\title{Translate WOCE Units to oce Units}
 \usage{
 woceUnit2oceUnit(woceUnit)
 }
@@ -13,7 +13,7 @@ woceUnit2oceUnit(woceUnit)
 expression in oce unit form
 }
 \description{
-Translate WOCE-style units to \code{oce} units.
+Translate WOCE-style units to oce units.
 }
 \seealso{
 Other things related to ctd data: 
@@ -47,6 +47,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

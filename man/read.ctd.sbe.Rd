@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.sbe.R
 \name{read.ctd.sbe}
 \alias{read.ctd.sbe}
-\title{Read a Seabird CTD File}
+\title{Read a ctd File in Seabird Format}
 \usage{
 read.ctd.sbe(
   file,
@@ -96,7 +96,7 @@ better for normal calls by a user.}
 This function returns a \linkS4class{ctd} object.
 }
 \description{
-Read a Seabird CTD File
+Read a ctd File in Seabird Format
 }
 \details{
 This function reads files stored in Seabird \code{.cnv} format.
@@ -243,7 +243,7 @@ Note that reading a file that contains IPTS-68 temperatures produces a warning.
 }
 
 \examples{
-f <- system.file("extdata", "ctd.cnv.gz", package="oce")
+f <- system.file("extdata", "ctd.cnv.gz", package = "oce")
 d <- read.ctd(f)
 
 }
@@ -295,6 +295,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},
@@ -310,6 +311,7 @@ Other functions that read ctd data:
 \code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
 \code{\link{read.ctd.woce}()},

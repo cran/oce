@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.R
 \name{initializeFlagScheme,ctd-method}
 \alias{initializeFlagScheme,ctd-method}
-\title{Establish a data-quality scheme for a ctd object}
+\title{Establish a Data-Quality Scheme for a ctd Object}
 \usage{
 \S4method{initializeFlagScheme}{ctd}(
   object,
@@ -193,6 +193,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

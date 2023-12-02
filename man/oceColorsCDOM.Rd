@@ -3,7 +3,7 @@
 \name{oceColorsCDOM}
 \alias{oceColorsCDOM}
 \alias{oce.colorsCDOM}
-\title{Create colors suitable for CDOM fields}
+\title{Create Colors Suitable for CDOM Fields}
 \usage{
 oceColorsCDOM(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsCDOM(128),
-       zlab="oceColorsCDOM")
+    zlab="oceColorsCDOM")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

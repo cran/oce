@@ -3,7 +3,7 @@
 \name{oceColorsPAR}
 \alias{oceColorsPAR}
 \alias{oce.colorsPAR}
-\title{Create colors suitable for PAR fields}
+\title{Create Colors Suitable for PAR Fields}
 \usage{
 oceColorsPAR(n)
 }
@@ -36,16 +36,16 @@ library(oce)
 
 # Example 1
 imagep(volcano, col=oceColorsPAR(128),
-       zlab="oceColorsPAR")
+    zlab="oceColorsPAR")
 \dontrun{
 # Example 2 (requires the cmocean package)
 imagep(volcano, col=cmocean::cmocean("matter"),
-       zlab='cmocean::cmocean("matter")')}
+    zlab="cmocean::cmocean(\"matter\")")}
 
 \dontrun{
 # Example 3 (requires the viridis package)
 imagep(volcano, col=viridis::inferno,
-       zlab='viridis::inferno')}
+    zlab="viridis::inferno")}
 
 }
 \references{

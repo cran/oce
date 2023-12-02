@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{retime}
 \alias{retime}
-\title{Adjust the time within Oce object}
+\title{Adjust The Time Within an oce Object}
 \usage{
 retime(x, a, b, t0, debug = getOption("oceDebug"))
 }
@@ -48,8 +48,8 @@ time range.
 \examples{
 library(oce)
 data(adv)
-adv2 <- retime(adv,0,1e-4,as.POSIXct("2008-07-01 00:00:00", tz="UTC"))
-plot(adv[["time"]], adv2[["time"]]-adv[["time"]], type="l")
+adv2 <- retime(adv, 0, 1e-4, as.POSIXct("2008-07-01 00:00:00", tz = "UTC"))
+plot(adv[["time"]], adv2[["time"]] - adv[["time"]], type = "l")
 }
 \author{
 Dan Kelley

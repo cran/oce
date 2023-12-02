@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{ungrid}
 \alias{ungrid}
-\title{Extract (x, y, z) from (x, y, grid)}
+\title{Extract (x, y, z) From (x, y, grid)}
 \usage{
 ungrid(x, y, grid)
 }
@@ -29,7 +29,7 @@ data(wind)
 u <- interpBarnes(wind$x, wind$y, wind$z)
 contour(u$xg, u$yg, u$zg)
 U <- ungrid(u$xg, u$yg, u$zg)
-points(U$x, U$y, col=oce.colorsViridis(100)[rescale(U$grid, rlow=1, rhigh=100)], pch=20)
+points(U$x, U$y, col = oce.colorsViridis(100)[rescale(U$grid, rlow = 1, rhigh = 100)], pch = 20)
 }
 \author{
 Dan Kelley

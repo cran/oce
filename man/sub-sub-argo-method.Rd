@@ -2,7 +2,7 @@
 % Please edit documentation in R/argo.R
 \name{[[,argo-method}
 \alias{[[,argo-method}
-\title{Extract Something From an Argo Object}
+\title{Extract Something From an argo Object}
 \usage{
 \S4method{[[}{argo}(x, i, j, ...)
 }
@@ -141,11 +141,11 @@ directs where to look.
 \examples{
 data(argo)
 # 1. show that dataset has 223 profiles, each with 56 levels
-dim(argo[['temperature']])
+dim(argo[["temperature"]])
 
 # 2. show importance of focussing on data flagged 'good'
-fivenum(argo[["salinity"]],na.rm=TRUE)
-fivenum(argo[["salinity"]][argo[["salinityFlag"]]==1],na.rm=TRUE)
+fivenum(argo[["salinity"]], na.rm = TRUE)
+fivenum(argo[["salinity"]][argo[["salinityFlag"]] == 1], na.rm = TRUE)
 
 }
 \seealso{

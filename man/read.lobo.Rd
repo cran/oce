@@ -2,7 +2,7 @@
 % Please edit documentation in R/lobo.R
 \name{read.lobo}
 \alias{read.lobo}
-\title{Read a LOBO File}
+\title{Read a lobo File}
 \usage{
 read.lobo(file, cols = 7, encoding = "latin1", processingLog)
 }
@@ -38,17 +38,19 @@ files; the supplier makes no claims that the format will be fixed in time.
 It is also worth noting that there is no \code{\link[=read.oce]{read.oce()}} equivalent
 to \code{read.lobo}, because the file format has no recognizable header.
 }
-\examples{
-\dontrun{
+\section{Sample of Usage}{
+
+\preformatted{
 library(oce)
 uri <- paste("http://lobo.satlantic.com/cgi-bin/nph-data.cgi?",
-  "min_date=20070220&max_date=20070305",
-  "&x=date&",
-  "y=current_across1,current_along1,nitrate,fluorescence,salinity,temperature&",
-  "data_format=text",sep="")
+    "min_date=20070220&max_date=20070305",
+    "&x=date&",
+    "y=current_across1,current_along1,nitrate,fluorescence,salinity,temperature&",
+    "data_format=text", sep="")
 lobo <- read.lobo(uri)
 }
 }
+
 \seealso{
 Other things related to lobo data: 
 \code{\link{[[,lobo-method}},

@@ -2,7 +2,7 @@
 % Please edit documentation in R/adp.nortek.ad2cp.R
 \name{ad2cpHeaderValue}
 \alias{ad2cpHeaderValue}
-\title{Decode an item from a Nortek AD2CP file header (an internal function)}
+\title{Infer an Item From a Nortek AD2CP File Header}
 \usage{
 ad2cpHeaderValue(x, key, item, numeric = TRUE, default)
 }
@@ -27,10 +27,11 @@ if the desired item is not found there, or if \code{x} is not of the required
 class and variety.
 }
 \description{
-Decode an item from a Nortek AD2CP file header (an internal function)
+Infer an Item From a Nortek AD2CP File Header
 }
-\examples{
-\dontrun{
+\section{Sample of Usage}{
+
+\preformatted{
 if (file.exists("a.ad2cp")) {
     d <- read.oce("a.ad2cp")
     # The examples start with the line in x[["text"]][[1]]; note that in the second
@@ -46,8 +47,8 @@ if (file.exists("a.ad2cp")) {
     frequency <- ad2cpHeaderValue(d, "BEAMCFGLIST,BEAM=1", "FREQ", default=NA)
 }
 }
-
 }
+
 \seealso{
 Other things related to adp data: 
 \code{\link{[[,adp-method}},

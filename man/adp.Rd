@@ -3,7 +3,7 @@
 \docType{data}
 \name{adp}
 \alias{adp}
-\title{Sample adp (acoustic-doppler profiler) dataset}
+\title{Sample adp Data}
 \source{
 This file came from the SLEIWEX-2008 experiment.
 }
@@ -24,9 +24,8 @@ data(adp)
 plot(adp)
 
 # Note that tides have moved the mooring.
-plot(adp, which=15:18)
+plot(adp, which = 15:18)
 }
-
 
 }
 \seealso{

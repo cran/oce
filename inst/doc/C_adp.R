@@ -1,4 +1,4 @@
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## -----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ processingLogShow(adp)
 ## ----fig.width=3, fig.height=3, dev.args=list(pointsize=9)--------------------
 plot(adp, which="uv")
 
-## ---- eval=FALSE, message=FALSE, warning=FALSE, error=FALSE-------------------
+## ----eval=FALSE, message=FALSE, warning=FALSE, error=FALSE--------------------
 #  library(oce)
 #  adcp <- read.adp("COR2019002_20190818T064815_007_000000.ENS")
 #  enu <- toEnu(adcp)

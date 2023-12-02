@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.R
 \name{read.ctd}
 \alias{read.ctd}
-\title{Read a General CTD File}
+\title{Read a ctd File in General Format}
 \usage{
 read.ctd(
   file,
@@ -105,7 +105,7 @@ better for normal calls by a user.}
 This function returns a \linkS4class{ctd} object.
 }
 \description{
-Read a General CTD File
+Read a ctd File in General Format
 }
 \seealso{
 Other things related to ctd data: 
@@ -139,6 +139,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},
@@ -154,6 +155,7 @@ Other functions that read ctd data:
 \code{\link{read.ctd.aml}()},
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

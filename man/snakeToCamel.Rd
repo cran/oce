@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{snakeToCamel}
 \alias{snakeToCamel}
-\title{Convert each of a vector of strings from SNAKE_CASE to camelCase}
+\title{Convert From Snake-Case to Camel-Case Notation}
 \usage{
 snakeToCamel(s, specialCases = NULL)
 }
@@ -39,11 +39,11 @@ see the four examples).
 }
 \examples{
 library(oce)
-snakeToCamel("PARAMETER_DATA_MODE")   # "parameterDataMode"
-snakeToCamel("PARAMETER")             # "parameter"
-snakeToCamel("HISTORY_QCTEST")        # "historyQctest"
-snakeToCamel("HISTORY_QCTEST", "QC")  # "historyQCTest"
-snakeToCamel("PROFILE_DOXY_QC")       # "profileDoxyQc"
+snakeToCamel("PARAMETER_DATA_MODE") # "parameterDataMode"
+snakeToCamel("PARAMETER") # "parameter"
+snakeToCamel("HISTORY_QCTEST") # "historyQctest"
+snakeToCamel("HISTORY_QCTEST", "QC") # "historyQCTest"
+snakeToCamel("PROFILE_DOXY_QC") # "profileDoxyQc"
 snakeToCamel("PROFILE_DOXY_QC", "QC") # "profileDoxyQC"
 }
 \author{

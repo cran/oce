@@ -3,14 +3,12 @@
 \docType{data}
 \name{adp_rdi.000}
 \alias{adp_rdi.000}
-\title{Sample adp (acoustic-doppler profiler) file in RDI format}
+\title{Sample adp File in RDI Format}
 \description{
-Sample adp (acoustic-doppler profiler) file in RDI format
+Sample adp File in RDI Format
 }
 \examples{
-\dontrun{
 read.oce(system.file("extdata", "adp_rdi.000", package="oce"))
-}
 
 }
 \seealso{

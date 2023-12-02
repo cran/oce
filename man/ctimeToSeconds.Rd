@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{ctimeToSeconds}
 \alias{ctimeToSeconds}
-\title{Interpret a character string as a time interval}
+\title{Interpret a Character String as a Time Interval}
 \usage{
 ctimeToSeconds(ctime)
 }
@@ -13,14 +13,14 @@ ctimeToSeconds(ctime)
 A numeric value, the number of seconds represented by the string.
 }
 \description{
-Interpret a character string as a time interval
-Strings are of the form MM:SS or HH:MM:SS.
+Infer a time interval from a character string in
+the form MM:SS or HH:MM:SS.
 }
 \examples{
 library(oce)
-cat("10      = ", ctimeToSeconds("10"), "s\n", sep="")
-cat("01:04   = ", ctimeToSeconds("01:04"), "s\n", sep="")
-cat("1:00:00 = ", ctimeToSeconds("1:00:00"), "s\n", sep="")
+cat("10      = ", ctimeToSeconds("10"), "s\n", sep = "")
+cat("01:04   = ", ctimeToSeconds("01:04"), "s\n", sep = "")
+cat("1:00:00 = ", ctimeToSeconds("1:00:00"), "s\n", sep = "")
 }
 \seealso{
 See \code{\link[=secondsToCtime]{secondsToCtime()}}, the inverse of this.

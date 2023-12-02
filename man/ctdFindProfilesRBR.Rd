@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.R
 \name{ctdFindProfilesRBR}
 \alias{ctdFindProfilesRBR}
-\title{Find Profiles within a CTD object read from a RBR file}
+\title{Find Profiles Within a ctd Object Read From a RBR File}
 \usage{
 ctdFindProfilesRBR(
   x,
@@ -69,6 +69,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

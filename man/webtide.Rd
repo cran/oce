@@ -2,7 +2,7 @@
 % Please edit documentation in R/tides.R
 \name{webtide}
 \alias{webtide}
-\title{Get a Tidal Prediction from a WebTide Database}
+\title{Get a Tidal Prediction From a WebTide Database}
 \source{
 The WebTide software may be downloaded for free at the
 Department of Fisheries and Oceans (Canada) website at
@@ -121,20 +121,21 @@ designed based on little more than guesses about the WebTide file structure.
 Users should be on the lookout for odd results.
 }
 
-\examples{
-\dontrun{
+\section{Sample of Usage}{
+
+\preformatted{
 # needs WebTide at the system level
 library(oce)
 # 1. prediction at Halifax NS
 longitude <- -63.57
 latitude <- 44.65
 prediction <- webtide("predict", longitude=longitude, latitude=latitude)
-mtext(sprintf("prediction at \%fN \%fE", latitude, longitude), line=0.75, side=3)
+mtext(paste0("prediction at ", latitude, "N and ", longitude, "E"), line=0.75, side=3)
 # 2. map
 webtide(lon=-63.57,lat=44.65,xlim=c(-64,-63),ylim=c(43.0,46))
 }
-
 }
+
 \seealso{
 Other things related to tides: 
 \code{\link{[[,tidem-method}},

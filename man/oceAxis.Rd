@@ -2,7 +2,7 @@
 % Please edit documentation in R/oce.R
 \name{oceAxis}
 \alias{oceAxis}
-\title{Draw an axis, possibly with decade-style logarithmic scaling}
+\title{Draw an Axis, Possibly with Decade-style Logarithmic Scaling}
 \usage{
 oceAxis(side, labels = TRUE, logStyle = "r", ...)
 }
@@ -31,16 +31,16 @@ Numerical values at which tick marks were drawn (or would have been drawn, if \c
 specified to draw them).
 }
 \description{
-Draw an axis, possibly with decade-style logarithmic scaling
+Draw an Axis, Possibly with Decade-style Logarithmic Scaling
 }
 \examples{
 library(oce)
 Ra <- 10^seq(4, 10, 0.1)
-Nu <- 0.085 * Ra^(1/3)
-plot(Ra, Nu, log="xy", axes=FALSE)
+Nu <- 0.085 * Ra^(1 / 3)
+plot(Ra, Nu, log = "xy", axes = FALSE)
 box()
-oceAxis(1, logStyle="decade")
-oceAxis(2, logStyle="decade")
+oceAxis(1, logStyle = "decade")
+oceAxis(2, logStyle = "decade")
 
 }
 \author{

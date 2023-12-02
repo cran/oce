@@ -4,14 +4,12 @@
 \encoding{UTF-8}
 \name{xbt.edf}
 \alias{xbt.edf}
-\title{Sample xbt dataset}
+\title{Sample xbt File in .edf Format}
 \description{
-Sample xbt dataset
+Sample xbt File in .edf Format
 }
 \examples{
-\dontrun{
 xbt <- read.oce(system.file("extdata", "xbt.edf", package="oce"))
-}
 
 }
 \seealso{

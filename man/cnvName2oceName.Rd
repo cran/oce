@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.sbe.R
 \name{cnvName2oceName}
 \alias{cnvName2oceName}
-\title{Infer variable name, units and scale from a Seabird (.cnv) header line}
+\title{Infer Variable Name, Units and Scale From a Seabird Header}
 \usage{
 cnvName2oceName(h, columns = NULL, debug = getOption("oceDebug"))
 }
@@ -259,6 +259,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

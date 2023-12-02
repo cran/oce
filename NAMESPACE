@@ -302,6 +302,7 @@ export(
     read.ctd.odf,
     read.ctd.odv,
     read.ctd.itp,
+    read.ctd.saiv,
     read.echosounder,
     read.g1sst,
     read.gps,
@@ -391,8 +392,8 @@ export(
     toEnuAdp,
     toEnuAdv,
     topoInterpolate,
-    ##trap, # created by Rcpp
-    trimString,
+    #trap, # created by Rcpp
+    #trimString, removed 2023-07-12 after a year of deprecated status
     unabbreviateYear,
     undriftTime,
     ungrid,

@@ -4,7 +4,7 @@
 \encoding{UTF-8}
 \name{CTD_BCD2014666_008_1_DN.ODF.gz}
 \alias{CTD_BCD2014666_008_1_DN.ODF.gz}
-\title{Sample ctd dataset in odf format}
+\title{Sample ctd File in .odf Format}
 \description{
 The location is approximately 30km southeast of Halifax Harbour,
 at "Station 2" of the Halifax Line on the Scotian Shelf.
@@ -53,6 +53,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

@@ -11,6 +11,7 @@ AML
 AML's
 AMSR
 AST
+AWAC
 AXBT
 AXBTs
 Aanderaa
@@ -18,7 +19,9 @@ Acoustic
 Adp
 Aitoff
 Albers
+Alken
 Amante
+Amit
 Antonov
 AppVeyor
 Appl
@@ -26,15 +29,18 @@ Aquadopp
 Aquatracka
 ArcGIS
 ArgonautXR
+Aubert
 AvgInterval
 Azimuthal
 BAMS
 BCD
 BOM
+Baerenzung
 Baranova
 Bartlein
 BaseX
 Bedford
+Beggan
 Bernhard
 BioArgo
 BioSonics
@@ -43,6 +49,7 @@ Biospherical
 Bivand
 Blackman
 Bojan
+Bondar
 Bonne
 Boric
 CDOM
@@ -67,6 +74,7 @@ Cvitas
 DBT
 DFO
 DK
+DW
 DOI
 DOP
 DT
@@ -262,6 +270,7 @@ NorTek
 Nortek
 ODF
 ODV
+ORCID
 OSX
 Oblated
 Ocedata
@@ -299,6 +308,7 @@ Radiative
 Rainer
 Rainsford's
 Rajeshwari
+Rdescoteaux
 Rdoc
 Rebecca
 Reiniger
@@ -306,9 +316,11 @@ Renner
 Rescale
 Rhodamine
 Roussilhe
+Roxygen
 Rrho
 RrhoSF
 Rsk
+SAIV
 SBE
 SCOR
 SCUFA
@@ -357,6 +369,7 @@ Takashi
 Takatsuki
 Teledyne
 Tereschenkov
+Thébault
 Thierry
 Thyng
 Thyng's
@@ -439,6 +452,7 @@ adpEnsembleAverage
 al
 allowNAs
 alongPath
+aml
 amsr
 analyse
 anomalous
@@ -572,6 +586,7 @@ descendent
 despike
 despiked
 despiking
+destdir
 detrend
 dev
 df
@@ -582,6 +597,7 @@ discoverable
 documentation
 doi
 donnees
+dontrun
 doppler
 dov
 downcasts
@@ -662,6 +678,7 @@ gridding
 gsfc
 gsw
 gui
+gzipped
 haline
 handleFlags
 hawaii
@@ -812,6 +829,7 @@ oblated
 oceApprox
 oceBisect
 oceBiset
+oceColorsTwo
 oceColorsViridis
 oceCoriolis
 oceDebug
@@ -897,6 +915,7 @@ referencePressure
 registerRoutines
 renameData
 replot
+requireNamespace
 rescale
 reseting
 retime
@@ -908,6 +927,7 @@ rq
 rr
 rsk
 runlm
+saiv
 salinities
 salinityFlag
 sam
@@ -994,6 +1014,7 @@ timeseries
 timezones
 toc
 topo
+topoFile
 topoInterpolate
 topoMaritimes
 topoWorld
@@ -1047,6 +1068,7 @@ usgs
 utm
 vapour
 vectorize
+vectorized
 velocimeter
 velocimeters
 velocimetry

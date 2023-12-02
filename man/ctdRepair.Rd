@@ -2,7 +2,7 @@
 % Please edit documentation in R/ctd.R
 \name{ctdRepair}
 \alias{ctdRepair}
-\title{Repair a malformed ctd object}
+\title{Repair a Malformed ctd Object}
 \usage{
 ctdRepair(x, debug = getOption("oceDebug"))
 }
@@ -48,7 +48,7 @@ is retained, unaltered.
 library(oce)
 data(ctd)
 # Insert location information into 'data' slot, although it belongs in 'metadata'.
-ctd@data$latitude <- ctd@metadata$latitude   # Done by experts only!
+ctd@data$latitude <- ctd@metadata$latitude # Done by experts only!
 ctd@data$longitude <- ctd@metadata$longitude # Done by experts only!
 repaired <- ctdRepair(ctd)
 
@@ -84,6 +84,7 @@ Other things related to ctd data:
 \code{\link{read.ctd.itp}()},
 \code{\link{read.ctd.odf}()},
 \code{\link{read.ctd.odv}()},
+\code{\link{read.ctd.saiv}()},
 \code{\link{read.ctd.sbe}()},
 \code{\link{read.ctd.ssda}()},
 \code{\link{read.ctd.woce.other}()},

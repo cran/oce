@@ -2,7 +2,7 @@
 % Please edit documentation in R/oce.R
 \name{window.oce}
 \alias{window.oce}
-\title{Window an Oce Object by Time or Distance}
+\title{Window an oce Object by Time or Distance}
 \usage{
 \method{window}{oce}(
   x,
@@ -67,9 +67,9 @@ Note that \code{\link[=subset]{subset()}} may be more useful than this function.
 library(oce)
 data(adp)
 plot(adp)
-early <- window(adp, start="2008-06-26 00:00:00", end="2008-06-26 12:00:00")
+early <- window(adp, start = "2008-06-26 00:00:00", end = "2008-06-26 12:00:00")
 plot(early)
-bottom <- window(adp, start=0, end=20, which="distance")
+bottom <- window(adp, start = 0, end = 20, which = "distance")
 plot(bottom)
 }
 \seealso{

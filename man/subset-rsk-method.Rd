@@ -2,7 +2,7 @@
 % Please edit documentation in R/rsk.R
 \name{subset,rsk-method}
 \alias{subset,rsk-method}
-\title{Subset a Rsk Object}
+\title{Subset a rsk Object}
 \usage{
 \S4method{subset}{rsk}(x, subset, ...)
 }
@@ -25,7 +25,7 @@ Subset a rsk object.  This function is somewhat analogous to
 library(oce)
 data(rsk)
 plot(rsk)
-plot(subset(rsk, time < mean(range(rsk[['time']]))))
+plot(subset(rsk, time < mean(range(rsk[["time"]]))))
 
 }
 \seealso{

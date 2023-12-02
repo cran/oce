@@ -2,7 +2,7 @@
 % Please edit documentation in R/cm.R
 \name{as.cm}
 \alias{as.cm}
-\title{Coerce data into a CM object}
+\title{Coerce Data Into a cm Object}
 \usage{
 as.cm(
   time,
@@ -43,14 +43,14 @@ be printed. If one function calls another, it usually reduces the value of
 by specifying higher \code{debug} values.}
 }
 \description{
-Coerce data into a CM object
+Coerce Data Into a cm Object
 }
 \examples{
 library(oce)
 # Example 1: creation from scratch
 t <- Sys.time() + 0:50
-u <- sin(2*pi*0:50/5) + rnorm(51)
-v <- cos(2*pi*0:50/5) + rnorm(51)
+u <- sin(2 * pi * 0:50 / 5) + rnorm(51)
+v <- cos(2 * pi * 0:50 / 5) + rnorm(51)
 p <- 100 + rnorm(51)
 summary(as.cm(t, u, v, p))
 

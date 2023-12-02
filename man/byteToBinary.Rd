@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{byteToBinary}
 \alias{byteToBinary}
-\title{Format bytes as binary \link{defunct}}
+\title{Format Bytes as Binary (Defunct)}
 \usage{
 byteToBinary(x, endian = "big")
 }
@@ -31,7 +31,7 @@ was changed to \code{"big"} on 2017 May 6.
 library(oce)
 # Note comparison with rawToBits():
 a <- as.raw(0x0a)
-byteToBinary(a, "big")        # "00001010"
+byteToBinary(a, "big") # "00001010"
 as.integer(rev(rawToBits(a))) # 0 0 0 0 1 0 1 0
 }
 \author{

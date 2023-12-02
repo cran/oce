@@ -2,7 +2,7 @@
 % Please edit documentation in R/astronomy.R
 \name{siderealTime}
 \alias{siderealTime}
-\title{Convert a POSIXt time to a sidereal time}
+\title{Convert From POSIXt Time to Sidereal Time}
 \usage{
 siderealTime(t)
 }
@@ -22,7 +22,7 @@ that he discusses after his equation 7.1 is not applied here.
 }
 \examples{
 
-t <- ISOdatetime(1978, 11, 13, 0, 0, 0, tz="UTC")
+t <- ISOdatetime(1978, 11, 13, 0, 0, 0, tz = "UTC")
 print(siderealTime(t))
 
 }

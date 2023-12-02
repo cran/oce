@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{rescale}
 \alias{rescale}
-\title{Rescale values to lie in a given range}
+\title{Rescale Values to lie in a Given Range}
 \usage{
 rescale(x, xlow, xhigh, rlow = 0, rhigh = 1, clip = TRUE)
 }
@@ -41,9 +41,11 @@ z <- 50 * (-1 + sin(2 * pi * t / 360))
 T <- 5 + 10 * exp(z / 100)
 palette <- oce.colorsViridis(100)
 zlim <- range(T)
-drawPalette(zlim=zlim, col=palette)
-plot(x, z, type="p", pch=20, cex=3,
-     col=palette[rescale(T, xlow=zlim[1], xhigh=zlim[2], rlow=1, rhigh=100)])
+drawPalette(zlim = zlim, col = palette)
+plot(x, z,
+    type = "p", pch = 20, cex = 3,
+    col = palette[rescale(T, xlow = zlim[1], xhigh = zlim[2], rlow = 1, rhigh = 100)]
+)
 }
 \author{
 Dan Kelley

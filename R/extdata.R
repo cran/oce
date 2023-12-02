@@ -1,4 +1,4 @@
-#' Sample ctd dataset in AML format
+#' Sample ctd File in aml Format
 #'
 #' This file may be read with [read.ctd.aml()].  It is based
 #' on a file donated by Ashley Stanek, which was shortened to
@@ -21,7 +21,7 @@
 #' @family things related to ctd data
 NULL
 
-#' Sample ctd dataset in odf format
+#' Sample ctd File in .odf Format
 #'
 #' The location is approximately 30km southeast of Halifax Harbour,
 #' at "Station 2" of the Halifax Line on the Scotian Shelf.
@@ -42,23 +42,21 @@ NULL
 NULL
 
 
-#' Sample adp (acoustic-doppler profiler) file in RDI format
+#' Sample adp File in RDI Format
 #'
 #' @name adp_rdi.000
 #'
 #' @docType data
 #'
 #' @examples
-#'\dontrun{
 #' read.oce(system.file("extdata", "adp_rdi.000", package="oce"))
-#'}
 #'
 #' @family raw datasets
 #' @family things related to adp data
 NULL
 
 
-#' Sample ctd dataset in .cnv format
+#' Sample ctd File in .cnv Format
 #'
 #' @name ctd.cnv.gz
 #'
@@ -67,16 +65,14 @@ NULL
 #' @encoding UTF-8
 #'
 #' @examples
-#'\dontrun{
 #' read.oce(system.file("extdata", "ctd.cnv.gz", package="oce"))
-#'}
 #'
 #' @family raw datasets
 #' @family things related to ctd data
 NULL
 
 
-#' Sample ctd dataset in .ctd format
+#' Sample ctd File in .ctd Format
 #'
 #' @name d200321-001.ctd.gz
 #'
@@ -85,16 +81,14 @@ NULL
 #' @encoding UTF-8
 #'
 #' @examples
-#'\dontrun{
 #' read.oce(system.file("extdata", "d200321-001.ctd.gz", package="oce"))
-#'}
 #'
 #' @family raw datasets
 #' @family things related to ctd data
 NULL
 
 
-#' Sample ctd dataset in .cnv format
+#' Sample ctd File in .cnv Format
 #'
 #' @name d201211_0011.cnv.gz
 #'
@@ -103,15 +97,13 @@ NULL
 #' @encoding UTF-8
 #'
 #' @examples
-#'\dontrun{
 #' read.oce(system.file("extdata", "d201211_0011.cnv.gz", package="oce"))
-#'}
 #'
 #' @family raw datasets
 #' @family things related to ctd data
 NULL
 
-#' Sample xbt dataset
+#' Sample xbt File in .edf Format
 #'
 #' @name xbt.edf
 #'
@@ -120,9 +112,7 @@ NULL
 #' @encoding UTF-8
 #'
 #' @examples
-#'\dontrun{
 #' xbt <- read.oce(system.file("extdata", "xbt.edf", package="oce"))
-#'}
 #'
 #' @family raw datasets
 #' @family things related to xbt data

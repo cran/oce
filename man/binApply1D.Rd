@@ -2,7 +2,7 @@
 % Please edit documentation in R/bin.R
 \name{binApply1D}
 \alias{binApply1D}
-\title{Apply a function to vector data}
+\title{Apply a Function to Vector Data}
 \usage{
 binApply1D(x, f, xbreaks, FUN, include.lowest = FALSE, ...)
 }
@@ -50,7 +50,7 @@ p <- ctd[["pressure"]]
 S <- ctd[["salinity"]]
 pbreaks <- seq(0, max(p), 1)
 binned <- binApply1D(p, S, pbreaks, mean)
-lines(binned$result, binned$xmids, lwd=2, col=rgb(1, 0, 0, 0.9))
+lines(binned$result, binned$xmids, lwd = 2, col = rgb(1, 0, 0, 0.9))
 
 }
 \seealso{

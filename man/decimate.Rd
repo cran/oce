@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{decimate}
 \alias{decimate}
-\title{Smooth and Decimate, or Subsample, an Oce Object}
+\title{Smooth and Decimate, or Subsample, an oce Object}
 \usage{
 decimate(x, by = 10, to, filter, debug = getOption("oceDebug"))
 }
@@ -46,7 +46,7 @@ then a boxcar filter, each of length equal to the corresponding component of
 library(oce)
 data(adp)
 plot(adp)
-adpDec <- decimate(adp, by=2, filter=c(1/4, 1/2, 1/4))
+adpDec <- decimate(adp, by = 2, filter = c(1 / 4, 1 / 2, 1 / 4))
 plot(adpDec)
 }
 \seealso{

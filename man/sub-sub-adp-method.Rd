@@ -2,7 +2,7 @@
 % Please edit documentation in R/adp.R
 \name{[[,adp-method}
 \alias{[[,adp-method}
-\title{Extract Something from an adp Object}
+\title{Extract Something From an adp Object}
 \usage{
 \S4method{[[}{adp}(x, i, j, ...)
 }
@@ -109,10 +109,10 @@ directs where to look.
 \examples{
 data(adp)
 # Tests for beam 1, distance bin 1, first 5 observation times
-adp[["v"]][1:5,1,1]
-adp[["a"]][1:5,1,1]
-adp[["a", "numeric"]][1:5,1,1]
-as.numeric(adp[["a"]][1:5,1,1]) # same as above
+adp[["v"]][1:5, 1, 1]
+adp[["a"]][1:5, 1, 1]
+adp[["a", "numeric"]][1:5, 1, 1]
+as.numeric(adp[["a"]][1:5, 1, 1]) # same as above
 
 }
 \seealso{

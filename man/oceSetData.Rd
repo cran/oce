@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{oceSetData}
 \alias{oceSetData}
-\title{Set Something in an oce data Slot}
+\title{Set Something in the data Slot of an oce Object}
 \usage{
 oceSetData(object, name, value, unit, originalName, note = "")
 }
@@ -61,7 +61,8 @@ and the scale set to \code{""}.
 data(ctd)
 Tf <- swTFreeze(ctd)
 ctd <- oceSetData(ctd, "freezing", Tf,
-    unit=list(unit=expression(degree*C), scale="ITS-90"))
+    unit = list(unit = expression(degree * C), scale = "ITS-90")
+)
 plotProfile(ctd, "freezing")
 
 }

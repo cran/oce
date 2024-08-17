@@ -13,9 +13,11 @@ plotScan(ctdRaw)
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  plotScan(ctdTrim(ctdRaw, "range",
-#                   parameters=list(item="scan", from=140, to=250)))
+#      parameters = list(item = "scan", from = 140, to = 250)
+#  ))
 #  plotScan(ctdTrim(ctdRaw, "range",
-#                   parameters=list(item="scan", from=150, to=250)))
+#      parameters = list(item = "scan", from = 150, to = 250)
+#  ))
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  ctdTrimmed <- ctdTrim(ctdRaw)
@@ -27,11 +29,11 @@ plotScan(ctdRaw)
 #  library(oce)
 #  # http://cchdo.ucsd.edu/data/7971/ar18_58JH19941029_ct1.zip
 #  # setwd("~/Downloads/ar18_58JH19941029_ct1")
-#  files <- list.files(pattern="*.csv$", full.names=TRUE)
+#  files <- list.files(pattern = "*.csv$", full.names = TRUE)
 #  for (i in seq_along(files)) {
 #      x <- read.ctd(files[i])
 #      if (i == 1) {
-#          plotTS(x, Slim=c(31, 35.5), Tlim=c(-2, 10), type="o")
+#          plotTS(x, Slim = c(31, 35.5), Tlim = c(-2, 10), type = "o")
 #      } else {
 #          points(x[["salinity"]], x[["potential temperature"]])
 #          lines(x[["salinity"]], x[["potential temperature"]])
@@ -42,20 +44,21 @@ plotScan(ctdRaw)
 library(oce)
 data(ctd)
 pycnocline <- ctdTrim(ctd, "range",
-                      parameters=list(item="pressure", from=5, to=12))
-plotProfile(pycnocline, which="density+N2")
+    parameters = list(item = "pressure", from = 5, to = 12)
+)
+plotProfile(pycnocline, which = "density+N2")
 
 ## ----fig.width=5, fig.height=5, fig.keep="none"-------------------------------
 library(oce)
 data(ctd)
 pycnocline <- subset(ctd, 5 <= pressure & pressure <= 12)
-plotProfile(pycnocline, which="density+N2")
+plotProfile(pycnocline, which = "density+N2")
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  library(oce)
 #  # http://cchdo.ucsd.edu/data/7971/ar18_58JH19941029_ct1.zip
 #  # setwd("~/Downloads/ar18_58JH19941029_ct1")
-#  files <- list.files(pattern="*.csv$", full.names=TRUE)
+#  files <- list.files(pattern = "*.csv$", full.names = TRUE)
 #  n <- length(files)
 #  ctds <- vector("list", n) # to hold the CTD objects
 #  station <- vector("list", n)
@@ -69,9 +72,9 @@ plotProfile(pycnocline, which="density+N2")
 #  overall <- as.ctd(sal, tem, pre)
 #  png("ar18_%02d.png")
 #  for (i in 1:n) {
-#      plotTS(overall, col="gray")
+#      plotTS(overall, col = "gray")
 #      lines(ctds[[i]][["salinity"]], ctds[[i]][["potential temperature"]])
-#      mtext(station[i], side=3, line=0)
+#      mtext(station[i], side = 3, line = 0)
 #  }
 #  dev.off()
 

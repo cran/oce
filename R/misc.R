@@ -838,10 +838,8 @@ unitFromString <- function(unit, scale = NULL) {
 #'
 #' @return Vector of strings with repeats distinguished by suffix.
 #'
-#' @seealso Used by [read.ctd.sbe()] with `style=1` to
-#' rename repeated data elements (e.g. for multiple temperature sensors)
-#' in CTD data, and by [read.odf()] with `style=2` on
-#' key-value pairs within ODF metadata.
+#' @seealso This is used in several functions, e.g. [read.ctd.sbe()]
+#' and [read.odf()].
 #'
 #' @examples
 #' unduplicateNames(c("a", "b", "a", "c", "b"))
@@ -1646,6 +1644,8 @@ threenum <- function(x) {
         x <- as.numeric(x)
         dim(x) <- dim
         res <- c(min(x, na.rm = TRUE), mean(x, na.rm = TRUE), max(x, na.rm = TRUE))
+    } else if (is.complex(x)) {
+        res <- c(NA, mean(x, na.rm = TRUE), NA)
     } else if (is.factor(x)) {
         res <- rep(NA, 3)
     } else if (0 < sum(!is.na(x))) {
@@ -1723,7 +1723,6 @@ detrend <- function(x, y) {
     a <- y[first] - b * x[first]
     list(Y = y - (a + b * x), a = a, b = b)
 }
-
 
 
 #' Remove Spikes From a Time Series
@@ -1817,8 +1816,9 @@ detrend <- function(x, y) {
 #' CTD <- despike(ctd)
 #' plot(CTD)
 despike <- function(
-    x, reference = c("median", "smooth", "trim"), n = 4, k = 7, min = NA, max = NA,
-    replace = c("reference", "NA"), skip) {
+  x, reference = c("median", "smooth", "trim"), n = 4, k = 7, min = NA, max = NA,
+  replace = c("reference", "NA"), skip
+) {
     if (is.vector(x)) {
         x <- despikeColumn(x, reference = reference, n = n, k = k, min = min, max = max, replace = replace)
     } else {
@@ -1863,8 +1863,9 @@ despike <- function(
 }
 
 despikeColumn <- function(
-    x, reference = c("median", "smooth", "trim"), n = 4, k = 7, min = NA, max = NA,
-    replace = c("reference", "NA")) {
+  x, reference = c("median", "smooth", "trim"), n = 4, k = 7, min = NA, max = NA,
+  replace = c("reference", "NA")
+) {
     reference <- match.arg(reference)
     replace <- match.arg(replace)
     gave.min <- !is.na(min)
@@ -1916,7 +1917,6 @@ despikeColumn <- function(
 }
 
 
-
 #' Substitute NA for Data Outside a Range
 #'
 #' Substitute NA for data outside a range, e.g. to remove wild spikes in data.
@@ -1963,7 +1963,6 @@ unabbreviateYear <- function(year) {
     # handle e.g. 2008 as 2008 (full year), 8 (year-2000 offset), or 108 (year 1900 offset)
     ifelse(year > 1800, year, ifelse(year > 50, year + 1900, year + 2000))
 }
-
 
 
 #' Unwrap an Angle That Suffers Modulo-360 Problems
@@ -2095,6 +2094,9 @@ vectorShow <- function(v, msg = "", postscript = "", digits = 5L, n = 2L, showNA
         msg <- paste0(msg, ": ")
         nv <- length(v)
         for (iv in seq_len(nv)) {
+            if (is.numeric(values[[iv]])) {
+                values[[iv]] <- format(values[[iv]], digits = digits)
+            }
             msg <- paste0(msg, names[iv], "=", startEnd(values[[iv]], n))
             if (iv < nv) {
                 msg <- paste0(msg, ", ")
@@ -2123,7 +2125,7 @@ vectorShow <- function(v, msg = "", postscript = "", digits = 5L, n = 2L, showNA
     }
     res <- msg
     if (nv == 0) {
-        res <- paste(res, "(empty vector)")
+        res <- paste0(res, "(empty vector)")
     } else {
         if (n < 0 || nv <= 2 * n) {
             showAll <- TRUE
@@ -2373,6 +2375,11 @@ resizableLabel <- function(item, axis = "x", sep, unit = NULL, debug = getOption
         var <- gettext("Potential density anomaly", domain = "R-oce")
         full <- bquote(.(var) * .(L) * kg / m^3 * .(R))
         abbreviated <- bquote(sigma[theta] * .(L) * kg / m^3 * .(R))
+    } else if (item == "rho") {
+        # unit is ignored, since this quantity has a fixed meaning
+        var <- gettext("Density", domain = "R-oce")
+        full <- bquote(.(var) * .(L) * kg / m^3 * .(R))
+        abbreviated <- bquote(rho * .(L) * kg / m^3 * .(R))
     } else if (item == "sigma0") {
         # unit is ignored, since this quantity has a fixed meaning
         var <- gettext("Potential density anomaly wrt surface", domain = "R-oce")
@@ -2398,6 +2405,11 @@ resizableLabel <- function(item, axis = "x", sep, unit = NULL, debug = getOption
         var <- gettext("Potential density anomaly wrt 4000 dbar", domain = "R-oce")
         full <- bquote(.(var) * .(L) * kg / m^3 * .(R))
         abbreviated <- bquote(sigma[4] * .(L) * kg / m^3 * .(R))
+    } else if (item == "sigmaTheta") {
+        # unit is ignored, since this quantity has a fixed meaning
+        var <- gettext("Potential density anomaly", domain = "R-oce")
+        full <- bquote(.(var) * .(L) * kg / m^3 * .(R))
+        abbreviated <- bquote(sigma[theta] * .(L) * kg / m^3 * .(R))
     } else if (item %in% c("salinity", "SP")) {
         # unit is ignored, since this quantity has a fixed meaning
         var <- "Salinity"
@@ -2641,6 +2653,10 @@ resizableLabel <- function(item, axis = "x", sep, unit = NULL, debug = getOption
         # unit is ignored
         unit <- gettext("cph", domain = "R-oce")
         abbreviated <- full <- bquote(.(var) * .(L) * .(unit[[1]]) * .(R))
+    } else if (item == "Rrho") {
+        abbreviated <- full <- expression(R[rho])
+    } else if (item == "RrhoSF") {
+        abbreviated <- full <- expression(R[rho * "," * SF])
     } else if (item == paste("sound", "speed")) {
         var <- gettext("Sound Speed", domain = "R-oce")
         # unit is ignored
@@ -2669,8 +2685,18 @@ resizableLabel <- function(item, axis = "x", sep, unit = NULL, debug = getOption
     whichAxis <- if (axis == "x") 1 else 2
     spaceAvailable <- abs(par("fin")[whichAxis])
     fraction <- spaceNeeded / spaceAvailable
+    oceDebug(debug, "full: '", as.character(full), "'\n")
+    oceDebug(debug, "abbreviated: '", as.character(abbreviated), "'\n")
+    oceDebug(debug, "fraction: ", fraction, "\n")
+    if (fraction < 1) {
+        rval <- full
+        oceDebug(debug, "fraction < 1, so will return full\n")
+    } else {
+        rval <- abbreviated
+        oceDebug(debug, "fraction >= 1, so will return abbreviated\n")
+    }
     oceDebug(debug, "END resizableLabel\n", unindent = 1)
-    if (fraction < 1) full else abbreviated
+    rval
 }
 
 
@@ -3193,6 +3219,7 @@ GMTOffsetFromTz <- function(tz) {
     if (tz == "Z") {
         return(0)
     } # Zulu Time Zone  Military                 UTC
+    0
 }
 
 
@@ -3230,52 +3257,55 @@ gravity <- function(latitude = 45, degrees = TRUE) {
 
 #' Make a Digital Filter
 #'
-#' The filter is suitable for use by [filter()],
-#' [convolve()] or (for the `asKernal=TRUE` case) with
-#' [kernapply()].  Note that [convolve()] should be faster
-#' than [filter()], but it cannot be used if the time series has
-#' missing values.  For the Blackman-Harris filter, the half-power frequency is
-#' at `1/m` cycles per time unit, as shown in the \dQuote{Examples}
-#' section.  When using [filter()] or [kernapply()] with
-#' these filters, use `circular=TRUE`.
+#' The results can be used in two different ways.  CASE 1: for filtering, using
+#' [filter()] or [convolve()] or (for the `asKernal=TRUE` case) using
+#' [kernapply()].  For the Blackman-Harris filter, the half-power frequency is
+#' at `1/m` cycles per time unit, as shown in the \dQuote{Examples} section.
+#' When using [filter()] or [kernapply()] with these filters, use
+#' `circular=TRUE`. CASE 2: for windowing, if `normalize` is set to FALSE, as
+#' for example in computing a Welch spectral estimate.
 #'
 #' @param type a string indicating the type of filter to use.  (See Harris
-#' (1978) for a comparison of these and similar filters.)
+#' (1978) for a comparison of these and similar filters.) The choices for
+#' the present function are as follows.
 #'
 #' * `"blackman-harris"` yields a modified raised-cosine filter designated
 #' as "4-Term (-92 dB) Blackman-Harris" by Harris (1978; coefficients given in
 #' the table on page 65).  This is also called "minimum 4-sample Blackman
-#' Harris" by that author, in his Table 1, which lists figures of merit as
-#' follows: highest side lobe level -92dB; side lobe fall off -6 db/octave;
-#' coherent gain 0.36; equivalent noise bandwidth 2.00 bins; 3.0-dB bandwidth
-#' 1.90 bins; scallop loss 0.83 dB; worst case process loss 3.85 dB; 6.0-db
-#' bandwidth 2.72 bins; overlap correlation 46 percent for 75\% overlap and 3.8
-#' for 50\% overlap.  Note that the equivalent noise bandwidth is the width of
-#' a spectral peak, so that a value of 2 indicates a cutoff frequency of
-#' `1/m`, where `m` is as given below.
+#' Harris" by that author, in his Table 1.
 #'
 #' * `"rectangular"` for a flat filter.  (This is just for convenience.  Note that
 #' [`kernel`]`("daniell",....)` gives the same result, in kernel form.)
-#' `"hamming"` for a Hamming filter (a raised-cosine that does not taper
-#' to zero at the ends)
 #'
-#' * `"hann"` (a raised cosine that tapers to zero at the ends).
+#' * `"hamming"` for a raised-cosine filter designed by Hamming. The
+#' mathematical form is `a-(1-a)*cos(2*pi*i/(m-1))` where `a` is 0.54 and `i` is
+#' `seq(0,m-1)`.
 #'
-#' @param m length of filter.  This should be an odd number, for any
-#' non-rectangular filter.
+#' * `"hann"` for a cosine filter that tapers to zero at the ends, i.e.
+#' of the same mathematical form as `"hamming"`, but with
+#' `a` equal to 0.5.
+#'
+#' @param m length of filter.
+#'
+#' @param normalize logical value indicating whether to return numbers that sum
+#' to 1.  This is TRUE by default, which is useful if the purpose is to lowpass
+#' filter a timeseries without altering power in the pass-band.  However,
+#' `normalize=FALSE` is the right choice if the purpose is to window a
+#' timeseries, e.g. in computing a spectral estimate using Welch's method (see
+#' [pwelch()]).
 #'
 #' @param asKernel boolean, set to `TRUE` to get a smoothing kernel for
 #' the return value.
 #'
-#' @return If `asKernel` is `FALSE`, this returns a list of filter
-#' coefficients, symmetric about the midpoint and summing to 1.  These may be
-#' used with [filter()], which should be provided with argument
-#' `circular=TRUE` to avoid phase offsets.  If `asKernel` is
-#' `TRUE`, the return value is a smoothing kernel, which can be applied to
-#' a timeseries with [kernapply()], whose bandwidth can be determined
-#' with [bandwidth.kernel()], and which has both print and plot
-#' methods.
-#'
+#' @return If `asKernel` is `FALSE`, this returns a vector of filter
+#' coefficients, symmetric about the midpoint. The vector will sum to 1 if
+#' `normalize=TRUE` (i.e. by default).  The return value may be used with
+#' [filter()], which should be provided with argument `circular=TRUE` to avoid
+#' phase offsets.  If `asKernel` is TRUE and if `normalize` is FALSE, an error
+#' is reported.  On the other hand, if `asKernel` is TRUE and `normalize` is
+#' FALSE, then the return value is a smoothing kernel, which can be applied to a
+#' timeseries with [kernapply()], whose bandwidth can be determined with
+#' [bandwidth.kernel()], and which has both print and plot methods.
 #'
 #' @references F. J. Harris, 1978.  On the use of windows for harmonic analysis
 #' with the discrete Fourier Transform.  *Proceedings of the IEEE*, 66(1),
@@ -3284,78 +3314,48 @@ gravity <- function(latitude = 45, degrees = TRUE) {
 #' @examples
 #' library(oce)
 #'
-#' # 1. Demonstrate step-function response
+#' # Demonstrate step-function response
 #' y <- c(rep(1, 10), rep(-1, 10))
 #' x <- seq_along(y)
 #' plot(x, y, type = "o", ylim = c(-1.05, 1.05))
 #' BH <- makeFilter("blackman-harris", 11, asKernel = FALSE)
 #' H <- makeFilter("hamming", 11, asKernel = FALSE)
 #' yBH <- stats::filter(y, BH)
-#' points(x, yBH, col = 2, type = "o")
+#' lines(x, yBH, type = "o", col = 2)
 #' yH <- stats::filter(y, H)
-#' points(yH, col = 3, type = "o")
+#' lines(x, yH, type = "o", col = 3)
+#' grid()
 #' legend("topright",
-#'     col = 1:3, cex = 2 / 3, pch = 1,
+#'     col = 1:3, bg = "white",
 #'     legend = c("input", "Blackman Harris", "Hamming")
 #' )
-#'
-#' # 2. Show theoretical and practical filter gain, where
-#' #    the latter is based on random white noise, and
-#' #    includes a particular value for the spans
-#' #    argument of spectrum(), etc.
-#'
-#' @section Sample of Usage:
-#' \preformatted{
-#' # need signal package for this example
-#' r <- rnorm(2048)
-#' rh <- stats::filter(r, H)
-#' rh <- rh[is.finite(rh)] # kludge to remove NA at start/end
-#' sR <- spectrum(r, plot=FALSE, spans=c(11, 5, 3))
-#' sRH <- spectrum(rh, plot=FALSE, spans=c(11, 5, 3))
-#' par(mfrow=c(2, 1), mar=c(3, 3, 1, 1), mgp=c(2, 0.7, 0))
-#' plot(sR$freq, sRH$spec/sR$spec, xlab="Frequency", ylab="Power Transfer",
-#'      type="l", lwd=5, col="gray")
-#' theory <- freqz(H, n=seq(0,pi,length.out=100))
-#' # Note we must square the modulus for the power spectrum
-#' lines(theory$f/pi/2, Mod(theory$h)^2, lwd=1, col="red")
-#' grid()
-#' legend("topright", col=c("gray", "red"), lwd=c(5, 1), cex=2/3,
-#'        legend=c("Practical", "Theory"), bg="white")
-#' plot(log10(sR$freq), log10(sRH$spec/sR$spec),
-#'      xlab="log10 Frequency", ylab="log10 Power Transfer",
-#'      type="l", lwd=5, col="gray")
-#' theory <- freqz(H, n=seq(0,pi,length.out=100))
-#' # Note we must square the modulus for the power spectrum
-#' lines(log10(theory$f/pi/2), log10(Mod(theory$h)^2), lwd=1, col="red")
-#' grid()
-#' legend("topright", col=c("gray", "red"), lwd=c(5, 1), cex=2/3,
-#'        legend=c("Practical", "Theory"), bg="white")
-#' }
-#'
 #' @author Dan Kelley
-makeFilter <- function(type = c("blackman-harris", "rectangular", "hamming", "hann"), m, asKernel = TRUE) {
+makeFilter <- function(type = c("blackman-harris", "rectangular", "hamming", "hann"), m, normalize = TRUE, asKernel = TRUE) {
     type <- match.arg(type)
     if (missing(m)) {
         stop("must supply 'm'")
     }
-    i <- seq(0, m - 1)
-    if (type == "blackman-harris") {
-        # See Harris (1978) table on p65
-        if (m == 2 * floor(m / 2)) {
-            m <- m + 1
-            warning("increased filter length by 1, to make it odd")
-        }
-        a <- c(0.35875, 0.488829, 0.14128, 0.01168) # 4-term (-92dB) coefficients
-        ff <- pi * i / (m - 1)
-        coef <- a[1] - a[2] * cos(2 * ff) + a[3] * cos(4 * ff) - a[4] * cos(6 * ff)
-    } else if (type == "rectangular") {
-        coef <- rep(1 / m, m)
-    } else if (type == "hamming") {
-        coef <- 0.54 - 0.46 * cos(2 * pi * i / (m - 1))
-    } else if (type == "hann") {
-        coef <- 0.50 - 0.50 * cos(2 * pi * i / (m - 1))
+    if (!normalize && asKernel) {
+        stop("cannot specify asKernel=TRUE if normalize=FALSE")
     }
-    coef <- coef / sum(coef) # ensure unit sum
+    if (type == "rectangular") {
+        coef <- rep(1, m) # 2025-07-06 this used to be 1/m repeated
+    } else {
+        i <- seq(0, m - 1)
+        if (type == "blackman-harris") {
+            # See Harris (1978) table on p65
+            a <- c(0.35875, 0.488829, 0.14128, 0.01168) # 4-term (-92dB) coefficients
+            ff <- pi * i / (m - 1)
+            coef <- a[1] - a[2] * cos(2 * ff) + a[3] * cos(4 * ff) - a[4] * cos(6 * ff)
+        } else if (type == "hamming") {
+            coef <- 0.54 - 0.46 * cos(2 * pi * i / (m - 1))
+        } else if (type == "hann") {
+            coef <- 0.50 - 0.50 * cos(2 * pi * i / (m - 1))
+        }
+    }
+    if (normalize) {
+        coef <- coef / sum(coef)
+    }
     if (!asKernel) {
         return(coef)
     }
@@ -3364,8 +3364,12 @@ makeFilter <- function(type = c("blackman-harris", "rectangular", "hamming", "ha
     }
     middle <- ceiling(m / 2)
     coef <- coef[middle:m]
-    # the r=0 is to prevent code-analysis warning; it only applies to Fejer, which we do not use
-    return(kernel(coef = coef, name = paste(type, "(", m, ")", sep = ""), r = 0))
+    if (normalize) {
+        return(coef)
+    } else {
+        # the r=0 is to prevent code-analysis warning; it only applies to Fejer, which we do not use
+        return(kernel(coef = coef, name = paste(type, "(", m, ")", sep = ""), r = 0))
+    }
 }
 
 #' Grid Data Using the Barnes Algorithm
@@ -3394,8 +3398,12 @@ makeFilter <- function(type = c("blackman-harris", "rectangular", "hamming", "ha
 #' examined if `xg` and `yg` are not supplied.
 #'
 #' @param xr,yr optional values defining the x and y radii of the weighting ellipse.
-#' If not supplied, these are calculated as the span of x
-#' and y over the square root of the number of data.
+#' If not supplied, these are calculated respectively as the span of x
+#' and y over the square root of the number of data. Be aware that
+#' this method can be problematic if there are many repeated (x,y)
+#' pairs, as for example in CTD profiles. In most serious analyses,
+#' it will make sense to supply `xr` and `yr` based on knowledge
+#' of the dataset or the domain.
 #'
 #' @param gamma grid-focussing parameter.  At each successive iteration, `xr` and
 #' `yr` are reduced by a factor of `sqrt(gamma)`.
@@ -3477,11 +3485,12 @@ makeFilter <- function(type = c("blackman-harris", "rectangular", "hamming", "ha
 #' plot(S, p, cex = 0.5, col = "blue", ylim = rev(range(p)))
 #' lines(g$zg, g$xg, col = "red")
 interpBarnes <- function(
-    x, y, z, w,
-    xg, yg, xgl, ygl,
-    xr, yr, gamma = 0.5, iterations = 2, trim = 0,
-    pregrid = FALSE,
-    debug = getOption("oceDebug")) {
+  x, y, z, w,
+  xg, yg, xgl, ygl,
+  xr, yr, gamma = 0.5, iterations = 2, trim = 0,
+  pregrid = FALSE,
+  debug = getOption("oceDebug")
+) {
     debug <- max(0, debug)
     oceDebug(debug, "interpBarnes(",
         argShow(x),
@@ -4401,188 +4410,6 @@ integerToAscii <- function(i) {
     )[i + 1]
 }
 
-
-#' Earth Magnetic Declination, Inclination, and Intensity
-#'
-#' Implements the 12th and 13th generations of the
-#' International Geomagnetic Reference Field
-#' (IGRF), based on a reworked version of a Fortran program downloaded from a
-#' NOAA website (see \dQuote{References}).
-#'
-#' The code (subroutines `igrf12syn` and `igrf13syn`) seem to have
-#' been written by Susan Macmillan of the British Geological Survey.  Comments
-#' in the source code `igrf13syn` (the current default used here)
-#' indicate that its coefficients were agreed to in
-#' December 2019 by the IAGA Working Group V-MOD.  Other comments in that code
-#' suggest that the proposed application time interval is from years 1900 to 2025, inclusive,
-#' but that only dates from 1945 to 2015 are to be considered definitive.
-#'
-#' @param longitude longitude in degrees east (negative for degrees west), as a
-#' number, a vector, or a matrix.
-#'
-#' @param latitude latitude in degrees north, as a number, vector, or matrix.
-#' The shape (length or dimensions) must conform to the dimensions of `longitude`.
-#'
-#' @param time The time at which the field is desired. This may be a
-#' single value or a vector or matrix that is structured to match
-#' `longitude` and `latitude`. The value may a decimal year,
-#' a POSIXt time, or a Date time.
-#'
-#' @param version an integer that must be either 12 or 13, to specify
-#' the version number of the formulae. Note that 13 became the default
-#' on 2020 March 3, so to old code will need to specify `version=12`
-#' to work as it did before that date.
-#'
-#' @return A list containing `declination`, `inclination`, and
-#' `intensity`.
-#'
-#' @author Dan Kelley wrote the R code and a fortran wrapper to the
-#' `igrf12.f` subroutine, which was written by Susan Macmillan of the
-#' British Geological Survey and distributed ``without limitation'' (email from
-#' SM to DK dated June 5, 2015).  This version was updated subsequent
-#' to that date; see \dQuote{Historical Notes}.
-#'
-#' @section Historical Notes:
-#' For about a decade, `magneticField` used the version 12 formulae provided
-#' by IAGA, but the code was updated on March 3, 2020, to version 13.  Example
-#' 3 shows that the differences in declination are typically under 2 degrees
-#' (with 95 percent of the data lying between -1.7 and 0.7 degrees).
-#'
-#' @references
-#'
-#' 1. The underlying Fortran code for version 12 is from `igrf12.f`, downloaded the NOAA
-#' website (`https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html`) on June 7,
-#' 2015. That for version 13 is `igrf13.f`, downloaded from the NOAA website
-#' (`https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html` on March 3, 2020.
-#'
-#' 2. Witze, Alexandra. \dQuote{Earth's Magnetic Field Is Acting up and Geologists Don't Know Why.}
-#' Nature 565 (January 9, 2019): 143.
-#' \doi{10.1038/d41586-019-00007-1}
-#'
-#' 3. Alken, P., E. Thébault, C. D. Beggan, H. Amit, J. Aubert, J. Baerenzung, T. N. Bondar, et al.
-#' "International Geomagnetic Reference Field: The Thirteenth Generation."
-#' Earth, Planets and Space 73, no. 1 (December 2021): 49.
-#' \doi{10.1186/s40623-020-01288-x}.
-#'
-#' @examples
-#' library(oce)
-#' # 1. Today's value at Halifax NS
-#' magneticField(-(63 + 36 / 60), 44 + 39 / 60, Sys.Date())
-#'
-#' # 2. World map of declination in year 2000.
-#' \donttest{
-#' data(coastlineWorld)
-#' par(mar = rep(0.5, 4)) # no axes on whole-world projection
-#' mapPlot(coastlineWorld, projection = "+proj=robin", col = "lightgray")
-#' # Construct matrix holding declination
-#' lon <- seq(-180, 180)
-#' lat <- seq(-90, 90)
-#' dec2000 <- function(lon, lat) {
-#'     magneticField(lon, lat, 2000)$declination
-#' }
-#' dec <- outer(lon, lat, dec2000) # hint: outer() is very handy!
-#' # Contour, unlabelled for small increments, labeled for
-#' # larger increments.
-#' mapContour(lon, lat, dec,
-#'     col = "blue", levels = seq(-180, -5, 5),
-#'     lty = 3, drawlabels = FALSE
-#' )
-#' mapContour(lon, lat, dec, col = "blue", levels = seq(-180, -20, 20))
-#' mapContour(lon, lat, dec,
-#'     col = "red", levels = seq(5, 180, 5),
-#'     lty = 3, drawlabels = FALSE
-#' )
-#' mapContour(lon, lat, dec, col = "red", levels = seq(20, 180, 20))
-#' mapContour(lon, lat, dec, levels = 180, col = "black", lwd = 2, drawlabels = FALSE)
-#' mapContour(lon, lat, dec, levels = 0, col = "black", lwd = 2)
-#' }
-#'
-#' # 3. Declination differences between versions 12 and 13
-#' \donttest{
-#' lon <- seq(-180, 180)
-#' lat <- seq(-90, 90)
-#' decDiff <- function(lon, lat) {
-#'     old <- magneticField(lon, lat, 2020, version = 13)$declination
-#'     new <- magneticField(lon, lat, 2020, version = 12)$declination
-#'     new - old
-#' }
-#' decDiff <- outer(lon, lat, decDiff)
-#' decDiff <- ifelse(decDiff > 180, decDiff - 360, decDiff)
-#' # Overall (mean) shift -0.1deg
-#' t.test(decDiff)
-#' # View histogram, narrowed to small differences
-#' par(mar = c(3.5, 3.5, 2, 2), mgp = c(2, 0.7, 0))
-#' hist(decDiff,
-#'     breaks = seq(-180, 180, 0.05), xlim = c(-2, 2),
-#'     xlab = "Declination difference [deg] from version=12 to version=13",
-#'     main = "Predictions for year 2020"
-#' )
-#' print(quantile(decDiff, c(0.025, 0.975)))
-#' # Note that the large differences are at high latitudes
-#' imagep(lon, lat, decDiff, zlim = c(-1, 1) * max(abs(decDiff)))
-#' lines(coastlineWorld[["longitude"]], coastlineWorld[["latitude"]])
-#' }
-#' @family things related to magnetism
-magneticField <- function(longitude, latitude, time, version = 13) {
-    if (missing(longitude) || missing(latitude) || missing(time)) {
-        stop("must provide longitude, latitude, and time")
-    }
-    dim <- dim(latitude)
-    if (!all(dim == dim(longitude))) {
-        stop("dimensions of longitude and latitude must agree")
-    }
-    n <- length(latitude)
-    if (inherits(time, "Date")) {
-        time <- as.POSIXct(time, tz = "UTC")
-    }
-    if (inherits(time, "POSIXt")) {
-        d <- as.POSIXlt(time, tz = "UTC")
-        year <- d$year + 1900
-        yearday <- d$yday
-        time <- year + yearday / 365.25 # ignore leap year issue (formulae not daily)
-    }
-    if (length(time) == 1) {
-        time <- rep(time, n)
-    } else {
-        if (!all(dim == dim(time))) {
-            stop("dimensions of latitude and time must agree")
-        }
-    }
-    if (!is.null(dim)) {
-        dim(longitude) <- n
-        dim(latitude) <- n
-        dim(time) <- n
-    }
-    # isv <- 0
-    # itype <- 1                          # geodetic
-    # alt <- 0.0                          # altitude in km
-    elong <- ifelse(longitude < 0, 360 + longitude, longitude)
-    colat <- 90 - latitude
-    iversion <- as.integer(version)
-    if (!(iversion %in% c(12L, 13L))) {
-        stop("version must be 12 or 13, but it is ", iversion)
-    }
-    # message("time:", time, " (", as.numeric(time), ")")
-    r <- .Fortran("md_driver",
-        as.double(colat), as.double(elong), as.double(time),
-        as.integer(n),
-        declination = double(n),
-        inclination = double(n),
-        intensity = double(n),
-        as.integer(iversion)
-    )
-    declination <- r$declination
-    inclination <- r$inclination
-    intensity <- r$intensity
-    if (!is.null(dim)) {
-        dim(declination) <- dim
-        dim(inclination) <- dim
-        dim(intensity) <- dim
-    }
-    list(declination = declination, inclination = inclination, intensity = intensity)
-}
-
-
 #' Locate Byte Sequences in a Raw Vector
 #'
 #' Find spots in a raw vector that match a given byte sequence.
@@ -4622,7 +4449,7 @@ matchBytes <- function(input, b1, ...) {
             message("IMPORTANT: matchBytes/match2bytes problem -- please report at github.com/dankelley/oce/issues")
             warning("IMPORTANT: matchBytes/match2bytes problem -- please report at github.com/dankelley/oce/issues")
         }
-        return(rval)
+        rval
     } else if (lb == 3) {
         rval <- .Call("match3bytes_old", as.raw(input), as.raw(b1), as.raw(dots[[1]]), as.raw(dots[[2]]))
         rvalNew <- match3bytes(as.raw(input), as.raw(b1), as.raw(dots[[1]]), as.raw(dots[[2]]))
@@ -4631,7 +4458,7 @@ matchBytes <- function(input, b1, ...) {
             message("IMPORTANT: matchbytes/match3bytes problem -- please report at github.com/dankelley/oce/issues")
             warning("IMPORTANT: matchbytes/match3bytes problem -- please report at github.com/dankelley/oce/issues")
         }
-        return(rval)
+        rval
     } else {
         stop("must provide 2 or 3 bytes, but gave ", lb, " bytes")
     }
@@ -4668,7 +4495,21 @@ matrixShiftLongitude <- function(m, longitude) {
     if (max(longitude, na.rm = TRUE) > 180) {
         cut <- which.min(abs(longitude - 180))
         longitude <- c(longitude[seq.int(cut + 1L, n)] - 360, longitude[seq.int(1L, cut)])
-        m <- m[c(seq.int(cut + 1L, n), seq.int(1L, cut)), ]
+        # message("DEBUGGING matrixShiftLongitude()...")
+        # cat(vectorShow(length(dim(m))))
+        # cat(vectorShow(m))
+        # cat(vectorShow(n))
+        # cat(vectorShow(cut))
+        ndim <- length(dim(m))
+        if (identical(2L, ndim)) {
+            # cat("ndim is 2\n")
+            m <- m[c(seq.int(cut + 1L, n), seq.int(1L, cut)), ]
+        } else if (identical(3L, ndim)) {
+            # cat("ndim is 3\n")
+            m <- m[c(seq.int(cut + 1L, n), seq.int(1L, cut)), , ]
+        } else {
+            stop("can only handle 2D or 3D arrays, not a ", ndim, "D array")
+        }
     }
     list(m = m, longitude = longitude)
 }
@@ -4752,7 +4593,7 @@ secondsToCtime <- function(sec) {
     sec <- sec - 3600 * hour
     min <- floor(sec / 60)
     sec <- sec - 60 * min
-    return(sprintf("%02d:%02d:%02d", hour, min, sec))
+    sprintf("%02d:%02d:%02d", hour, min, sec)
 }
 
 
@@ -4819,16 +4660,8 @@ ctimeToSeconds <- function(ctime) {
 showMetadataItem <- function(object, name, label = "", postlabel = "", isdate = FALSE, quote = FALSE) {
     if (name %in% names(object@metadata)) {
         item <- object@metadata[[name]]
-        if (is.null(item)) {
-            return()
-        }
-        if (is.na(item)) {
-            return()
-        }
-        if (is.character(item) && nchar(item) == 0) {
-            return()
-        }
-        if (is.na(item)) {
+        if (length(item) == 0L || is.null(item) || is.na(item) ||
+            (is.character(item) && nchar(item) == 0)) {
             return()
         }
         if (isdate) {
@@ -5002,6 +4835,12 @@ integrateTrapezoid <- function(x, y, type = c("A", "dA", "cA"), xmin, xmax) {
 grad <- function(h, x = seq(0, 1, length.out = nrow(h)), y = seq(0, 1, length.out = ncol(h))) {
     if (missing(h)) {
         stop("must give h")
+    }
+    if (length(x) < 3) {
+        stop("length of x must exceed 3, but it is ", length(x))
+    }
+    if (length(y) < 3) {
+        stop("length of y must exceed 3, but it is ", length(y))
     }
     if (length(x) != nrow(h)) {
         stop("length of x (", length(x), ") must equal number of rows in h (", nrow(h), ")")

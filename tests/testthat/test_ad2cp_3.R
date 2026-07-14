@@ -31,14 +31,14 @@ if (file.exists(file)) {
         )
         ar <- bar[["altimeterRaw"]]
         expect_equal(
-            head(bar[["altimeterRaw"]]$distance, 6),
+            head(bar[["altimeterRawDistance"]], 6),
             c(40.024, 40.048, 40.072, 40.096, 40.12, 40.144)
         )
         expect_equal(
-            tail(bar[["altimeterRaw"]]$distance, 6),
+            tail(bar[["altimeterRawDistance"]], 6),
             c(83.872, 83.896, 83.92, 83.944, 83.968, 83.992)
         )
-        expect_equal(length(bar[["altimeterRaw"]]$distance), 1833L)
+        expect_equal(length(bar[["altimeterRawDistance"]]), 1833L)
     })
 
     test_that("signature 250 average", {
@@ -108,10 +108,12 @@ if (file.exists(file)) {
             )
         )
 
-        # bottomTrack -- FIXME
-        expect_message(
-            bt <- read.oce(file, dataType = "bottomTrack"),
-            "setting plan=0, the most common value in this file"
+        # Bottom track
+        expect_warning(
+            expect_message(
+                bt <- read.oce(file, dataType = "bottomTrack"),
+                "setting plan=0, the most common value in this file"
+            ), "Using nbeams=4 from file header, instead of suspicious value 3"
         )
 
         # bt <- d[["bottomTrack"]] # FIXME: the values are crazy, e.g. lots of v of order e-15

@@ -99,7 +99,7 @@ to sub-sample, and some degree of smoothing is usually desired.  (The
 \code{"lm"} method can be quite slow, and its results may be quite similar to those of the
 boxcar method.)
 
-For widely-spaced data, a sort of numerical cabeling effect can result when
+For widely-spaced data, a sort of numerical cabbeling effect can result when
 density is computed based on interpolated salinity and temperature.
 See reference 2 for a discussion of this issue and possible solutions.
 }
@@ -147,6 +147,7 @@ Other things related to ctd data:
 \code{\link{CTD_BCD2014666_008_1_DN.ODF.gz}},
 \code{\link{[[,ctd-method}},
 \code{\link{[[<-,ctd-method}},
+\code{\link{argo2ctd}()},
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd}},
@@ -157,7 +158,8 @@ Other things related to ctd data:
 \code{\link{ctdRaw}},
 \code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv.gz}},
+\code{\link{ctd_aml_type1.csv.gz}},
+\code{\link{ctd_aml_type3.csv.gz}},
 \code{\link{d200321-001.ctd.gz}},
 \code{\link{d201211_0011.cnv.gz}},
 \code{\link{handleFlags,ctd-method}},

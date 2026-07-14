@@ -1,16 +1,16 @@
 Package: oce
 Title: Analysis of Oceanographic Data
-Version: 1.8-3
+Version: 1.8-4
 Authors@R: c(
-    person(given="Dan", family="Kelley", email="Dan.Kelley@Dal.Ca", role=c("aut", "cre"), comment=c(ORCID="https://orcid.org/0000-0001-7808-5911")),
-    person(given="Clark", family="Richards", email="clark.richards@gmail.com", role=c("aut"), comment=c(ORCID="https://orcid.org/0000-0002-7833-206X")),
-    person(given="Chantelle", family="Layton", email="chantelle.layton@dal.ca", role=c("ctb"), comment=c(ORCID="https://orcid.org/0000-0002-3199-5763", "curl() coauthor")),
+    person(given="Dan", family="Kelley", email="Dan.Kelley@Dal.Ca", role=c("aut", "cre"), comment=c(ORCID="0000-0001-7808-5911")),
+    person(given="Clark", family="Richards", email="clark.richards@gmail.com", role=c("aut"), comment=c(ORCID="0000-0002-7833-206X")),
+    person(given="Chantelle", family="Layton", email="chantelle.layton@dal.ca", role=c("ctb"), comment=c(ORCID="0000-0002-3199-5763", "curl() coauthor")),
     person(given="British Geological Survey", role=c("ctb","cph"), comment="magnetic-field subroutine"))
 Maintainer: Dan Kelley <Dan.Kelley@Dal.Ca>
 Depends: R (>= 4.1.0), gsw, methods, utils
-Suggests: automap, DBI, foreign, interp, knitr, lubridate, ncdf4,
-        ocedata, rmarkdown, RSQLite, R.utils, sf, terra, testthat (>=
-        3.0.0), tiff, XML
+Suggests: curl, DBI, foreign, interp, jsonlite, knitr, lubridate,
+        ncdf4, ocedata, rmarkdown, RSQLite, R.utils, sf, terra,
+        testthat (>= 3.0.0), tiff, XML
 BugReports: https://github.com/dankelley/oce/issues
 Description: Supports the analysis of Oceanographic data, including 'ADCP'
     measurements, measurements made with 'argo' floats, 'CTD' measurements,
@@ -30,12 +30,12 @@ VignetteBuilder: knitr
 NeedsCompilation: yes
 LinkingTo: Rcpp
 Imports: Rcpp
-Packaged: 2024-08-17 09:38:38 UTC; kelley
+Packaged: 2026-06-30 14:04:14 UTC; kelley
 Config/testthat/edition: 3
-Author: Dan Kelley [aut, cre] (<https://orcid.org/0000-0001-7808-5911>),
-  Clark Richards [aut] (<https://orcid.org/0000-0002-7833-206X>),
-  Chantelle Layton [ctb] (<https://orcid.org/0000-0002-3199-5763>, curl()
-    coauthor),
+Author: Dan Kelley [aut, cre] (ORCID: <https://orcid.org/0000-0001-7808-5911>),
+  Clark Richards [aut] (ORCID: <https://orcid.org/0000-0002-7833-206X>),
+  Chantelle Layton [ctb] (ORCID: <https://orcid.org/0000-0002-3199-5763>,
+    curl() coauthor),
   British Geological Survey [ctb, cph] (magnetic-field subroutine)
 Repository: CRAN
-Date/Publication: 2024-08-17 10:20:04 UTC
+Date/Publication: 2026-07-14 07:40:02 UTC

@@ -5,34 +5,34 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(oce)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  d <- read.oce(f)
+# d <- read.oce(f)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  d <- read.adp(f)
+# d <- read.adp(f)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  f <- "/data/archive/sleiwex/2008/moorings/m09/adp/rdi_2615/raw/adp_rdi_2615.000"
-#  dall <- read.oce(f)
+# f <- "/data/archive/sleiwex/2008/moorings/m09/adp/rdi_2615/raw/adp_rdi_2615.000"
+# dall <- read.oce(f)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  d100 <- read.oce(f, by = 100)
+# d100 <- read.oce(f, by = 100)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  read.oce(f,
-#      from = as.POSIXct("2008-06-26", tz = "UTC"),
-#      to = as.POSIXct("2008-06-27", tz = "UTC"),
-#      by = "60:00",
-#      latitude = 47.88126, longitude = -69.73433
-#  )
+# read.oce(f,
+#     from = as.POSIXct("2008-06-26", tz = "UTC"),
+#     to = as.POSIXct("2008-06-27", tz = "UTC"),
+#     by = "60:00",
+#     latitude = 47.88126, longitude = -69.73433
+# )
 
 ## ----results="hide"-----------------------------------------------------------
 data(adp)
 summary(adp)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  beam <- read.oce(f)
-#  xyx <- beamToXyz(beam)
-#  enu <- xyzToEnu(xyz, declination = -18.1)
+# beam <- read.oce(f)
+# xyx <- beamToXyz(beam)
+# enu <- xyzToEnu(xyz, declination = -18.1)
 
 ## ----fig.height=7, fig.width=4.5, dev.args=list(pointsize=13)-----------------
 plot(adp)
@@ -64,14 +64,14 @@ processingLogShow(adp)
 plot(adp, which = "uv")
 
 ## ----eval=FALSE, message=FALSE, warning=FALSE, error=FALSE--------------------
-#  library(oce)
-#  adcp <- read.adp("COR2019002_20190818T064815_007_000000.ENS")
-#  enu <- toEnu(adcp)
-#  removeShipSpeed <- subtractBottomVelocity(enu)
-#  plot(removeShipSpeed, which = 1:3)
+# library(oce)
+# adcp <- read.adp("COR2019002_20190818T064815_007_000000.ENS")
+# enu <- toEnu(adcp)
+# removeShipSpeed <- subtractBottomVelocity(enu)
+# plot(removeShipSpeed, which = 1:3)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  plot(subset(adp, time < median(adp[["time"]])))
+# plot(subset(adp, time < median(adp[["time"]])))
 
 ## ----fig.height=2, dev.args=list(pointsize=9)---------------------------------
 time <- adp[["time"]]

@@ -258,7 +258,6 @@ Journal of Atmospheric and Oceanic Technology 20, no. 5 (May 1, 2003): 730-41.
 \code{\link[=read.ctd]{read.ctd()}} scans it from a file.
 
 Other functions that plot oce data: 
-\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},
@@ -283,13 +282,13 @@ Other functions that plot oce data:
 \code{\link{plot,windrose-method}},
 \code{\link{plot,xbt-method}},
 \code{\link{plotProfile}()},
-\code{\link{plotScan}()},
-\code{\link{tidem-class}}
+\code{\link{plotScan}()}
 
 Other things related to ctd data: 
 \code{\link{CTD_BCD2014666_008_1_DN.ODF.gz}},
 \code{\link{[[,ctd-method}},
 \code{\link{[[<-,ctd-method}},
+\code{\link{argo2ctd}()},
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd}},
@@ -301,7 +300,8 @@ Other things related to ctd data:
 \code{\link{ctdRaw}},
 \code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv.gz}},
+\code{\link{ctd_aml_type1.csv.gz}},
+\code{\link{ctd_aml_type3.csv.gz}},
 \code{\link{d200321-001.ctd.gz}},
 \code{\link{d201211_0011.cnv.gz}},
 \code{\link{handleFlags,ctd-method}},

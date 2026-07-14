@@ -2,7 +2,7 @@
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  install.packages("sf")
+# install.packages("sf")
 
 ## ----fig.cap="Distorted North American view, without control of aspect ratio.", fig.width=3, fig.height=3, dpi=72, dev.args=list(pointsize=10)----
 library(oce)

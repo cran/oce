@@ -14,6 +14,7 @@
   colormap,
   zlim,
   zlab,
+  pass = NULL,
   missingColor,
   debug = getOption("oceDebug"),
   ...
@@ -56,6 +57,11 @@ is not given.}
 \item{zlab}{optional character value that is shown in the top-right
 margin of the plot. If not given, this defaults to the name of the
 plotted variable.}
+
+\item{pass}{either NULL (the default), or character value that is either
+\code{"ascending"} or \code{"descending"}.  The value of \code{pass} is only examined
+for realtime data, which hold both ascending and descending passes in SST
+and related arrays.}
 
 \item{missingColor}{optional list specifying colors to use for
 non-data categories.  If not provided, a default is used.  For type
@@ -109,7 +115,6 @@ Other things related to amsr data:
 \code{\link{summary,amsr-method}}
 
 Other functions that plot oce data: 
-\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,argo-method}},
@@ -134,8 +139,7 @@ Other functions that plot oce data:
 \code{\link{plot,xbt-method}},
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
-\code{\link{plotTS}()},
-\code{\link{tidem-class}}
+\code{\link{plotTS}()}
 }
 \author{
 Dan Kelley

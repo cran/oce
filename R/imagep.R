@@ -667,10 +667,10 @@ drawPalette <- function(
 
 #' Plot an Image with a Color Palette
 #'
-#' Plot an image with a color palette, in a way that does not conflict with
-#' [`par`]`("mfrow")` or [layout()].  To plot just a palette,
-#' e.g. to get an x-y plot with points colored according to a palette, use
-#' [drawPalette()] and then draw the main diagram.
+#' Plot an image with a color palette, in a way that does not conflict with the
+#' `mfrow` or `mfcol` arguments of [par()], or with [layout()].  To plot just a
+#' palette, e.g. to get an x-y plot with points colored according to a palette,
+#' use [drawPalette()] and then draw the main diagram.
 #'
 #' @details
 #' By default, creates an image with a color palette to the right.  The effect is similar to
@@ -756,14 +756,18 @@ drawPalette <- function(
 #' @param las.palette Parameter controlling the orientation of labels on the
 #' image palette, passed as the `las` argument to [drawPalette()].  See the
 #' documentation for [drawPalette()] for details.
-#'
-#' @param decimate Controls whether the image will be decimated before plotting,
-#' in three possible cases.
+
+#' @param decimate an item that controls whether the image will be decimated
+#' before plotting, in four possible cases. Note that the default value of
+#' TRUE can be overridden by using [options()] as e.g.
+#' `options(oceImageDecimate = FALSE)` in a `~/.Rprofile` startup file
+#' or locally within a script or session.
 #'
 #' 1. If `decimate=FALSE` then every grid cell in the matrix will
 #'    be represented by a pixel in the image.
 #'
-#' 2. If `decimate=TRUE` (the default), then decimation will be done
+#' 2. If `decimate=TRUE` (the default, unless `"oceImagepDecimate"` is
+#'    set to another value in the startup file), then decimation will be done
 #'    in the horizontal or vertical direction (or both) if the length of the
 #'    corresponding edge of the `z` matrix exceeds 800. (This also creates
 #'    a warning message.) The decimation
@@ -939,7 +943,7 @@ drawPalette <- function(
 #' speed <- outer(h, drho, function(drho, h) sqrt(9.8 * drho * h / 1024))
 #' imagep(h, drho, speed,
 #'     xlab = "Equivalent depth [m]",
-#'     ylab = expression(paste(Delta * rho, " [kg/m^3]")),
+#'     ylab = expression(paste(Delta * rho, " [ kg/m^3 ]")),
 #'     zlab = "Internal-wave speed [m/s]"
 #' )
 #'
@@ -982,7 +986,7 @@ imagep <- function(
     zclip = FALSE, flipy = FALSE,
     xlab = "", ylab = "", zlab = "", zlabPosition = c("top", "side"),
     las.palette = 0,
-    decimate = TRUE,
+    decimate = getOption("oceImagepDecimate", TRUE),
     quiet = FALSE,
     breaks, col, colormap, labels = NULL, at = NULL,
     drawContours = FALSE,
@@ -1164,6 +1168,9 @@ imagep <- function(
         }
     }
     z[!is.finite(z)] <- NA # so range(z, na.rm=TRUE) will not be thwarted Inf
+    if (!any(is.finite(z))) {
+        stop("need some finite 'z' values")
+    }
     oceDebug(debug, "range(z):", paste(range(z, na.rm = TRUE), collapse = " to "), "\n")
     xIsTime <- inherits(x, "POSIXt") || inherits(x, "POSIXct") || inherits(x, "POSIXlt")
     # Handle TRUE/FALSE decimation

@@ -239,7 +239,6 @@ plotProfile(ctd, xtype = "temperature")
 objects, and \code{\link[=plotTS]{plotTS()}} plots a temperature-salinity diagrams.
 
 Other functions that plot oce data: 
-\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},
@@ -264,13 +263,13 @@ Other functions that plot oce data:
 \code{\link{plot,windrose-method}},
 \code{\link{plot,xbt-method}},
 \code{\link{plotScan}()},
-\code{\link{plotTS}()},
-\code{\link{tidem-class}}
+\code{\link{plotTS}()}
 
 Other things related to ctd data: 
 \code{\link{CTD_BCD2014666_008_1_DN.ODF.gz}},
 \code{\link{[[,ctd-method}},
 \code{\link{[[<-,ctd-method}},
+\code{\link{argo2ctd}()},
 \code{\link{as.ctd}()},
 \code{\link{cnvName2oceName}()},
 \code{\link{ctd}},
@@ -282,7 +281,8 @@ Other things related to ctd data:
 \code{\link{ctdRaw}},
 \code{\link{ctdRepair}()},
 \code{\link{ctdTrim}()},
-\code{\link{ctd_aml.csv.gz}},
+\code{\link{ctd_aml_type1.csv.gz}},
+\code{\link{ctd_aml_type3.csv.gz}},
 \code{\link{d200321-001.ctd.gz}},
 \code{\link{d201211_0011.cnv.gz}},
 \code{\link{handleFlags,ctd-method}},

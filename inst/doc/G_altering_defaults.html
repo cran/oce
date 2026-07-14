@@ -12,7 +12,7 @@
 
 <meta name="author" content="Dan Kelley (https://orcid.org/0000-0001-7808-5911)" />
 
-<meta name="date" content="2024-08-17" />
+<meta name="date" content="2026-06-30" />
 
 <title>7. Altering oce Defaults</title>
 
@@ -50,6 +50,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -340,7 +341,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">7. Altering oce Defaults</h1>
 <h4 class="author">Dan Kelley (<a href="https://orcid.org/0000-0001-7808-5911" class="uri">https://orcid.org/0000-0001-7808-5911</a>)</h4>
-<h4 class="date">2024-08-17</h4>
+<h4 class="date">2026-06-30</h4>
 
 
 
@@ -362,7 +363,8 @@ file:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">oceEOS =</span> <span class="st">&quot;gsw&quot;</span>)</span></code></pre></div>
 <p><em>but</em> it should be noted that setting values in
 <code>~/.Rprofile</code> will render the user’s code non-reproducible
-(unless that file is provided along with the analysis code).</p>
+(unless that file is provided to colleagues along with the analysis
+code).</p>
 <p>The preferred method is not to use <code>~/.Rprofile</code>, but
 instead to specify the desired properties as arguments to relevant
 functions. For example, calling <code>plotTS(..., eos=&quot;unesco&quot;)</code>
@@ -405,31 +407,36 @@ table.)</p>
 <td>yes</td>
 </tr>
 <tr class="odd">
+<td><code>oceImagepDecimate</code></td>
+<td><code>TRUE</code></td>
+<td>yes</td>
+</tr>
+<tr class="even">
 <td><code>oceMar</code></td>
 <td><code>c(3, 3, 2, 2)</code></td>
 <td>yes</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>oceMgp</code></td>
 <td><code>c(2.0, 0.7, 0)</code></td>
 <td>yes</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>oceTimeFormat</code></td>
 <td><code>&quot;%Y-%m-%d %H:%M:%S&quot;</code></td>
 <td>yes</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>oceTz</code></td>
 <td><code>&quot;UTC&quot;</code></td>
 <td>yes</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>oceUnitBracket</code></td>
 <td><code>&quot;[&quot;</code></td>
 <td>no</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>webtide</code></td>
 <td><code>&quot;/usr/local/WebTide&quot;</code></td>
 <td>yes</td>

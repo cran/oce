@@ -1,4 +1,4 @@
-# vim:textwidth=120:expandtab:shiftwidth=4:softtabstop=4:foldmethod=marker
+# vim:textwidth=80:expandtab:shiftwidth=4:softtabstop=4:foldmethod=marker
 
 #' Class to Store Hydrographic Section Data
 #'
@@ -52,26 +52,29 @@ setClass("section", contains = "oce")
 
 #' Sample section Data
 #'
-#' This is line A03 (ExpoCode 90CT40_1, with nominal sampling date 1993-09-11).
-#' The chief scientist was Tereschenkov of SOI, working aboard the Russian ship
-#' Multanovsky, undertaking a westward transect from the Mediterranean outflow
-#' region across to North America, with a change of heading in the last few dozen
-#' stations to run across the nominal Gulf Stream axis.
-#' The data flags follow the "WHP Bottle"convention, set by
-#' [initializeFlagScheme,section-method()] to `"WHP bottle"`.  This convention
-#' used to be described at the link
-#' `https://www.nodc.noaa.gov/woce/woce_v3/wocedata_1/whp/exchange/exchange_format_desc.htm`
-#' but that was found to fail in December 2020.
+#' This is from a 1993 occupation of WOCE line A03 that ran westward across the
+#' Atlantic at approximately 36 N, ending with a turn to the northwest in the
+#' Gulf Stream region.
 #'
-#' @section Speculation on a timing error:
-#' In May 2022, it was discovered that the times in this dataset are not fully
-#' sequential, at two spots.  This might be a reporting error. Station 41 has
-#' time listed as 1993-10-03T00:06:00 and that leads to a time reversal.
-#' However, if that time were actually on the day before, then
-#' the time reversal would vanish, and the inter-station timing of
-#' about 5 to 6 hours would be recovered. A similar pattern is seen at station
-#' 45.  Of course, this hypothesis of incorrect recording is difficult to test,
-#' for data taken thirty years ago.
+#' The sampling times in this dataset are not fully sequential. For example,
+#' Station 41 is reported to be at `1993-10-03T00:06:00`, which, going by
+#' station numbers, suggests an error in the reported day. Station 45 seems to
+#' have a similar problem. However, the goal here is to represent the data as
+#' archived, so no changes are made to the times.
+#'
+#' @source
+#'
+#' The following code was used to download the datafile and create the `section`
+#' object.
+#'
+#' ```
+#' download.file("https://cchdo.ucsd.edu/data/7872/a03_hy1.csv",
+#'     "a03_hy1.csv")
+#' section <- read.section("a03_hy1.csv",
+#'     sectionId = "a03", institute = "SIO",
+#'     ship = "R/V Professor Multanovskiy",
+#'     scientist = "Vladimir Tereschenkov")
+#' ```
 #'
 #' @examples
 #' library(oce)
@@ -86,9 +89,6 @@ setClass("section", contains = "oce")
 #' @docType data
 #'
 #' @usage data(section)
-#'
-#' @source This is based on the WOCE file named `a03_hy1.csv`, downloaded
-#' from `https://cchdo.ucsd.edu/cruise/90CT40_1`, 13 April 2015.
 #'
 #' @family datasets provided with oce
 #' @family things related to section data
@@ -1112,11 +1112,19 @@ sectionAddCtd <- sectionAddStation
 #' Creates a summary plot for a CTD section, with one panel for each value of
 #' `which`.
 #'
-#' The type of plot is governed by `which`, as follows.
-#' * `which=0` or `"potential temperature"` for potential temperature contours
-#' * `which=1` or `"temperature"` for in-situ temperature contours (the default)
+#' The type of plot is governed by `which`, as listed below;
+#' if `which` is not supplied, it defaults to
+#' `c(1,2,3,99)` if `eos` is `"unesco"` or to
+#' `c(1.5,2.5,3.5,99)` if `eos` is `"gsw"`.
+#'
+#' * `which=0` or `"potential temperature"` for
+#' potential temperature contours
+#' * `which=1` or `"temperature"` for in-situ temperature contours
+#' * `which=1.5` or `"CT"` for Conservative Temperature contours
 #' * `which=2` or `"salinity"` for salinity contours
-#' * `which=3` or `"sigmaTheta"` for sigma-theta contours
+#' * `which=2.5` or `"SA"` for Absolute Salinity contours
+#' * `which=3` or `"sigmaTheta"` for sigma-theta (a unesco variable) contours
+#' * `which=3.5` or `"sigma0"` for sigma0 (a gsw variable) contours
 #' * `which=4` or `"nitrate"` for nitrate concentration contours
 #' * `which=5` or `"nitrite"` for nitrite concentration contours
 #' * `which=6` or `"oxygen"` for oxygen concentration  contours
@@ -1405,7 +1413,7 @@ sectionAddCtd <- sectionAddStation
 setMethod(
     f = "plot", signature = signature("section"),
     definition = function(x,
-                          which = c(1, 2, 3, 99), eos,
+                          which, eos,
                           at = NULL, labels = TRUE, grid = FALSE,
                           contourLevels = NULL, contourLabels = NULL,
                           stationIndices, coastline = "best", colLand = "gray",
@@ -1420,6 +1428,10 @@ setMethod(
                           ...) {
         debug <- if (debug > 4) 4 else floor(0.5 + debug)
         if (missing(eos)) eos <- getOption("oceEOS", default = "gsw")
+        if (!eos %in% c("unesco", "gsw")) stop("eos=\"", eos, "\" not understood; try either \"gsw\" or \"unesco\"")
+        if (missing(which)) {
+            which <- if (eos == "unesco") c(1, 2, 3, 99) else c(1.5, 2.5, 3.5, 99)
+        }
         # UNUSED zlimOrig <- zlim
         xtype <- match.arg(
             xtype,
@@ -1485,8 +1497,11 @@ setMethod(
         if (is.numeric(which)) {
             which[which == 0] <- "potential temperature"
             which[which == 1] <- "temperature"
+            which[which == 1.5] <- "CT"
             which[which == 2] <- "salinity"
+            which[which == 2.5] <- "SA"
             which[which == 3] <- "sigmaTheta"
+            which[which == 3.5] <- "sigma0"
             which[which == 4] <- "nitrate"
             which[which == 5] <- "nitrite"
             which[which == 6] <- "oxygen"
@@ -1760,7 +1775,7 @@ setMethod(
                 }
             } else {
                 # not isMap
-                oceDebug(debug, "not a map\n")
+                oceDebug(debug, "not a map; variable=", variable, "\n")
                 z <- x[[variable]]
                 zAllMissing <- all(is.na(z))
                 # Use try() to quiet warnings if all data are NA
@@ -2862,14 +2877,15 @@ sectionGrid <- function(section, p, method = "approx", trim = TRUE, debug = getO
 #' The values of `xg`, `yg`, `xgl` and `ygl` control
 #' the smoothing.
 #'
-#' * For `method="kriging"`, smoothing is done across
-#' both horizontal and vertical coordinates, using `autoKrige()` from
-#' the \CRANpkg{automap} package (along with support from the
-#' \CRANpkg{sp} package to format the data).  Note that the format of
-#' the value returned by `autoKrige()` has changed over the years,
-#' and `method="kriging"` can only handle two particular formats,
-#' one of which is the result from version 1.1.9 of
-#' \CRANpkg{automap}.
+#' * For `method="kriging"`, an error is reported.  This is
+#' because the code formerly used the \CRANpkg{automap} package, but
+#' this was removed from CRAN in June 2025.
+## (along with support from the
+## \CRANpkg{sp} package to format the data).  Note that the format of
+## the value returned by `autoKrige()` has changed over the years,
+## and `method="kriging"` can only handle two particular formats,
+## one of which is the result from version 1.1.9 of
+## \CRANpkg{automap}.
 #'
 #' * If `method` is a function, then that function is applied to
 #' the (distance, pressure) data for each variable at a grid defined by
@@ -2976,17 +2992,17 @@ sectionGrid <- function(section, p, method = "approx", trim = TRUE, debug = getO
 #' plot(gsBarnes, which = "temperature")
 #' mtext("sectionSmooth(..., method=\"barnes\")", line = 0.5)
 #'
-#' @section Sample of Usage:
-#' \preformatted{
-#' # I have seen problems with kriging as the automap package has
-#' # evolved, so please be aware that the following may fail.
-#' if (requireNamespace("automap", quietly=TRUE)
-#'        && requireNamespace("sf", quietly=TRUE)) {
-#'     gsKriging <- sectionSmooth(gs, "kriging", xr=50, yr=200)
-#'     plot(gsKriging, which="temperature")
-#'     mtext("sectionSmooth(..., method=\"kriging\")", line=0.5)
-#' }
-#' }
+## @section Sample of Usage:
+## \preformatted{
+## # I have seen problems with kriging as the automap package has
+## # evolved, so please be aware that the following may fail.
+## if (requireNamespace("automap", quietly=TRUE)
+##        && requireNamespace("sf", quietly=TRUE)) {
+##     gsKriging <- sectionSmooth(gs, "kriging", xr=50, yr=200)
+##     plot(gsKriging, which="temperature")
+##     mtext("sectionSmooth(..., method=\"kriging\")", line=0.5)
+## }
+## }
 #'
 #' @author Dan Kelley
 #'
@@ -3074,7 +3090,7 @@ sectionSmooth <- function(
         res@data$station[[istn]] <- new("ctd")
         res@data$station[[istn]][["pressure"]] <- yg
     }
-    if (is.character(method) && method == "spline") {
+    if (is.character(method) && identical(method, "spline")) {
         oceDebug(debug, "using spline method\n")
         # Since we are smoothing along lines of constant pressure, we must
         # first ensure that the stations have identical pressures.
@@ -3124,9 +3140,9 @@ sectionSmooth <- function(
             if (method == "barnes") {
                 oceDebug(debug, "using method=\"barnes\"\n")
             } else if (method == "kriging") {
-                oceDebug(debug, "using method=\"kriging\"\n")
+                stop("method=\"kriging\" became unavailable 2025-07-03, because CRAN had removed the 'automap' package")
             } else {
-                stop("unknown string method=\"", method, "\"; it must be \"barnes\" or \"kriging\"")
+                stop("unknown string method=\"", method, "\"; it must be \"barnes\" or \"spline\"")
             }
         } else if (is.function(method)) {
             oceDebug(debug, "using method=(function)\n")
@@ -3150,7 +3166,7 @@ sectionSmooth <- function(
         # Smooth each variable separately
         for (var in vars) {
             v <- NULL
-            oceDebug(debug, "smoothing '", var, "' near section.R:2908\n", sep = "")
+            oceDebug(debug, "smoothing '", var, "' near section.R:3169\n", sep = "")
             # collect data
             v <- unlist(lapply(
                 section[["station"]],
@@ -3179,51 +3195,54 @@ sectionSmooth <- function(
                         warning("All \"", var, "\" data are NA, so gridded field is a matrix of NA values\n")
                     }
                 } else if (method == "kriging") {
-                    if (requireNamespace("automap", quietly = TRUE) && requireNamespace("sf", quietly = TRUE)) {
-                        krigFunction <- function(x, y, z, xg, xr, yg, yr) {
-                            # Scale by xr and yr to perhaps improve numerics
-                            data <- sf::st_as_sf(data.frame(x = x / xr, y = y / yr, z = z), coords = c("x", "y"))
-                            grid <- sf::st_as_sf(expand.grid(xg = xg / xr, yg = yg / yr), coords = c("xg", "yg"))
-                            # silence kriging, which is distractingly chatty
-                            owarn <- options("warn")$warn
-                            options(warn = -1)
-                            capture.output({
-                                K <- automap::autoKrige(z ~ 1, remove_duplicates = TRUE, input_data = data, new_data = grid)
-                            })
-                            options(warn = owarn)
-                            # Try multiple styles of autoKrige() return values. This is not documented, so
-                            # the styles are reverse-engineered based on observed values. Of course,
-                            # this is a risky endeavour.
-                            if (!"krige_output" %in% names(K)) {
-                                stop("malformed return value from automap::autoKrige()")
-                            }
-                            krige_output <- K$krige_output
-                            # Handle format (K$krige_output@data$var1.pred) from some automap prior to 1.1.9
-                            if ("data" %in% slotNames(krige_output)) {
-                                oceDebug(debug, "old autoKrige() output format\n")
-                                return(matrix(K$krige_output@data$var1.pred, nrow = length(xg), ncol = length(yg)))
-                            }
-                            # Handle format (K$krige_output$var1.pred) from automap-1.1.9 (seen Apr 2023).
-                            if ("var1.pred" %in% names(krige_output)) {
-                                oceDebug(debug, "handling automap-1.1.9 autoKrige() format (April 2023)\n")
-                                return(matrix(K$krige_output$var1.pred, nrow = length(xg), ncol = length(yg)))
-                            }
-                            # Have a previously unseen format.
-                            stop("malformed return value from automap::autoKrige()")
-                        }
-                        smu <- list(z = krigFunction(X[ok], P[ok], v[ok], xg = xg, xr = xr, yg = yg, yr = yr), x = xg, y = yg)
-                    } else {
-                        stop("method=\"kriging\" requires packages \"automap\" and \"sf\" to be installed\n")
-                    }
+                    stop("method=\"kriging\" no longer works, because the 'automap' package is no longer on CRAN")
+                    #<2025-07-03> if (requireNamespace("automap", quietly = TRUE) && requireNamespace("sf", quietly = TRUE)) {
+                    #<2025-07-03>     krigFunction <- function(x, y, z, xg, xr, yg, yr) {
+                    #<2025-07-03>         # Scale by xr and yr to perhaps improve numerics
+                    #<2025-07-03>         data <- sf::st_as_sf(data.frame(x = x / xr, y = y / yr, z = z), coords = c("x", "y"))
+                    #<2025-07-03>         grid <- sf::st_as_sf(expand.grid(xg = xg / xr, yg = yg / yr), coords = c("xg", "yg"))
+                    #<2025-07-03>         # silence kriging, which is distractingly chatty
+                    #<2025-07-03>         owarn <- options("warn")$warn
+                    #<2025-07-03>         options(warn = -1)
+                    #<2025-07-03> #        capture.output({
+                    #<2025-07-03>             K <- automap::autoKrige(z ~ 1, remove_duplicates = TRUE, input_data = data, new_data = grid)
+                    #<2025-07-03>         })
+                    #<2025-07-03>         options(warn = owarn)
+                    #<2025-07-03>         # Try multiple styles of autoKrige() return values. This is not documented, so
+                    #<2025-07-03>         # the styles are reverse-engineered based on observed values. Of course,
+                    #<2025-07-03>         # this is a risky endeavour.
+                    #<2025-07-03>         if (!"krige_output" %in% names(K)) {
+                    #<2025-07-03>             stop("malformed return value from automap::autoKrige()")
+                    #<2025-07-03>         }
+                    #<2025-07-03>         krige_output <- K$krige_output
+                    #<2025-07-03>         # Handle format (K$krige_output@data$var1.pred) from some automap prior to 1.1.9
+                    #<2025-07-03>         if ("data" %in% slotNames(krige_output)) {
+                    #<2025-07-03>             oceDebug(debug, "old autoKrige() output format\n")
+                    #<2025-07-03>             return(matrix(K$krige_output@data$var1.pred, nrow = length(xg), ncol = length(yg)))
+                    #<2025-07-03>         }
+                    #<2025-07-03>         # Handle format (K$krige_output$var1.pred) from automap-1.1.9 (seen Apr 2023).
+                    #<2025-07-03>         if ("var1.pred" %in% names(krige_output)) {
+                    #<2025-07-03>             oceDebug(debug, "handling automap-1.1.9 autoKrige() format (April 2023)\n")
+                    #<2025-07-03>             return(matrix(K$krige_output$var1.pred, nrow = length(xg), ncol = length(yg)))
+                    #<2025-07-03>         }
+                    #<2025-07-03>         # Have a previously unseen format.
+                    #<2025-07-03>         stop("malformed return value from automap::autoKrige()")
+                    #<2025-07-03>     }
+                    #<2025-07-03>     smu <- list(z = krigFunction(X[ok], P[ok], v[ok], xg = xg, xr = xr, yg = yg, yr = yr), x = xg, y = yg)
+                    #<2025-07-03> } else {
+                    #<2025-07-03>     stop("method=\"kriging\" requires packages \"automap\" and \"sf\" to be installed\n")
+                    #<2025-07-03> }
                 } else {
-                    stop("method must be \"barnes\", \"kriging\", \"spline\", or an R function.")
+                    #<2025-07-03>stop("method must be \"barnes\", \"kriging\", \"spline\", or an R function.")
+                    stop("method must be \"barnes\", \"spline\", or an R function.")
                 }
             } else {
                 # method is not a character. It must be a function, but let's check again, anyway.
                 if (is.function(method)) {
                     smu <- list(z = method(x = X[ok], y = P[ok], z = v[ok], xg = xg, xr = xr, yg = yg, yr = yr), x = xg, y = yg)
                 } else {
-                    stop("method must be \"barnes\", \"kriging\", \"spline\", or a function")
+                    #<2025-07-03> stop("method must be \"barnes\", \"kriging\", \"spline\", or a function")
+                    stop("method must be \"barnes\", \"spline\", or a function")
                 }
             }
             for (istn in seq_len(nxg)) {

@@ -130,10 +130,12 @@ plot(handleFlags(argo), which = c(1, 4, 6, 5))
 }
 \seealso{
 Other things related to argo data: 
+\code{\link{D4902337_219.nc}},
 \code{\link{[[,argo-method}},
 \code{\link{[[<-,argo-method}},
 \code{\link{argo}},
 \code{\link{argo-class}},
+\code{\link{argo2ctd}()},
 \code{\link{argoGrid}()},
 \code{\link{argoNames2oceNames}()},
 \code{\link{as.argo}()},
@@ -144,7 +146,6 @@ Other things related to argo data:
 \code{\link{summary,argo-method}}
 
 Other functions that plot oce data: 
-\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},
@@ -169,8 +170,7 @@ Other functions that plot oce data:
 \code{\link{plot,xbt-method}},
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
-\code{\link{plotTS}()},
-\code{\link{tidem-class}}
+\code{\link{plotTS}()}
 }
 \author{
 Dan Kelley

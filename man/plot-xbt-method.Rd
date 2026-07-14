@@ -53,7 +53,6 @@ plot(xbt)
 }
 \seealso{
 Other functions that plot oce data: 
-\code{\link{download.amsr}()},
 \code{\link{plot,adp-method}},
 \code{\link{plot,adv-method}},
 \code{\link{plot,amsr-method}},
@@ -78,8 +77,7 @@ Other functions that plot oce data:
 \code{\link{plot,windrose-method}},
 \code{\link{plotProfile}()},
 \code{\link{plotScan}()},
-\code{\link{plotTS}()},
-\code{\link{tidem-class}}
+\code{\link{plotTS}()}
 
 Other things related to xbt data: 
 \code{\link{[[,xbt-method}},
@@ -87,11 +85,13 @@ Other things related to xbt data:
 \code{\link{as.xbt}()},
 \code{\link{read.xbt}()},
 \code{\link{read.xbt.noaa1}()},
+\code{\link{read.xbt.noaa2}()},
 \code{\link{subset,xbt-method}},
 \code{\link{summary,xbt-method}},
 \code{\link{xbt}},
 \code{\link{xbt-class}},
-\code{\link{xbt.edf}}
+\code{\link{xbt.edf}},
+\code{\link{xbt2.edf}}
 }
 \author{
 Dan Kelley
